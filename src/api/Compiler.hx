@@ -349,7 +349,7 @@ class Compiler {
 					output.source = File.getContent(outputPath);
 					html.body.push("<script>" + output.source + "</script>");
 				case NEKO(_):
-					html.body.push("<div>"+out.out+"</div>");
+					html.body.push("<pre>"+out.out+"</pre>");
 				default:
 			}
 			var h = new StringBuf();
@@ -376,7 +376,7 @@ class Compiler {
 		docker += "haxe " + args.join(" ");
 
 		if(isNeko) {
-			docker += ' && neko test.n';
+			docker += ' && timeout -k 0.1s 0.1s neko test.n';
 		}
 
 		docker += "\"";
