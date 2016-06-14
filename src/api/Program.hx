@@ -17,6 +17,7 @@ typedef Module = {
 
 enum Target {
 	JS( name : String );
+	NEKO( name : String );
 	SWF( name : String , ?version : Float );
 }
 

@@ -13,7 +13,7 @@ import sys.io.File;
 using StringTools;
 using Lambda;
 
-typedef HTMLConf = 
+typedef HTMLConf =
 {
 	head:Array<String>,
 	body:Array<String>
@@ -24,15 +24,17 @@ class Compiler {
 	var tmpDir : String;
 	var mainFile : String;
 	public static var haxePath = "haxe";
+	public static var dockerContainer = "nitrobin/haxe-minimal";
 
 	public function new(){}
 
 	static function checkMacros( s : String ){
+		return;
 		var forbidden = [
 			~/@([^:]*):([\/*a-zA-Z\s]*)(macro|build|autoBuild|file|audio|bitmap|font)/,
 			~/macro/
 		];
-		for( f in forbidden ) if( f.match( s ) ) throw "Unauthorized macro : "+f.matched(0)+"";  
+		for( f in forbidden ) if( f.match( s ) ) throw "Unauthorized macro : "+f.matched(0)+"";
 	}
 
 	public function prepareProgram( program : Program ){
@@ -64,7 +66,7 @@ class Compiler {
 
 		var source = program.main.source;
 		checkMacros( source );
-		
+
 		File.saveContent( mainFile , source );
 
 		var s = program.main.source;
@@ -74,16 +76,16 @@ class Compiler {
 
 	}
 
-	//public function getProgram(uid:String):{p:Program, o:Program.Output} 
+	//public function getProgram(uid:String):{p:Program, o:Program.Output}
 	public function getProgram(uid:String):Program
 	{
 		Api.checkSanity(uid);
-		
+
 		if (FileSystem.isDirectory( Api.tmp + "/" + uid ))
 		{
 			tmpDir = Api.tmp + "/" + uid + "/";
 
-			var s = File.getContent(tmpDir + "program"); 
+			var s = File.getContent(tmpDir + "program");
 			var p:Program = haxe.Unserializer.run(s);
 
 			mainFile = tmpDir + p.main.name + ".hx";
@@ -127,7 +129,7 @@ class Compiler {
 
 	// TODO: topLevel competion
 	public function autocomplete( program : Program , idx : Int ) : CompletionResult{
-		
+
 		try{
 			prepareProgram( program );
 		}catch(err:String){
@@ -135,10 +137,9 @@ class Compiler {
 		}
 
 		var source = program.main.source;
-		var display = tmpDir + program.main.name + ".hx@" + idx;
+		var display = program.main.name + ".hx@" + idx;
 
 		var args = [
-			"-cp" , tmpDir,
 			"-main" , program.main.name,
 			"-v",
 			"--display" , display
@@ -154,15 +155,19 @@ class Compiler {
 				args.push("dummy.swf");
 				args.push("-swf-version");
 				args.push(Std.string(version));
+
+			case NEKO(_):
+				args.push("-neko");
+				args.push("dummy.n");
 		}
 
 		addLibs(args, program);
 
-		var out = runHaxe( args );
+		var out = runHaxeDocker( args );
 
 		try{
 			var xml = new haxe.xml.Fast( Xml.parse( out.err ).firstChild() );
-			
+
 			if (xml.name == "type") {
 				var res = xml.innerData.trim().htmlUnescape();
 				res = res.replace(" ->", ",");
@@ -184,14 +189,14 @@ class Compiler {
 			return {list:words};
 
 		}catch(e:Dynamic){
-			
+
 		}
 
 		return {errors:SourceTools.splitLines(out.err.replace(tmpDir, ""))};
-		
+
 	}
 
-	function addLibs(args:Array<String>, program:Program, ?html:HTMLConf) 
+	function addLibs(args:Array<String>, program:Program, ?html:HTMLConf)
 	{
 		var availableLibs = Libs.getLibsConfig(program.target);
 		for( l in availableLibs ){
@@ -211,13 +216,13 @@ class Compiler {
 					args.push("-lib");
 					args.push(l.name);
 				}
-				if( l.args != null ) 
+				if( l.args != null )
 					for( a in l.args ){
 						args.push(a);
 					}
 			}
 		}
-		
+
 	}
 
 	public function compile( program : Program ){
@@ -239,7 +244,6 @@ class Compiler {
 		}
 
 		var args = [
-			"-cp" , tmpDir,
 			"-main" , program.main.name,
 			"--times",
 			"-dce", program.dce
@@ -254,15 +258,16 @@ class Compiler {
 		var embedSrc = '<iframe src="http://${Api.host}${Api.base}/embed/${program.uid}" width="100%" height="300" frameborder="no" allowfullscreen>
 	<a href="http://${Api.host}/#${program.uid}">Try Haxe !</a>
 </iframe>';
-		
+
 		var html:HTMLConf = {head:[], body:[]};
 
+		var isNeko:Bool = false;
 		switch( program.target ){
 			case JS( name ):
 				Api.checkSanity( name );
 				outputPath = tmpDir + name + ".js";
 				args.push( "-js" );
-				args.push( outputPath );
+				args.push( name + ".js" );
 				html.body.push("<script src='//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>");
 				html.body.push("<script src='//markknol.github.io/console-log-viewer/console-log-viewer.js'></script>");
 				html.body.push("<style type='text/css'>
@@ -277,14 +282,20 @@ class Compiler {
 						display:none;
 					}
 					</style>");
-				
+
+			case NEKO ( name ):
+				Api.checkSanity( name );
+				outputPath = tmpDir + name + ".n";
+				args.push( "-neko" );
+				args.push( name + ".n" );
+				isNeko = true;
 
 			case SWF( name , version ):
 				Api.checkSanity( name );
 				outputPath = tmpDir + name + ".swf";
-				
+
 				args.push( "-swf" );
-				args.push( outputPath );
+				args.push( name + ".swf" );
 				args.push( "-swf-version" );
 				args.push( Std.string( version ) );
 				args.push("-debug");
@@ -298,8 +309,8 @@ class Compiler {
 
 		addLibs(args, program, html);
 		//trace(args);
-		
-		var out = runHaxe( args );
+
+		var out = runHaxeDocker( args, isNeko );
 		var err = out.err.replace(tmpDir, "");
 		var errors = SourceTools.splitLines(err);
 
@@ -334,16 +345,18 @@ class Compiler {
 		if (out.exitCode == 0)
 		{
 			switch (program.target) {
-				case JS(_): 
+				case JS(_):
 					output.source = File.getContent(outputPath);
 					html.body.push("<script>" + output.source + "</script>");
+				case NEKO(_):
+					html.body.push("<div>"+out.out+"</div>");
 				default:
 			}
 			var h = new StringBuf();
 			h.add("<html>\n\t<head>\n\t\t<title>Haxe Run</title>");
 			for (i in html.head) { h.add("\n\t\t"); h.add(i); }
 			h.add("\n\t</head>\n\t<body>");
-			for (i in html.body) { h.add("\n\t\t"); h.add(i); } 
+			for (i in html.body) { h.add("\n\t\t"); h.add(i); }
 			h.add('\n\t</body>\n</html>');
 
 			File.saveContent(htmlPath, h.toString());
@@ -352,18 +365,47 @@ class Compiler {
 		{
 			if (FileSystem.exists(htmlPath)) FileSystem.deleteFile(htmlPath);
 		}
-		
+
 		return output;
 	}
 
-	function runHaxe( args : Array<String> ){
-		
-		var proc = new sys.io.Process( haxePath , args );
-		
+	function runHaxeDocker ( args : Array<String>, isNeko:Bool = false ) {
+
+		var docker = 'docker run --rm --read-only --tmpfs /run --tmpfs /tmp -v ${FileSystem.absolutePath(tmpDir)}:/root/program -w /root/program ${Compiler.dockerContainer} sh -c "';
+
+		docker += "haxe " + args.join(" ");
+
+		if(isNeko) {
+			docker += ' && neko test.n';
+		}
+
+		docker += "\"";
+
+		var proc = new sys.io.Process( docker , null );
+
 		var exit = proc.exitCode();
 		var out = proc.stdout.readAll().toString();
 		var err = proc.stderr.readAll().toString();
-		
+
+		var o = {
+			proc : proc,
+			exitCode : exit,
+			out : out,
+			err : err
+		};
+
+		return o;
+
+	}
+
+	function runHaxe( args : Array<String> ){
+
+		var proc = new sys.io.Process( haxePath , args );
+
+		var exit = proc.exitCode();
+		var out = proc.stdout.readAll().toString();
+		var err = proc.stderr.readAll().toString();
+
 		var o = {
 			proc : proc,
 			exitCode : exit,
