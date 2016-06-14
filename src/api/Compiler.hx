@@ -375,7 +375,7 @@ class Compiler {
 
 		var docker = 'docker run --rm --read-only --tmpfs /run --tmpfs /tmp -v ${abs}:/root/program -w /root/program ${Compiler.dockerContainer} sh -c "';
 
-		docker += "haxe " + args.join(" ") + " > haxe_out 2> haxe_err";
+		docker += "timeout -k 1s 1s haxe " + args.join(" ") + " > haxe_out 2> haxe_err";
 
 		if(isNeko) {
 			docker += ' && timeout -k 1s 1s neko test.n > raw_out 2> raw_err';
@@ -409,7 +409,14 @@ class Compiler {
 		}
 
 		out += append('haxe_out');
-		if(exit != 0) err += "Haxe compiler output:\n";
+		if(exit != 0) {
+			if(exit == 124) {
+				err += 'Program execution timeout.\n';
+			} else {
+				err += "Haxe compiler output:\n";
+			}
+
+		}
 		err += append('haxe_err');
 
 		//var out = proc.stdout.readAll().toString();
