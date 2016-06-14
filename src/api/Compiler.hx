@@ -371,12 +371,14 @@ class Compiler {
 
 	function runHaxeDocker ( args : Array<String>, isNeko:Bool = false ) {
 
-		var docker = 'docker run --rm --read-only --tmpfs /run --tmpfs /tmp -v ${FileSystem.absolutePath(tmpDir)}:/root/program -w /root/program ${Compiler.dockerContainer} sh -c "';
+		var abs = FileSystem.absolutePath(tmpDir);
 
-		docker += "haxe " + args.join(" ");
+		var docker = 'docker run --rm --read-only --tmpfs /run --tmpfs /tmp -v ${abs}:/root/program -w /root/program ${Compiler.dockerContainer} sh -c "';
+
+		docker += "haxe " + args.join(" ") + " > haxe_out 2> haxe_err";
 
 		if(isNeko) {
-			docker += ' && timeout -k 0.1s 0.1s neko test.n';
+			docker += ' && timeout -k 1s 1s neko test.n > raw_out 2> raw_err';
 		}
 
 		docker += "\"";
@@ -384,8 +386,34 @@ class Compiler {
 		var proc = new sys.io.Process( docker , null );
 
 		var exit = proc.exitCode();
-		var out = proc.stdout.readAll().toString();
-		var err = proc.stderr.readAll().toString();
+
+		var out = "";
+		var err = "";
+
+		inline function append(f:String) {
+			if(FileSystem.exists('$abs/$f')) {
+				return sys.io.File.getContent('$abs/$f');
+			}
+			return "";
+		}
+
+		if(isNeko) {
+			out += append('raw_out');
+			if(exit != 0) err += 'Exit code: $exit\n';
+			if(exit == 124) {
+				err += 'Program execution timeout.\n';
+			} else {
+				err += append('raw_err');
+			}
+
+		}
+
+		out += append('haxe_out');
+		if(exit != 0) err += "Haxe compiler output:\n";
+		err += append('haxe_err');
+
+		//var out = proc.stdout.readAll().toString();
+		//var err = proc.stderr.readAll().toString();
 
 		var o = {
 			proc : proc,
