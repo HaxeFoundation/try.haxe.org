@@ -34,8 +34,15 @@ class Editor {
   var dceName : JQuery;
   var analyzerName : JQuery;
   var stage : JQuery;
+	var outputTab : JQuery;
   var jsTab : JQuery;
   var embedTab : JQuery;
+	var errorTab : JQuery;
+	var errorDiv : JQuery;
+	var compilerOutTab : JQuery;
+	var compilerTimesTab : JQuery;
+	var compilerOut : JQuery;
+	var compilerTimes : JQuery;
   var embedSource : CodeMirror;
   var embedPreview : JQuery;
 
@@ -113,8 +120,15 @@ class Editor {
     libs = new JQuery("#hx-options-form .hx-libs");
     targets = new JQuery("#hx-options-form .hx-targets");
     stage = new JQuery(".js-output .js-canvas");
+		outputTab = new JQuery("#output");
     jsTab = new JQuery("a[href='#js-source']");
     embedTab = new JQuery("a[href='#embed-source']");
+		errorTab = new JQuery("a[href='#tab-errors']");
+		errorDiv = new JQuery("#tab-errors");
+		compilerOutTab = new JQuery("a[href='#compiler-output']");
+		compilerTimesTab = new JQuery("a[href='#compiler-times']");
+		compilerOut = new JQuery("#compiler-output");
+		compilerTimes = new JQuery("#compiler-times");
     embedPreview = new JQuery("#embed-preview");
     mainName = new JQuery("#hx-options-form input[name='main']");
     dceName = new JQuery("#hx-options-form .hx-dce-name");
@@ -122,6 +136,9 @@ class Editor {
 
     jsTab.hide();
     embedTab.hide();
+		errorTab.hide();
+		compilerOutTab.hide();
+		compilerTimesTab.hide();
 
     new JQuery(".link-btn").bind("click", function(e){
       var _this = new JQuery(e.target);
@@ -546,7 +563,6 @@ class Editor {
     }
 
     var jsSourceElem = new JQuery(jsSource.getWrapperElement());
-		var msg : Array<String> = [];
     var msgType : String = "";
 
 		if( output.success ){
@@ -555,30 +571,45 @@ class Editor {
       jsSource.refresh();
       stage.show();
 
+			outputTab.show();
+			untyped outputTab.tab("show");
+			errorTab.hide();
+			errorDiv.html("<pre></pre>");
+
       //var ifr=$('.js-run').get(0); console.log(ifr);var rfs = ifr.requestFullScreen || ifr.webkitRequestFullScreen || ifr.mozRequestFullScreen; rfs.call(ifr)
       switch( program.target ){
         case JS(_) : jsTab.show();
         default : jsTab.hide();
       }
 		}else{
-      msg = SourceTools.splitLines(output.stderr);
       msgType = "error";
-      stage.hide();
       jsTab.hide();
       jsSourceElem.hide();
       markErrors(output.errors);
+
+			outputTab.hide();
+			untyped errorTab.tab("show");
+			errorTab.show();
+			errorDiv.html("<pre>"+output.stderr+"</pre>");
+
 		}
 
-    messages.html( "<div class='alert alert-"+msgType+"'><h4 class='alert-heading'>" + output.message + "</h4><div class='message'></div></div>" );
-    for( m in msg ){
-      messages.find(".message").append( new JQuery("<div>").text(m) );
-    }
+    messages.html( "<div class='alert alert-"+msgType+"'><h4 class='alert-heading'>" + output.message + "</h4></div>" );
 
-
-    if( output.success && output.stderr != null ){
-      messages.append( new JQuery("<pre>").text(output.stderr) );
-
-    }
+		if(output.haxeout.trim().length > 0) {
+			compilerOutTab.show();
+			compilerOut.html("<pre>"+output.haxeout+"</pre>");
+		} else {
+			compilerOutTab.hide();
+			compilerOut.html("<pre></pre>");
+		}
+		if(output.times.trim().length > 0) {
+			compilerTimesTab.show();
+			compilerTimes.html("<pre>"+output.times+"</pre>");
+		} else {
+			compilerTimesTab.hide();
+			compilerTimes.html("<pre></pre>");
+		}
 
     messages.fadeIn();
 		compileBtn.buttonReset();

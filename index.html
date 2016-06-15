@@ -136,7 +136,7 @@
             <li style="display:none"><a href="#hx-about" data-toggle="tab" id="about-tab">About</a></li>
           </ul>
           <div class="tab-content">
-    	  	  <div class="tab-pane hx-source active" id="hx-source">
+            <div class="tab-pane hx-source active" id="hx-source">
               <textarea name="hx-source" class="code haxe-source" rows="15">
 class Test {
     static function main() {
@@ -144,7 +144,6 @@ class Test {
     }
 }</textarea>
             </div>
-
             <div class="tab-pane hx-options" id="hx-options">
               <form id="hx-options-form" class="form-horizontal">
                   <div class="control-group hx-main-name">
@@ -187,6 +186,7 @@ class Test {
 
                     <div class="controls SWF-libs"></div>
                     <div class="controls JS-libs"></div>
+                    <div class="controls NEKO-libs"></div>
 
                   </div>
               </form>
@@ -211,8 +211,11 @@ class Test {
         <a href="#" target="_blank" class="link-btn btn disabled side-btn"><i class="fa fa-share"></i> Run standalone</a>
         <ul class="nav nav-tabs">
               <li class="active"><a href="#js-output" data-toggle="tab" id="output">Output</a></li>
+              <li><a href="#tab-errors" data-toggle="tab">Errors</a></li>
               <li><a href="#js-source" data-toggle="tab">JS Source</a></li>
               <li><a href="#embed-source" data-toggle="tab">Embed</a></li>
+              <li><a href="#compiler-output" data-toggle="tab">Compiler output</a></li>
+              <li><a href="#compiler-times" data-toggle="tab">Compiler times</a></li>
         </ul>
 
         <div class="tab-content">
@@ -235,6 +238,15 @@ class Test {
             <h4>Preview</h4>
             <div class="embed-preview" id="embed-preview">
             </div>
+          </div>
+          <div class="tab-pane tab-errors" id="tab-errors">
+
+          </div>
+          <div class="tab-pane compiler-output" id="compiler-output">
+
+          </div>
+          <div class="tab-pane compiler-times" id="compiler-times">
+            
           </div>
         </div>
 

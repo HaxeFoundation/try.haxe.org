@@ -27,6 +27,8 @@ typedef Output = {
 	stdout : String,
 	args : Array<String>,
 	errors : Array<String>,
+	haxeout: String,
+	times: String,
 	success : Bool,
 	message : String,
 	href : String,

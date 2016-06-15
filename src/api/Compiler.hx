@@ -321,6 +321,8 @@ class Compiler {
 				stdout : out.out,
 				args : args,
 				errors : [],
+				haxeout: out.haxe_out,
+				times: out.haxe_times,
 				success : true,
 				message : "Build success!",
 				href : runUrl,
@@ -334,6 +336,8 @@ class Compiler {
 				stdout : out.out,
 				args : args,
 				errors : errors,
+				haxeout: out.haxe_out,
+				times: out.haxe_times,
 				success : false,
 				message : "Build failure",
 				href : "",
@@ -390,41 +394,55 @@ class Compiler {
 		var out = "";
 		var err = "";
 
-		inline function append(f:String) {
+		inline function r(f:String) {
 			if(FileSystem.exists('$abs/$f')) {
 				return sys.io.File.getContent('$abs/$f');
 			}
 			return "";
 		}
 
-		if(isNeko) {
-			out += append('raw_out');
-			if(exit != 0) err += 'Exit code: $exit\n';
-			if(exit == 124) {
-				err += 'Program execution timeout.\n';
-			} else {
-				err += append('raw_err');
-			}
+		// contains haxe macro traces
+		var haxe_out = r('haxe_out');
+		// contains compilation errors, $type() and times
+		var haxe_err = r('haxe_err');
+		// contains program output
+		var raw_out = r('raw_out');
+		// contains program errors
+		var raw_err = r('raw_err');
 
-		}
-
-		out += append('haxe_out');
+		var skipHaxeOut = false;
 		if(exit != 0) {
 			if(exit == 124) {
-				err += 'Program execution timeout.\n';
-			} else {
-				err += "Haxe compiler output:\n";
+				err += haxe_err.length > 0 ? "Program execution timeout." : "Haxe compilation failed.";
+				err += '\n';
+				skipHaxeOut = true;
 			}
-
 		}
-		err += append('haxe_err');
 
-		//var out = proc.stdout.readAll().toString();
-		//var err = proc.stderr.readAll().toString();
+		err += raw_err;
+
+		var times_pos = haxe_err.indexOf("Total time");
+		var haxe_times = "";
+		// if we have times let's dump them into another variable
+		if(times_pos > -1) {
+			haxe_times = haxe_err.substring(times_pos);
+			haxe_out = haxe_err.substring(0, times_pos) + "\n" + haxe_out;
+		} else {
+			err += haxe_err;
+		}
+
+		// if the compilation timeout it's probably because some infinite loop, clear the compier output
+		if(skipHaxeOut) haxe_out = "";
+
+		if(isNeko) {
+			out += raw_out;
+		}
 
 		var o = {
 			proc : proc,
 			exitCode : exit,
+			haxe_out: haxe_out,
+			haxe_times: haxe_times,
 			out : out,
 			err : err
 		};
