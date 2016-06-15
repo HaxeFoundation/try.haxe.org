@@ -396,7 +396,15 @@ class Compiler {
 
 		inline function r(f:String) {
 			if(FileSystem.exists('$abs/$f')) {
-				return sys.io.File.getContent('$abs/$f');
+				var s = sys.io.File.getContent('$abs/$f');
+
+				try {
+					FileSystem.deleteFile('$abs/$f');
+				} catch(e:Dynamic) {
+
+				}
+
+				return s;
 			}
 			return "";
 		}
@@ -436,6 +444,11 @@ class Compiler {
 
 		if(isNeko) {
 			out += raw_out;
+			try {
+				FileSystem.deleteFile('$abs/test.n');
+			} catch(e:Dynamic) {
+
+			}
 		}
 
 		var o = {
