@@ -24,7 +24,7 @@ class Compiler {
 	var tmpDir : String;
 	var mainFile : String;
 	public static var haxePath = "haxe";
-	public static var dockerContainer = "nitrobin/haxe-minimal";
+	public static var dockerContainer = "thecodec/haxe-3.3.0.slim";
 
 	public function new(){}
 
