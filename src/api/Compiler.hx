@@ -377,7 +377,7 @@ class Compiler {
 
 		var abs = FileSystem.absolutePath(tmpDir);
 
-		var docker = 'docker run --rm --read-only --tmpfs /run --tmpfs /tmp -v ${abs}:/root/program -w /root/program ${Compiler.dockerContainer} sh -c "';
+		var docker = 'docker run --rm --read-only -m 20m --net none --tmpfs /run --tmpfs /tmp -v ${abs}:/root/program -w /root/program ${Compiler.dockerContainer} sh -c "';
 
 		docker += "timeout -k 1s 1s haxe " + args.join(" ") + " > haxe_out 2> haxe_err";
 
