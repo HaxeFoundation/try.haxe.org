@@ -41,7 +41,10 @@ class Api {
 		var program = new api.Compiler().getProgram( uid );
 		if( program != null ) {
 			var frameUrl = 'http://$host/$base/program/$uid/run?r=';
+			var name = program.modules[0].name + ".hx";
+			var name2 = program.modules[1].name + ".hx";
 			var source = program.modules[0].source;
+			var source2 = program.modules[1].source;
 			var template = Templates.getCopy(Templates.MAIN_TEMPLATE);
 			Lib.println(template);
 		} else {
@@ -100,7 +103,7 @@ class Api {
 		var compiler = new api.Compiler();
 
 		var program : api.Program = compiler.getProgram(uid);
-		
+
 		if ( program == null ) {
 			var req = new haxe.Http( url );
 			req.addHeader("User-Agent","try.haxe.org (Haxe/PHP)");

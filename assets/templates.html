@@ -19,48 +19,48 @@
 				padding:0;
 				background:#fff;
 			}
-			
+
 			body {
 				font-size: 14px;
 				font-family: "Open Sans", sans-serif;
 				color: #1E1E1E;
 				overflow-y: auto;
 			}
-			
+
 			pre {
 				font:12px consolas, monospace;
 				padding-left:10px;
 			}
-			
+
 			#results {
 				height: 70%;
 				width: 99%;
 				position:relative;
 			}
-			
+
 			iframe {
 				height: 100%;
 				width: 99%;
 				position:relative;
 			}
-			
+
 			.top-bar {
 				background: #000;
 				color: #fff;
 				padding: 10px 10px;
 				margin-bottom: 5px;
 				vertical-align: middle;
-				
+
 			}
 			.top-bar a {
 				color: #F48821;
 			}
-			
+
 			a.logo-link, .logo-link:hover, .logo-link:active, .logo-link:link {
 				text-decoration: none;
 				color: #FFF;
 			}
-			
+
 			a.logo-link strong {
 				font-size: 18px;
 				padding-right: 3px;
@@ -70,13 +70,13 @@
 				display:inline-block;
 				vertical-align: middle;
 			}
-			
+
 			#nav {
 				position:absolute;
 				top:6px;
 				right:5px;
 			}
-			
+
 			#nav a {
 				border:1px solid #ccc;
 				display:inline-block;
@@ -87,7 +87,7 @@
 				text-decoration:none;
 				background:#f0f0f0;
 			}
-			
+
 			#nav a:hover {
 				border-color:#999;
 				background:#e0e0e0;
@@ -96,15 +96,19 @@
 	</head>
 	<body>
 		<nav id="nav" role="navigation">
-			<a href="#code" onclick="showCode();return false">Code</a>
+			<a href="#code" onclick="showCode('#code');return false">$name</a>
+			<a href="#code2" onclick="showCode('#code2');return false">$name2</a>
 			<a href="#results" onclick="run();return false">Run</a>
 		</nav>
 		<div class="top-bar">
-			<a href="http://try.haxe.org/#$uid" class="logo-link" target="_blank"><strong class="copy">TRY</strong> <img src="http://www.haxe.org/img/haxe-logo-horizontal-on-dark.svg" alt="Haxe" onerror="this.src='http://www.haxe.org/img/haxe-logo-horizontal-on-dark.png'" height="21" width="107"></a> 
-			<a href="http://try.haxe.org/#$uid" target="_blank" class="copy">Edit</a>
-		</div> 
+			<a href="http://try-haxe.mrcdk.com/#$uid" class="logo-link" target="_blank"><strong class="copy">UNOFFICIAL TRY</strong> <img src="http://www.haxe.org/img/haxe-logo-horizontal-on-dark.svg" alt="Haxe" onerror="this.src='http://www.haxe.org/img/haxe-logo-horizontal-on-dark.png'" height="21" width="107"></a>
+			<a href="http://try-haxe.mrcdk.com/#$uid" target="_blank" class="copy">Edit</a>
+		</div>
 		<div id="code">
 			<pre class="sh_haxe">$source</pre>
+		</div>
+		<div id="code2" style="display:none">
+			<pre class="sh_haxe">$source2</pre>
 		</div>
 		<div id="results" style="display:none">
 			<iframe id="iframe" src="" width="99%" frameborder="0" scrolling="no" height="100%"></iframe>
@@ -116,20 +120,23 @@
 		{
 			sh_highlightDocument();
 		}
-		
+
 		function run()
 		{
 			$$("#code").style.display = "none";
+			$$("#code2").style.display = "none";
 			$$("#results").style.display = "block";
 			$$("#iframe").setAttribute("src", "$frameUrl" + Math.random());
 		}
-		
-		function showCode()
+
+		function showCode(id)
 		{
-			$$("#code").style.display = "block";
+			$$("#code").style.display = "none";
+			$$("#code2").style.display = "none";
+			$$(id).style.display = "block";
 			$$("#results").style.display = "none";
 		}
-		
+
 		var _matches = {
 			'#': document.getElementById,
 			'.': document.getElementsByClassName,
@@ -137,8 +144,8 @@
 			'=': document.getElementsByTagName,
 			'?': document.querySelectorAll
 		}
-		
-		window.$$ = function(s) 
+
+		window.$$ = function(s)
 		{
 			return _matches[s[0]].call(document, s.slice(1));
 		}
