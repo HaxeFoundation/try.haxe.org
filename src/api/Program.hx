@@ -2,12 +2,12 @@ package api;
 
 typedef Program = {
 	uid : String,
-	main : Module,
+	mainClass : String,
+	modules : Array<Module>,
 	target : Target,
 	libs:Array<String>,
 	dce : String,
 	analyzer : String,
-//	?modules : Hash<Module>,
 }
 
 typedef Module = {

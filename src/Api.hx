@@ -18,14 +18,14 @@ class Api {
 	public static var host : String;
 
 	public static var tmp = "../tmp";
-	
+
 	public function new(){}
 
 	public static function checkSanity( s : String ){
 		var alphaNum = ~/[^a-zA-Z0-9]/;
 		if( alphaNum.match(s) ) throw 'Unauthorized identifier : $s';
 	}
-	
+
 	public static function checkDCE(s : String){
 		if (s != "full" && s != "no" && s != "std") throw 'Invalid dce : $s';
 	}
@@ -41,7 +41,7 @@ class Api {
 		var program = new api.Compiler().getProgram( uid );
 		if( program != null ) {
 			var frameUrl = 'http://$host/$base/program/$uid/run?r=';
-			var source = program.main.source;
+			var source = program.modules[0].source;
 			var template = Templates.getCopy(Templates.MAIN_TEMPLATE);
 			Lib.println(template);
 		} else {
@@ -94,13 +94,13 @@ class Api {
 		}
 
 		var analyzer = d.params.get('analyzer');
-		if( analyzer == null ) analyzer = "yes";	
-		
+		if( analyzer == null ) analyzer = "yes";
+
 		var uid = 'u'+haxe.crypto.Md5.encode(url);
 		var compiler = new api.Compiler();
 
 		var program : api.Program = compiler.getProgram(uid);
-
+		
 		if ( program == null ) {
 			var req = new haxe.Http( url );
 			req.addHeader("User-Agent","try.haxe.org (Haxe/PHP)");
@@ -111,16 +111,19 @@ class Api {
 			req.onData = function(src){
 				var program : api.Program = {
 			      uid : uid,
-			      main : {
-			        name : main,
-			        source : src
-			      },
+						mainClass: main,
+			      modules : [
+							{
+				        name : main,
+				        source : src
+				      },
+						],
 			      dce : dce,
 			      analyzer: analyzer,
 			      target : SWF( "test", 11.4 ),
 			      libs : new Array()
 				}
-				
+
 				compiler.prepareProgram( program );
 
 				redirectToProgram( program.uid );
@@ -133,7 +136,7 @@ class Api {
 			redirectToProgram( program.uid );
 		}
 	}
-	
+
 	function redirectToProgram( uid : String ) {
 		var tpl = '../redirect.html';
 		var redirect = File.getContent(tpl);

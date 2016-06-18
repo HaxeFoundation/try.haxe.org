@@ -39,7 +39,7 @@ class Compiler {
 
 	public function prepareProgram( program : Program ){
 
-		while( program.uid == null ){
+		while( program.uid == null ) {
 
 			var id = haxe.crypto.Md5.encode( Std.string( Math.random() ) +Std.string( Date.now().getTime() ) );
 			id = id.substr(0, 5);
@@ -53,7 +53,7 @@ class Compiler {
 		}
 
 		Api.checkSanity( program.uid );
-		Api.checkSanity( program.main.name );
+		Api.checkSanity( program.mainClass );
 		Api.checkDCE( program.dce );
 
 		tmpDir = Api.tmp + "/" + program.uid + "/";
@@ -62,17 +62,26 @@ class Compiler {
 			FileSystem.createDirectory( tmpDir );
 		}
 
-		mainFile = tmpDir + program.main.name + ".hx";
+		for(path in FileSystem.readDirectory(tmpDir)) {
+			if(FileSystem.isDirectory(path)) {
+				FileSystem.deleteDirectory(path);
+			} else {
+				FileSystem.deleteFile(path);
+			}
+		}
 
-		var source = program.main.source;
-		checkMacros( source );
+		for(module in program.modules) {
+			Api.checkSanity(module.name);
+			var file = tmpDir + module.name + ".hx";
+			var src  = module.source;
+			checkMacros(src);
+			File.saveContent( file , src );
+		}
 
-		File.saveContent( mainFile , source );
-
-		var s = program.main.source;
-		program.main.source = null;
+		var s = program.modules.copy();
+		for(module in program.modules) module.source = null;
 		File.saveContent( tmpDir + "program", haxe.Serializer.run(program));
-		program.main.source = s;
+		program.modules = s;
 
 	}
 
@@ -85,12 +94,49 @@ class Compiler {
 		{
 			tmpDir = Api.tmp + "/" + uid + "/";
 
-			var s = File.getContent(tmpDir + "program");
+
+			// if we don't find a program to unserialize return null
+			var s = null;
+			try {
+				s = File.getContent(tmpDir + "program");
+			} catch(e:Dynamic) {
+				return null;
+			}
+
+			s = File.getContent(tmpDir + "program");
+
 			var p:Program = haxe.Unserializer.run(s);
 
-			mainFile = tmpDir + p.main.name + ".hx";
 
-			p.main.source = File.getContent(mainFile);
+			if(p.mainClass == null) {
+				// old format!
+				var old:Dynamic = haxe.Unserializer.run(s);
+
+				p = {
+					uid: old.uid,
+					mainClass: old.main.name,
+					target: old.target,
+					libs: old.libs,
+					dce: old.dce,
+					analyzer: old.analizer,
+					modules: [
+					 {name: old.main.name, source: null},
+					 {name: "Macro", source: null},
+					]
+				}
+
+			}
+
+			for(module in p.modules) {
+				var file = tmpDir + module.name + ".hx";
+				try {
+					module.source = File.getContent(file);
+				} catch(e:Dynamic) {
+					module.source = "// empty";
+				}
+
+
+			}
 
 			/*
 			var o:Program.Output = null;
@@ -128,7 +174,7 @@ class Compiler {
 	}
 
 	// TODO: topLevel competion
-	public function autocomplete( program : Program , idx : Int ) : CompletionResult{
+	public function autocomplete( program : Program , module:Program.Module, idx : Int ) : CompletionResult{
 
 		try{
 			prepareProgram( program );
@@ -136,11 +182,11 @@ class Compiler {
 			return {};
 		}
 
-		var source = program.main.source;
-		var display = program.main.name + ".hx@" + idx;
+		var source = module.source;
+		var display = module.name + ".hx@" + idx;
 
 		var args = [
-			"-main" , program.main.name,
+			"-main" , program.mainClass,
 			"-v",
 			"--display" , display
 		];
@@ -244,7 +290,7 @@ class Compiler {
 		}
 
 		var args = [
-			"-main" , program.main.name,
+			"-main" , program.mainClass,
 			"--times",
 			"-dce", program.dce
 			//"--dead-code-elimination"

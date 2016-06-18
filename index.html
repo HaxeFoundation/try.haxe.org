@@ -132,16 +132,40 @@
           <a href="#" class="compile-btn btn side-btn" data-loading-text="Compiling"><i class="fa fa-cog"></i> Build + Run</a>
           <ul class="nav nav-tabs">
             <li class="active"><a href="#hx-source" data-toggle="tab">Source</a></li>
+            <li><a href="#hx-source2" data-toggle="tab">Source 2</a></li>
             <li><a href="#hx-options" data-toggle="tab">Options</a></li>
             <li style="display:none"><a href="#hx-about" data-toggle="tab" id="about-tab">About</a></li>
           </ul>
           <div class="tab-content">
             <div class="tab-pane hx-source active" id="hx-source">
+              <form id="hx-options-form" class="form-horizontal">
+                  <div class="control-group">
+                    <label class="control-label" for="module-a">Module name:</label>
+                    <div class="controls">
+                      <input type="text" class="input-main" name="module-a" value="Test"></input>
+                    </div>
+                  </div>
+              </form>
               <textarea name="hx-source" class="code haxe-source" rows="15">
 class Test {
     static function main() {
         trace("Haxe is great!");
     }
+}</textarea>
+            </div>
+            <div class="tab-pane hx-source" id="hx-source2">
+              <form id="hx-options-form" class="form-horizontal">
+                  <div class="control-group">
+                    <label class="control-label" for="module-b">Module name:</label>
+                    <div class="controls">
+                      <input type="text" class="input-main" name="module-b" value="Macro"></input>
+                    </div>
+                  </div>
+              </form>
+              <textarea name="hx-source2" class="code haxe-source" rows="15">
+//use this for macros or other classes
+class Macro {
+
 }</textarea>
             </div>
             <div class="tab-pane hx-options" id="hx-options">
