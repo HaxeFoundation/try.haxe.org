@@ -4,7 +4,7 @@ import api.Program;
 import haxe.remoting.HttpAsyncConnection;
 import js.Browser;
 import js.codemirror.*;
-import js.JQuery;
+import js.jquery.*;
 import js.Lib;
 
 using js.bootstrap.Button;
@@ -219,7 +219,7 @@ class Editor {
 
   }
 
-  function  onDce(e : JqEvent){
+  function  onDce(e : Event){
     var cb = new JQuery( e.target );
     var name = cb.val();
     switch( name ){
@@ -236,7 +236,7 @@ class Editor {
     radio.attr( "checked" ,"checked" );
   }
 
-  function  onAnalyzer(e : JqEvent){
+  function  onAnalyzer(e : Event){
     var cb = new JQuery( e.target );
     var name = cb.val();
     switch( name ){
@@ -253,7 +253,7 @@ class Editor {
 	  radio.attr( "checked" ,"checked" );
   }
 
-  function toggleExampleClick(e : JqEvent) {
+  function toggleExampleClick(e : Event) {
     var _this = new JQuery(e.target);
     var ajax = untyped __js__("$.ajax");
     ajax({
@@ -275,7 +275,7 @@ class Editor {
 
   }
 
-  function toggleFullscreenRunner(e : JqEvent){
+  function toggleFullscreenRunner(e : Event){
     var _this = new JQuery(e.target);
     e.preventDefault();
     if( _this.attr('href') != "#" ){
@@ -290,7 +290,7 @@ class Editor {
     fullscreen();
   }
 
-  function onTarget(e : JqEvent){
+  function onTarget(e : Event){
     var cb = new JQuery( e.target );
     var name = cb.val();
     var target = switch( name ){
@@ -374,10 +374,10 @@ class Editor {
 
       if( program.libs != null ){
         for( lib in libs.find("input.lib") ){
-          if( program.libs.has( lib.val() ) ){
-            lib.attr("checked","checked");
+          if( program.libs.has( new JQuery(lib).val() ) ){
+            lib.setAttribute("checked","checked");
           }else{
-            lib.removeAttr("checked");
+            lib.removeAttribute("checked");
           }
         }
       }
@@ -474,7 +474,7 @@ class Editor {
     }
 	}
 
-  public function onKey( e : JqEvent ){
+  public function onKey( e : Event ){
      /*if( e.keyCode == 27 ){ // Escape
         new JQuery("body").removeClass("fullscreen-source fullscreen-runner");
      }*/
@@ -524,7 +524,7 @@ class Editor {
 			//var l:api.Program.Library = { name:i.attr("value"), checked:true };
 			//var d = Std.string(i.data("args"));
 			//if (d.length > 0) l.args = d.split("~");
-			libs.push(i.val());
+			libs.push(new JQuery(i).val());
 		}
 
 		program.libs = libs;
