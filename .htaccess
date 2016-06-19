@@ -24,10 +24,6 @@ RewriteCond %{REQUEST_URI} !index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.*)$ /app/index.php?_url=$1&_root= [L,QSA]
 
-RewriteCond %{HTTP_HOST} try\.haxe\.org
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^(.*)$ app/index.php?_url=$1 [L,QSA]
-
 #try-haxe.mrcdk.com
 RewriteCond %{HTTP_HOST} try-haxe.mrcdk.com
 RewriteRule ^$ /index.html [L,QSA]
@@ -37,6 +33,6 @@ RewriteCond %{REQUEST_URI} !index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.*)$ /app/index.php?_url=$1&_root= [L,QSA]
 
-RewriteCond %{HTTP_HOST} try-haxe.mrcdk.com
+
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^(.*)$ /app/index.php?_url=$1 [L,QSA]
+RewriteRule ^(.*)$ app/index.php?_url=$1 [L,QSA]
