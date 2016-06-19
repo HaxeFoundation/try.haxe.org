@@ -4,6 +4,8 @@ app/*
 *.sublime-project
 *.sublime-workspace
 tmp/*
+haxe/haxelib/*/*
+haxe/versions/*/*
 *.hxproj
 tests/RunTravis.n
 examples/bin

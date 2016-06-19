@@ -121,6 +121,7 @@ class Api {
 				        source : src
 				      },
 						],
+						haxeVersion: Haxe_3_3_0_rc_1,
 			      dce : dce,
 			      analyzer: analyzer,
 			      target : SWF( "test", 11.4 ),

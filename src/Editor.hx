@@ -33,6 +33,7 @@ class Editor {
   var mainName : JQuery;
   var dceName : JQuery;
   var analyzerName : JQuery;
+	var haxeVersion : JQuery;
   var stage : JQuery;
 	var outputTab : JQuery;
   var jsTab : JQuery;
@@ -99,6 +100,7 @@ class Editor {
     mainName = new JQuery("#hx-options-form input[name='main']");
     dceName = new JQuery("#hx-options-form .hx-dce-name");
     analyzerName = new JQuery("#hx-options-form .hx-analyzer-name");
+		haxeVersion = new JQuery("#hx-options-form .hx-haxe-ver");
 
     jsTab.hide();
     embedTab.hide();
@@ -129,6 +131,7 @@ class Editor {
     dceName.delegate("input[name='dce']" , "change" , onDce );
     analyzerName.delegate("input[name='analyzer']" , "change" , onAnalyzer );
     targets.delegate("input[name='target']" , "change" , onTarget );
+		haxeVersion.delegate("select", "change", onHaxeVersion);
 
 		compileBtn.bind( "click" , compile );
 
@@ -141,6 +144,7 @@ class Editor {
       modules : [for(src in haxeSources) {name: src.name.val(), source: src.source.getValue()}],
       dce : "full",
       analyzer : "yes",
+			haxeVersion: Haxe_3_3_0_rc_1,
       target : SWF( "test", 11.4 ),
       libs : new Array()
     };
@@ -178,8 +182,8 @@ class Editor {
             matchBrackets: true,
             autoCloseBrackets: true,
             gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
-            indentUnit: 4,
-            tabSize: 4,
+            indentUnit: 2,
+            tabSize: 2,
             keyMap: "sublime"
 		} );
 
@@ -344,6 +348,11 @@ class Editor {
 
     libs.find("."+sel+"-libs").fadeIn();
   }
+
+	function onHaxeVersion(e:Event) {
+		var opt = new JQuery(e.target);
+		program.haxeVersion = opt.val();
+	}
 
   function initLibs(){
     for( t in Type.getEnumConstructs(api.Program.Target) ){

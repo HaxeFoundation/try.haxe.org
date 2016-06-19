@@ -117,6 +117,7 @@ class Compiler {
 					mainClass: old.main.name,
 					target: old.target,
 					libs: old.libs,
+					haxeVersion: Haxe_3_3_0_rc_1,
 					dce: old.dce,
 					analyzer: old.analizer,
 					modules: [
@@ -125,6 +126,10 @@ class Compiler {
 					]
 				}
 
+			}
+
+			if(p.haxeVersion == null) {
+				p.haxeVersion = Haxe_3_3_0_rc_1;
 			}
 
 			for(module in p.modules) {
@@ -209,7 +214,7 @@ class Compiler {
 
 		addLibs(args, program);
 
-		var out = runHaxeDocker( args );
+		var out = runHaxeDocker( program, args );
 
 		try{
 			var xml = new haxe.xml.Fast( Xml.parse( out.err ).firstChild() );
@@ -307,7 +312,6 @@ class Compiler {
 
 		var html:HTMLConf = {head:[], body:[]};
 
-		var isNeko:Bool = false;
 		switch( program.target ){
 			case JS( name ):
 				Api.checkSanity( name );
@@ -334,7 +338,6 @@ class Compiler {
 				outputPath = tmpDir + name + ".n";
 				args.push( "-neko" );
 				args.push( name + ".n" );
-				isNeko = true;
 
 			case SWF( name , version ):
 				Api.checkSanity( name );
@@ -356,7 +359,7 @@ class Compiler {
 		addLibs(args, program, html);
 		//trace(args);
 
-		var out = runHaxeDocker( args, isNeko );
+		var out = runHaxeDocker( program, args );
 		var err = out.err.replace(tmpDir, "");
 		var errors = SourceTools.splitLines(err);
 
@@ -419,11 +422,20 @@ class Compiler {
 		return output;
 	}
 
-	function runHaxeDocker ( args : Array<String>, isNeko:Bool = false ) {
+	function runHaxeDocker ( program:Program, args : Array<String> ) {
 
-		var abs = FileSystem.absolutePath(tmpDir);
+		var isNeko = program.target.match(NEKO(_));
+		var programDir = FileSystem.absolutePath(tmpDir);
+		var haxeDir = FileSystem.absolutePath(tmpDir+'../../haxe/versions/${program.haxeVersion}/');
+		var haxelibDir =FileSystem.absolutePath(tmpDir+"../../haxe/haxelib");
 
-		var docker = 'docker run --rm --read-only --net none --tmpfs /run --tmpfs /tmp -v ${abs}:/root/program -w /root/program ${Compiler.dockerContainer} sh -c "';
+		var mountDirs = '-v ${programDir}:/root/program -v ${haxelibDir}:/opt/haxelib:ro';
+
+		if(FileSystem.exists(haxeDir)) {
+			mountDirs += ' -v ${haxeDir}:/opt/haxe:ro ';
+		}
+
+		var docker = 'docker run --rm --read-only --net none --tmpfs /run --tmpfs /tmp ${mountDirs} -w /root/program ${Compiler.dockerContainer} sh -c "';
 
 		docker += "timeout -k 1s 1s haxe " + args.join(" ") + " > haxe_out 2> haxe_err";
 
@@ -441,11 +453,11 @@ class Compiler {
 		var err = "";
 
 		inline function r(f:String) {
-			if(FileSystem.exists('$abs/$f')) {
-				var s = sys.io.File.getContent('$abs/$f');
+			if(FileSystem.exists('$programDir/$f')) {
+				var s = sys.io.File.getContent('$programDir/$f');
 
 				try {
-					FileSystem.deleteFile('$abs/$f');
+					FileSystem.deleteFile('$programDir/$f');
 				} catch(e:Dynamic) {
 
 				}
@@ -491,7 +503,7 @@ class Compiler {
 		if(isNeko) {
 			out += raw_out;
 			try {
-				FileSystem.deleteFile('$abs/test.n');
+				FileSystem.deleteFile('$programDir/test.n');
 			} catch(e:Dynamic) {
 
 			}
