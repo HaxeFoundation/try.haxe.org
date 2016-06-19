@@ -43,8 +43,8 @@ class Api {
 			var frameUrl = 'http://$host/$base/program/$uid/run?r=';
 			var name = program.modules[0].name + ".hx";
 			var name2 = program.modules[1].name + ".hx";
-			var source = program.modules[0].source;
-			var source2 = program.modules[1].source;
+			var source = program.modules[0].source.htmlEscape();
+			var source2 = program.modules[1].source.htmlEscape();
 			var template = Templates.getCopy(Templates.MAIN_TEMPLATE);
 			Lib.println(template);
 		} else {
