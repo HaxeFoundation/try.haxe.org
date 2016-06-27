@@ -17,27 +17,84 @@ typedef LibConf = {
 class Libs
 {
 
+	static var thx:Array<LibConf> = [
+		{name:"thx.core"},
+		{name:"thx.color"},
+		{name:"thx.promise"},
+		{name:"thx.stream"},
+		{name:"thx.culture"},
+		{name:"thx.stream.dom"},
+		{name:"thx.benchmark"},
+		{name:"thx.csv"},
+		{name:"thx.text"},
+	];
+
+	static var tink:Array<LibConf> = [
+		{name:"tink_core"},
+		{name:"tink_macro"},
+		{name:"tink_priority"},
+		{name:"tink_lang"},
+		{name:"tink_xml"},
+		{name:"tink_template"},
+		{name:"tink_concurrent"},
+		{name:"tink_streams"},
+		{name:"tink_io"},
+		{name:"tink_runloop"},
+		{name:"tink_tcp"},
+		{name:"tink_http"},
+		{name:"tink_url"},
+		{name:"tink_parse"},
+		{name:"tink_json"},
+		{name:"tink_clone"},
+		{name:"tink_await"},
+		{name:"tink_web"},
+		{name:"futurize"},
+	];
+
 	static var available : Map<String, Array<LibConf>> = [
 		"JS" => [
-			//{name:"nme", args : ["--remap","flash:browser"], head : ["<link rel='stylesheet' href='../swf.css' type='text/css'/>"], body:["<div id='haxe:jeash'></div>"]},
 			{name:"actuate"},
-			//{name:"selecthx"},
-			//{name:"modernizr"},
-			//{name:"browserhx"},
 			{name:"format" },
-			//{name:"three.js", head: ["<script src='../../../lib/js/stats-min.js'></script>", "<script src='../../../lib/js/three-min.js'></script>"]}
-		],
-		"SWF" => new Array<LibConf>().concat([
-			{name:"actuate" , args : []},
-			{name:"format"},
-			{name:"away3d", swf:{src:"away3d4.swf"}, help:"http://away3d.com/livedocs/away3d/4.0/"},
-			//{name:"starling" },
-		])
+			{name:"hscript" },
+			{name:"nape" },
+			{name:"minject" },
+			{name:"msignal" },
+			{name:"polygonal-ds" },
+			{name:"hxparse" },
+			{name:"hxtemplo" },
+			{name:"promhx" },
+			{name:"dots" },
+			{name:"slambda" },
+		].concat(thx).concat(tink),
+		"SWF" => [
+			{name:"actuate"},
+			{name:"format" },
+			{name:"hscript" },
+			{name:"nape" },
+			{name:"minject" },
+			{name:"msignal" },
+			{name:"polygonal-ds" },
+			{name:"hxparse" },
+			{name:"hxtemplo" },
+			{name:"promhx" },
+			{name:"slambda" },
+		].concat(thx).concat(tink),
+		"NEKO" => [
+			{name:"format" },
+			{name:"hscript" },
+			{name:"minject" },
+			{name:"msignal" },
+			{name:"polygonal-ds" },
+			{name:"hxparse" },
+			{name:"hxtemplo" },
+			{name:"promhx" },
+			{name:"slambda" },
+		].concat(thx).concat(tink),
 	];
-	
+
 	static var defaultChecked : Map < String, Array<String> > = ["JS" => [], "SWF" => []]; // array of lib names
-	
-	
+
+
 	static public function getLibsConfig(?target:Target, ?targetName:String):Array<LibConf>
 	{
 		var name = targetName != null ? targetName : Type.enumConstructor(target);
