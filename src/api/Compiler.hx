@@ -3,6 +3,7 @@ package api;
 #if php
 import api.Completion.CompletionResult;
 import api.Completion.CompletionType;
+import api.Completion.CompletionItem;
 import php.Web;
 import Sys;
 import php.Lib;
@@ -83,6 +84,19 @@ class Compiler {
 		File.saveContent( tmpDir + "program", haxe.Serializer.run(program));
 		program.modules = s;
 
+	private function isScript(source:String):Bool{
+		// first, ltrim the source
+		source = StringTools.ltrim(source);
+		// then check each token
+		for( token in ["package","import","class","abstract","using","typedef","enum","interface","@"] ) {
+   			// if source starts with either token, we know it's a script, 
+   			// and thus we can return true and break the loop
+   			if(StringTools.startsWith( source, token )) {
+       			return false;
+   			}
+		}
+		// otherwise, we know it's not a script
+		return true;
 	}
 
 	//public function getProgram(uid:String):{p:Program, o:Program.Output}
@@ -190,6 +204,17 @@ class Compiler {
 		var source = module.source;
 		var display = module.name + ".hx@" + idx;
 
+		if( isScript(source) ) {
+			idx += SCRIPT_HEADER.length;
+		}
+
+		var display = tmpDir + program.main.name + ".hx@" + idx;
+		
+		if (completionType == CompletionType.TOP_LEVEL)
+		{
+			display += "@toplevel";
+		}
+		
 		var args = [
 			"-main" , program.mainClass,
 			"-v",
@@ -230,13 +255,61 @@ class Compiler {
 				return {type:res};
 			}
 
-			var words = [];
-			for( e in xml.nodes.i ){
-				var w = e.att.n;
-				if( !words.has( w ) )
-					words.push( w );
+			var words:Array<CompletionItem> = [];
+			
+			if (completionType == CompletionType.DEFAULT)
+			{
+				for( e in xml.nodes.i ){
+					var w:CompletionItem = {n: e.att.n, d: ""};
+					
+					if (e.hasNode.t)
+					{
+						w.t = e.node.t.innerData;
+						//w.d = w.t + "<br/>";
+					}
+					
+					if (e.hasNode.d)
+					{
+						w.d += e.node.d.innerData;
+					}
+					
+					if( !words.has( w ) )
+						words.push( w );
 
+				}
 			}
+			else if (completionType == CompletionType.TOP_LEVEL)
+			{
+				for (e in xml.nodes.i) {
+					var w:CompletionItem = {n: e.innerData};
+					
+					var elements = [];
+					
+					if (e.has.k)
+					{
+						w.k = e.att.k;
+						elements.push(w.k);
+					}
+					
+					if (e.has.p)
+					{
+						elements.push(e.att.p);
+					}
+					else if (e.has.t)
+					{
+						w.t = e.att.t;
+						elements.push(w.t);
+					}
+					
+					w.d = elements.join(" ");
+					
+					if (!words.has(w))
+					{
+						words.push(w);
+					}
+				}
+			}
+			
 			return {list:words};
 
 		}catch(e:Dynamic){
@@ -301,13 +374,13 @@ class Compiler {
 			//"--dead-code-elimination"
 		];
 
-		if (program.analyzer == "yes") args=args.concat(["-D", "analyzer"]);
+		if (program.analyzer == "yes") args=args.concat(["-D", "analyzer-optimize"]);
 
 		var outputPath : String;
 		var htmlPath : String = tmpDir + "index.html";
 		var runUrl = '${Api.base}/program/${program.uid}/run';
-		var embedSrc = '<iframe src="http://${Api.host}${Api.base}/embed/${program.uid}" width="100%" height="300" frameborder="no" allowfullscreen>
-	<a href="http://${Api.host}/#${program.uid}">Try Haxe !</a>
+		var embedSrc = '<iframe src="https://${Api.host}${Api.base}/embed/${program.uid}" width="100%" height="300" frameborder="no" allowfullscreen>
+	<a href="https://${Api.host}/#${program.uid}">Try Haxe !</a>
 </iframe>';
 
 		var html:HTMLConf = {head:[], body:[]};
@@ -320,18 +393,7 @@ class Compiler {
 				args.push( name + ".js" );
 				html.body.push("<script src='//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>");
 				html.body.push("<script src='//markknol.github.io/console-log-viewer/console-log-viewer.js'></script>");
-				html.body.push("<style type='text/css'>
-					#debug_console {
-						background:#fff;
-						font-size:14px;
-					}
-					#debug_console font.log-normal {
-						color:#000;
-					}
-					#debug_console a.log-button  {
-						display:none;
-					}
-					</style>");
+				html.head.push("<link rel='stylesheet' href='"+Api.root+"/console.css' type='text/css'>");
 
 			case NEKO ( name ):
 				Api.checkSanity( name );
