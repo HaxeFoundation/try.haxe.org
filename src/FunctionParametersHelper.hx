@@ -54,8 +54,11 @@ class FunctionParametersHelper
 		widgets = [];
 	}
 	
-	public function update(completionInstance:Completion, editorInstance:Editor, cm:CodeMirror):Void
+	public function update(editorInstance:Editor, editorData:Editor.EditorData):Void
 	{
+		var cm = editorData.codeMirror;
+
+
 		var doc = cm.getDoc();
 		
 		if (doc != null)
@@ -69,19 +72,18 @@ class FunctionParametersHelper
 
 				if (cursor != null && data.charAt(cursor.ch - 1) != ".")
 				{
-					scanForBracket(completionInstance, editorInstance, cm, cursor);
+					scanForBracket(editorInstance, editorData, cursor);
 				}
 			}
 		}
 	}
 	
-	function scanForBracket(completionInstance:Completion, editorInstance:Editor, cm:CodeMirror, cursor:Pos):Void
+	function scanForBracket(editorInstance:Editor, editorData:Editor.EditorData, cursor:Pos):Void
 	{
-		//{bracketRegex: untyped __js__("/[([\\]]/")}
-        //{bracketRegex: untyped __js__("/[({}]/")}
-        var bracketsData = cm.scanForBracket(cursor, -1, null, {bracketRegex: untyped __js__("/[([\\]]/")});
-        
-        var pos:Pos = null;
+		var cm = editorData.codeMirror;
+		var bracketsData = cm.scanForBracket(cursor, -1, null, {bracketRegex: untyped __js__("/[([\\]]/")});
+		
+		var pos:Pos = null;
         
 		if (bracketsData != null && bracketsData.ch == "(") 
 		{
@@ -97,7 +99,7 @@ class FunctionParametersHelper
                 
                 if (lastPos == null || lastPos.ch != pos.ch || lastPos.line != pos.line)
                 {
-                    getFunctionParams(completionInstance, editorInstance, cm, pos, currentParameter);  
+                    getFunctionParams(editorInstance, editorData, pos, currentParameter);  
                 }
                 else if (alreadyShown())
                 {
@@ -122,13 +124,15 @@ class FunctionParametersHelper
 		}
 	}
 	
-	function getFunctionParams(completionInstance:Completion, editorInstance:Editor, cm:CodeMirror, pos:Pos, currentParameter:Int):Void
+	function getFunctionParams(editorInstance:Editor, editorData:Editor.EditorData, pos:Pos, currentParameter:Int):Void
 	{
+		var cm = editorData.codeMirror;
+		var completionInstance = editorData.completionManager;
 		var posBeforeBracket:Pos = {line:pos.line, ch:pos.ch - 1};
 		
 		var word = completionInstance.getCurrentWord(cm, {}, posBeforeBracket).word;
-        
-		editorInstance.getCompletion(cm, function (cm:CodeMirror, comps:CompletionResult)
+    
+		editorInstance.getCompletion(editorData, function (cm:CodeMirror, comps:CompletionResult)
 		{
 			var found:Bool = false;
 			

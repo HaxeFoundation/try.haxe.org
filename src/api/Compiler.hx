@@ -38,7 +38,7 @@ class Compiler {
 		for( f in forbidden ) if( f.match( s ) ) throw "Unauthorized macro : "+f.matched(0)+"";
 	}
 
-	public function prepareProgram( program : Program ){
+	public function prepareProgram( program : Program ) {
 
 		while( program.uid == null ) {
 
@@ -84,19 +84,6 @@ class Compiler {
 		File.saveContent( tmpDir + "program", haxe.Serializer.run(program));
 		program.modules = s;
 
-	private function isScript(source:String):Bool{
-		// first, ltrim the source
-		source = StringTools.ltrim(source);
-		// then check each token
-		for( token in ["package","import","class","abstract","using","typedef","enum","interface","@"] ) {
-   			// if source starts with either token, we know it's a script, 
-   			// and thus we can return true and break the loop
-   			if(StringTools.startsWith( source, token )) {
-       			return false;
-   			}
-		}
-		// otherwise, we know it's not a script
-		return true;
 	}
 
 	//public function getProgram(uid:String):{p:Program, o:Program.Output}
@@ -193,7 +180,7 @@ class Compiler {
 	}
 
 	// TODO: topLevel competion
-	public function autocomplete( program : Program , module:Program.Module, idx : Int ) : CompletionResult{
+	public function autocomplete( program : Program , module:Program.Module, idx : Int, completionType:CompletionType ) : CompletionResult{
 
 		try{
 			prepareProgram( program );
@@ -203,12 +190,6 @@ class Compiler {
 
 		var source = module.source;
 		var display = module.name + ".hx@" + idx;
-
-		if( isScript(source) ) {
-			idx += SCRIPT_HEADER.length;
-		}
-
-		var display = tmpDir + program.main.name + ".hx@" + idx;
 		
 		if (completionType == CompletionType.TOP_LEVEL)
 		{

@@ -13,6 +13,14 @@ using Lambda;
 using StringTools;
 using haxe.EnumTools;
 
+typedef EditorData = {
+  nameElement:JQuery,
+  codeMirror:CodeMirror,
+  completionManager:Completion,
+  colorPreview:ColorPreview,
+  functionParametersHelper:FunctionParametersHelper,
+}
+
 class Editor {
 
   // min height to be bigger than the "options" tab, so it never has scrollbars 
@@ -28,7 +36,7 @@ class Editor {
   var apiRoot : String;
 	
 	var form : JQuery;
-	var haxeSources : Array<{name: JQuery, source: CodeMirror}> = [];
+  var haxeEditors : Array<EditorData> = [];
 	var jsSource : CodeMirror;
 	var runner : JQuery;
 	var messages : JQuery;
@@ -57,11 +65,6 @@ class Editor {
 
   //var completions : Array<CompletionItem>;
   var completionIndex : Int;
-  
-  var completionManager:Completion;
-  
-  var colorPreview:ColorPreview;
-  var functionParametersHelper:FunctionParametersHelper;
 
 	public function new(){
     markers = [];
@@ -131,8 +134,8 @@ class Editor {
 
 		new JQuery("a[data-toggle='tab']").bind( "shown", function(e){
 			jsSource.refresh();
-			for(src in haxeSources){
-				src.source.refresh();
+			for(src in haxeEditors){
+				src.codeMirror.refresh();
 			}
       embedSource.refresh();
 		});
@@ -150,7 +153,7 @@ class Editor {
     program = {
       uid : null,
 			mainClass: "Test",
-      modules : [for(src in haxeSources) {name: src.name.val(), source: src.source.getValue()}],
+      modules : [for(src in haxeEditors) {name: src.nameElement.val(), source: src.codeMirror.getValue()}],
       dce : "full",
       analyzer : "yes",
 			haxeVersion: Haxe_3_3_0_rc_1,
@@ -180,33 +183,42 @@ class Editor {
 			lineWrapping : true,
 			lineNumbers : true,
 			extraKeys : {
-				"Ctrl-Space" : function (cm:CodeMirror) autocomplete(name, cm),
+				"Ctrl-Space" : function (cm:CodeMirror) autocomplete(haxeEditors.find(function(data) return data.codeMirror == cm)),
         "Ctrl-Enter" : "compile",
         "F8" : "compile",
         "F5" : "compile",
         "F11" : "togglefullscreen"
-			}
-        	,
-            lint: true,
-            matchBrackets: true,
-            autoCloseBrackets: true,
-            gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
-            indentUnit: 2,
-            tabSize: 2,
-            keyMap: "sublime"
+			},
+      lint: true,
+      matchBrackets: true,
+      autoCloseBrackets: true,
+      gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
+      indentUnit: 2,
+      tabSize: 2,
+      keyMap: "sublime"
 		} );
 
-  colorPreview = new ColorPreview(haxeSource);
-	
-	functionParametersHelper = new FunctionParametersHelper();
-	
-	completionManager = new Completion();
+    var colorPreview = new ColorPreview(haxeSource);
+    
+    var functionParametersHelper = new FunctionParametersHelper();
+    
+    var completionManager = new Completion();
     completionManager.registerHelper(functionParametersHelper);
+
+    var editorData = {
+      nameElement: name,
+      codeMirror: haxeSource,
+      colorPreview: colorPreview,
+      functionParametersHelper: functionParametersHelper,
+      completionManager: completionManager,
+    };
+
+		haxeEditors.push(editorData);
         
     haxeSource.on("cursorActivity", function()
     {
-        colorPreview.update(completionManager, haxeSource);
-		functionParametersHelper.update(completionManager, this, haxeSource);
+      colorPreview.update(completionManager, haxeSource);
+		  functionParametersHelper.update(this, editorData);
     });  
       
     haxeSource.on("scroll", function ()
@@ -215,8 +227,6 @@ class Editor {
     });   
 	
     haxeSource.on("change", onChange);
-
-		haxeSources.push({name: name, source: haxeSource});
 	}
 
   function resize(?_) {
@@ -238,10 +248,10 @@ class Editor {
   }
 
   function setHeight(h:Int){
-		for(src in haxeSources) {
-			src.source.getScrollerElement().style.height=h+'px';
-			src.source.getWrapperElement().style.height=h+'px';
-			src.source.refresh();
+		for(src in haxeEditors) {
+			src.codeMirror.getScrollerElement().style.height=h+'px';
+			src.codeMirror.getWrapperElement().style.height=h+'px';
+			src.codeMirror.refresh();
 		}
     runner.height(h-12);
     new JQuery('#hx-options').height(h+2);
@@ -290,8 +300,8 @@ class Editor {
       url:'examples/Example-${_this.data("value")}.hx',
       dataType: "text"
     }).done(function(data) {
-			haxeSources[0].name.val("Test");
-      haxeSources[0].source.setValue(data);
+			haxeEditors[0].nameElement.val("Test");
+      haxeEditors[0].codeMirror.setValue(data);
       new JQuery("input[name='main']").val("Test");
     });
     e.preventDefault();
@@ -317,8 +327,8 @@ class Editor {
 
   function toggleFullscreenSource(_){
     new JQuery("body").toggleClass("fullscreen-source");
-    for(src in haxeSources) {
-			src.source.refresh();
+    for(src in haxeEditors) {
+			src.codeMirror.refresh();
 		}
     fullscreen();
   }
@@ -405,9 +415,9 @@ class Editor {
       // auto-fork
       program.uid = null;
 
-			for(i in 0...haxeSources.length) {
-				haxeSources[i].name.val(program.modules[i].name);
-				haxeSources[i].source.setValue(program.modules[i].source);
+			for(i in 0...haxeEditors.length) {
+				haxeEditors[i].nameElement.val(program.modules[i].name);
+				haxeEditors[i].codeMirror.setValue(program.modules[i].source);
 			}
 
       setTarget( program.target );
@@ -432,18 +442,19 @@ class Editor {
 
 	}
 	
-	function saveCompletion( cm:CodeMirror, comps:CompletionResult, onComplete:CodeMirror->CompletionResult->Void) {
-		completionManager.completions = [];
+	function saveCompletion( editorData:EditorData, comps:CompletionResult, onComplete:CodeMirror->CompletionResult->Void) {
+		editorData.completionManager.completions = [];
 		
 		if (comps.list != null) {
-			completionManager.completions = comps.list;
+			editorData.completionManager.completions = comps.list;
 		}
 		
-		onComplete(cm, comps);
+		onComplete(editorData.codeMirror, comps);
 	}
 	
-	public function getCompletion( cm:CodeMirror, onComplete: CodeMirror->CompletionResult->Void, ?pos: CodeMirror.Pos, ?targetCompletionType: CompletionType){
+	public function getCompletion( editorData:EditorData, onComplete: CodeMirror->CompletionResult->Void, ?pos: CodeMirror.Pos, ?targetCompletionType: CompletionType){
 		updateProgram();
+    var cm = editorData.codeMirror;
 		var src = cm.getValue();
 
 		var completionType = CompletionType.DEFAULT;
@@ -468,24 +479,26 @@ class Editor {
 		//   return;
 		// }
 		completionIndex = idx;
+    /*
 		if( src.length > 1000 ){
 		  program.main.source = src.substring( 0 , completionIndex+1 );
 		}
-		
+    */
+		var module = program.modules.find(function(m) return m.name == editorData.nameElement.val());
 		if (targetCompletionType == null)
 		{
-			cnx.Compiler.autocomplete.call( [ program , idx, completionType ] , function( comps:CompletionResult ) saveCompletion(cm, comps, onComplete));
+			cnx.Compiler.autocomplete.call( [ program, module, idx, completionType ] , function( comps:CompletionResult ) saveCompletion(editorData, comps, onComplete));
 		}
 		else if (targetCompletionType == completionType)
 		{
-			cnx.Compiler.autocomplete.call( [ program , idx, completionType ] , function( comps:CompletionResult ) saveCompletion(cm, comps, onComplete));
+			cnx.Compiler.autocomplete.call( [ program, module, idx, completionType ] , function( comps:CompletionResult ) saveCompletion(editorData, comps, onComplete));
 		}
 	}
 	
-	public function autocomplete( cm : CodeMirror ){
+	public function autocomplete(editorData:EditorData ){
     clearErrors();
     messages.fadeOut(0);
-	getCompletion(cm, displayCompletions);
+	  getCompletion(editorData, displayCompletions);
 	}
 
 //   function showHint( cm : CodeMirror ){
@@ -515,7 +528,7 @@ class Editor {
 	
 	
 	
-	cm.execCommand("autocomplete");
+	  cm.execCommand("autocomplete");
 	
     // if (comps.type != null) {
     //   trace(comps.type);
@@ -554,8 +567,8 @@ class Editor {
 	public function onChange( cm :CodeMirror, e : js.codemirror.CodeMirror.ChangeEvent ){
     var txt :String = e.text[0];
 
-    if( txt.trim().endsWith( "." ) || txt.trim().endsWith( "()" ) ){
-      for(src in haxeSources) autocomplete( src.name, src.source );
+    if( txt.trim().endsWith( "." ) || txt.trim().endsWith( "()" ) ) {
+      for(src in haxeEditors) autocomplete(src);
     }
 	}
 
@@ -569,9 +582,9 @@ class Editor {
 	}
 
 	function updateProgram(){
-		for(i in 0...haxeSources.length) {
-			program.modules[i].name = haxeSources[i].name.val();
-			program.modules[i].source = haxeSources[i].source.getValue();
+		for(i in 0...haxeEditors.length) {
+			program.modules[i].name = haxeEditors[i].nameElement.val();
+			program.modules[i].source = haxeEditors[i].codeMirror.getValue();
 		}
 		program.mainClass = mainName.val();
     program.dce = new JQuery( 'input[name=\'dce\']:checked' ).val();
@@ -579,7 +592,6 @@ class Editor {
 
 		var libs = new Array();
     var sel = Type.enumConstructor(program.target);
-
 		var inputs = new JQuery("#hx-options .hx-libs ."+sel+"-libs input.lib:checked");
 		// TODO: change libs array only then need
 		for (i in inputs)  // refill libs array, only checked libs
@@ -685,8 +697,8 @@ class Editor {
 
   public function clearErrors(){
       HaxeLint.data = [];
-			for(src in haxeSources) {
-				HaxeLint.updateLinting(src.source);
+			for(src in haxeEditors) {
+				HaxeLint.updateLinting(src.codeMirror);
 			}
 //     for( m in markers ){
 //       m.clear();
@@ -725,7 +737,7 @@ class Editor {
       }
     }
 
-	for(src in haxeSources) HaxeLint.updateLinting(src.source);
+	for(src in haxeEditors) HaxeLint.updateLinting(src.codeMirror);
   }
 
 }
