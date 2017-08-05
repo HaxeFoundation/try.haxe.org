@@ -19,6 +19,7 @@ typedef EditorData = {
   completionManager:Completion,
   colorPreview:ColorPreview,
   functionParametersHelper:FunctionParametersHelper,
+  lint:HaxeLint,
 }
 
 class Editor {
@@ -63,8 +64,10 @@ class Editor {
   var markers : Array<CodeMirror.MarkedText>;
   var lineHandles : Array<CodeMirror.LineHandle>;
 
-  //var completions : Array<CompletionItem>;
   var completionIndex : Int;
+
+  var functionParametersHelper:FunctionParametersHelper;
+  var completionManager:Completion;
 
 	public function new(){
     markers = [];
@@ -73,6 +76,10 @@ class Editor {
 		//CodeMirror.commands.autocomplete = autocomplete;
     CodeMirror.commands.compile = function(_) compile();
     CodeMirror.commands.togglefullscreen = toggleFullscreenSource;
+
+    functionParametersHelper = new FunctionParametersHelper();
+    completionManager = new Completion();
+    completionManager.registerHelper(functionParametersHelper);
 
     HaxeLint.load();
 
@@ -177,19 +184,18 @@ class Editor {
   }
 
 	function addHaxeSource(name:JQuery, elem) {
+
+    var lint = new HaxeLint();
+
 		var haxeSource = CodeMirror.fromTextArea( elem , {
 			mode : "haxe",
 			//theme : "default",
 			lineWrapping : true,
 			lineNumbers : true,
-			extraKeys : {
-				"Ctrl-Space" : function (cm:CodeMirror) autocomplete(haxeEditors.find(function(data) return data.codeMirror == cm)),
-        "Ctrl-Enter" : "compile",
-        "F8" : "compile",
-        "F5" : "compile",
-        "F11" : "togglefullscreen"
-			},
-      lint: true,
+      lint: {
+        getAnnotations: lint.getLintData,
+        async: true,
+      },
       matchBrackets: true,
       autoCloseBrackets: true,
       gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
@@ -199,21 +205,25 @@ class Editor {
 		} );
 
     var colorPreview = new ColorPreview(haxeSource);
-    
-    var functionParametersHelper = new FunctionParametersHelper();
-    
-    var completionManager = new Completion();
-    completionManager.registerHelper(functionParametersHelper);
 
     var editorData = {
       nameElement: name,
       codeMirror: haxeSource,
       colorPreview: colorPreview,
-      functionParametersHelper: functionParametersHelper,
       completionManager: completionManager,
+      functionParametersHelper: functionParametersHelper,
+      lint: lint,
     };
 
 		haxeEditors.push(editorData);
+
+    haxeSource.setOption("extraKeys", {
+      "Ctrl-Space" : function (cm:CodeMirror) autocomplete(editorData),
+      "Ctrl-Enter" : "compile",
+      "F8" : "compile",
+      "F5" : "compile",
+      "F11" : "togglefullscreen"
+    });
         
     haxeSource.on("cursorActivity", function()
     {
@@ -226,7 +236,7 @@ class Editor {
         colorPreview.scroll(haxeSource);
     });   
 	
-    haxeSource.on("change", onChange);
+    haxeSource.on("change", onChange.bind(_, _, editorData));
 	}
 
   function resize(?_) {
@@ -443,10 +453,10 @@ class Editor {
 	}
 	
 	function saveCompletion( editorData:EditorData, comps:CompletionResult, onComplete:CodeMirror->CompletionResult->Void) {
-		editorData.completionManager.completions = [];
+		completionManager.completions = [];
 		
 		if (comps.list != null) {
-			editorData.completionManager.completions = comps.list;
+			completionManager.completions = comps.list;
 		}
 		
 		onComplete(editorData.codeMirror, comps);
@@ -495,8 +505,8 @@ class Editor {
 		}
 	}
 	
-	public function autocomplete(editorData:EditorData ){
-    clearErrors();
+	public function autocomplete(editorData:EditorData) {
+    clearErrors(editorData);
     messages.fadeOut(0);
 	  getCompletion(editorData, displayCompletions);
 	}
@@ -525,8 +535,6 @@ class Editor {
 //   }
 
 	public function displayCompletions(cm : CodeMirror , comps : CompletionResult ) {
-	
-	
 	
 	  cm.execCommand("autocomplete");
 	
@@ -564,18 +572,18 @@ class Editor {
 
   }
 
-	public function onChange( cm :CodeMirror, e : js.codemirror.CodeMirror.ChangeEvent ){
+	public function onChange( cm :CodeMirror, e : js.codemirror.CodeMirror.ChangeEvent, editorData:EditorData ){
     var txt :String = e.text[0];
 
     if( txt.trim().endsWith( "." ) || txt.trim().endsWith( "()" ) ) {
-      for(src in haxeEditors) autocomplete(src);
+      autocomplete(editorData);
     }
 	}
 
 	public function compile(?e){
 		if( e != null ) e.preventDefault();
     messages.fadeOut(0);
-    clearErrors();
+    for(data in haxeEditors) clearErrors(data);
 		compileBtn.buttonLoading();
 		updateProgram();
 		cnx.Compiler.compile.call( [program] , onCompile );
@@ -695,27 +703,18 @@ class Editor {
 
 	}
 
-  public function clearErrors(){
-      HaxeLint.data = [];
-			for(src in haxeEditors) {
-				HaxeLint.updateLinting(src.codeMirror);
-			}
-//     for( m in markers ){
-//       m.clear();
-//     }
-//     markers = [];
-//     for( l in lineHandles ){
-//       haxeSource.clearMarker( l );
-//     }
+  public function clearErrors(editorData:EditorData) {
+    editorData.lint.data = [];
+    editorData.lint.updateLinting(editorData.codeMirror);
   }
 
-  public function markErrors(errors:Array<String>){
-    HaxeLint.data = [];
-
+  public function markErrors(errors:Array<String>) {
     var errLine = ~/([^:]*):([0-9]+): characters ([0-9]+)-([0-9]+) :(.*)/g;
 
+    var errorMap:Map<String, Array<HaxeLint.Info>> = new Map();
+
     for( e in errors ){
-      if( errLine.match( e ) ){
+      if( errLine.match( e ) ) {
         var err = {
           file : errLine.matched(1),
           line : Std.parseInt(errLine.matched(2)) - 1,
@@ -724,8 +723,14 @@ class Editor {
           msg : errLine.matched(5)
         };
 
+        var file = err.file.trim();
+        file = file.substring(0, file.lastIndexOf("."));
+        var data = errorMap.exists(file) ? errorMap.get(file) : {var a = []; errorMap.set(file, a); a;};
+
+        data.push({from:{line:err.line, ch:err.from}, to:{line:err.line, ch:err.to}, message:err.msg, severity:"error"});
+
         if( StringTools.trim( err.file ) == "Test.hx" ){
-            HaxeLint.data.push({from:{line:err.line, ch:err.from}, to:{line:err.line, ch:err.to}, message:err.msg, severity:"error"});
+            
           //trace(err.line);
 //           var l = haxeSource.setMarker( err.line , "<i class='icon-warning-sign icon-white'></i>" , "error");
 //           lineHandles.push( l );
@@ -737,7 +742,11 @@ class Editor {
       }
     }
 
-	for(src in haxeEditors) HaxeLint.updateLinting(src.codeMirror);
+    for(key in errorMap.keys()) {
+      var editorData = haxeEditors.find(function(data) return data.nameElement.val() == key);
+      editorData.lint.data = errorMap.get(key);
+      editorData.lint.updateLinting(editorData.codeMirror);
+    }
   }
 
 }

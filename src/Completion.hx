@@ -64,11 +64,11 @@ class Completion
 
 			list = new Array();
 			
-            for (completion in completions) 
-            {
-                var completionItem = generateCompletionItem(completion.n, completion.t, completion.d, completion.k);
+			for (completion in completions) 
+			{
+				var completionItem = generateCompletionItem(completion.n, completion.t, completion.d, completion.k);
 				list.push(completionItem);
-            }
+			}
 			
 			list = Filter.filter(list, curWord);
 			
