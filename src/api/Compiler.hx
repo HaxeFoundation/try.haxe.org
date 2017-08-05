@@ -124,7 +124,7 @@ class Compiler {
 					libs: old.libs,
 					haxeVersion: null,
 					dce: old.dce,
-					analyzer: old.analizer,
+					analyzer: old.analyzer,
 					modules: [
 					 {name: old.main.name, source: null},
 					 {name: "Macro", source: null},
@@ -355,7 +355,7 @@ class Compiler {
 			"-dce", program.dce
 		];
 
-		if (program.analyzer == "yes") args=args.concat(["-D", "analyzer-optimize"]);
+		if (program.analyzer == "yes") args=args.concat(["-D", "analyzer-optimize", "-D", "analyzer"]);
 
 		var outputPath : String;
 		var htmlPath : String = tmpDir + "index.html";
