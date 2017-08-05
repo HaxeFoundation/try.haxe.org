@@ -618,6 +618,7 @@ class Editor {
 	public function run(){
 		if( output.success ){
   		var run = output.href;
+      run = run.replace("/try-haxe/", "/");
   		runner.attr("src" , apiRoot + run + "?r=" + Std.string(Math.random()) );
       new JQuery(".link-btn, .fullscreen-btn")
         .buttonReset()
