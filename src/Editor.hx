@@ -168,6 +168,15 @@ class Editor {
       libs : new Array()
     };
 
+    cnx.Compiler.getHaxeVersions.call([], function(versions:Array<HaxeVersion>) {
+      var select = haxeVersion.find("select");
+      select.empty();
+      program.haxeVersion = versions[0];
+      for(version in versions) {
+        select.append('<option value="${version}">${version}</option>');
+      }
+    });
+
     initLibs();
 
     setTarget( api.Program.Target.JS( "test" ) );
@@ -435,6 +444,8 @@ class Editor {
       setTarget( program.target );
       setDCE(program.dce);
       setAnalyzer(program.analyzer);
+
+      haxeVersion.find('select option:contains("${program.haxeVersion}")').prop('selected', true);
 
       if( program.libs != null ){
         for( lib in libs.find("input.lib") ){

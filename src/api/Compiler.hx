@@ -355,8 +355,8 @@ class Compiler {
 		var args = [
 			"-main" , program.mainClass,
 			"--times",
+			"-D", "macro-times",
 			"-dce", program.dce
-			//"--dead-code-elimination"
 		];
 
 		if (program.analyzer == "yes") args=args.concat(["-D", "analyzer-optimize"]);
@@ -508,7 +508,7 @@ class Compiler {
 				} catch(e:Dynamic) {
 
 				}
-
+				
 				return s;
 			}
 			return "";
@@ -536,6 +536,19 @@ class Compiler {
 
 		var times_pos = haxe_err.indexOf("Total time");
 		var haxe_times = "";
+
+		if(times_pos == -1) {
+			times_pos = haxe_err.indexOf("time(s)");
+			if(times_pos > -1) {
+				while(true) {
+					times_pos--;
+					if(haxe_err.charAt(times_pos) == '\n' || haxe_err.charAt(times_pos) == "" || times_pos <= 0) {
+						break;
+					}
+				}
+			}
+		}
+
 		// if we have times let's dump them into another variable
 		if(times_pos > -1) {
 			haxe_times = haxe_err.substring(times_pos);
@@ -586,6 +599,20 @@ class Compiler {
 
 		return o;
 
+	}
+
+	public function getHaxeVersions():Array<api.Program.HaxeVersion> {
+		var dir = '../haxe/versions/';
+		var versions:Array<api.Program.HaxeVersion> = [];
+		if(FileSystem.exists(dir)) {
+			for(name in FileSystem.readDirectory(dir)) {
+				var path = dir + name;
+				if(!FileSystem.isDirectory(path)) continue;
+
+				versions.push(name);
+			}
+		}
+		return versions;
 	}
 
 }
