@@ -81,7 +81,7 @@ class Editor {
     completionManager = new Completion();
     completionManager.registerHelper(functionParametersHelper);
 
-    HaxeLint.load();
+    //HaxeLint.load();
 
 		addHaxeSource(new JQuery("input[name=module-a]"), cast new JQuery("textarea[name='hx-source']")[0]);
 		addHaxeSource(new JQuery("input[name=module-b]"), cast new JQuery("textarea[name='hx-source2']")[0]);
@@ -192,10 +192,12 @@ class Editor {
 			//theme : "default",
 			lineWrapping : true,
 			lineNumbers : true,
+      /*
       lint: {
         getAnnotations: lint.getLintData,
         async: true,
       },
+      */
       matchBrackets: true,
       autoCloseBrackets: true,
       gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
@@ -705,7 +707,7 @@ class Editor {
 
   public function clearErrors(editorData:EditorData) {
     editorData.lint.data = [];
-    editorData.lint.updateLinting(editorData.codeMirror);
+    //editorData.lint.updateLinting(editorData.codeMirror);
   }
 
   public function markErrors(errors:Array<String>) {
@@ -745,7 +747,7 @@ class Editor {
     for(key in errorMap.keys()) {
       var editorData = haxeEditors.find(function(data) return data.nameElement.val() == key);
       editorData.lint.data = errorMap.get(key);
-      editorData.lint.updateLinting(editorData.codeMirror);
+      //editorData.lint.updateLinting(editorData.codeMirror);
     }
   }
 
