@@ -41,3 +41,8 @@ typedef Output = {
 	source : String,
 	embed : String
 }
+
+typedef HaxeCompiler = {
+	dir:String,
+	version:HaxeVersion,
+}

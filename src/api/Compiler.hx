@@ -601,18 +601,37 @@ class Compiler {
 
 	}
 
-	public function getHaxeVersions():Array<api.Program.HaxeVersion> {
+	public function getHaxeVersions():{stable:Array<Program.HaxeCompiler>, dev:Array<Program.HaxeCompiler>} {
 		var dir = '../haxe/versions/';
-		var versions:Array<api.Program.HaxeVersion> = [];
+		var stableVersions:Array<Program.HaxeCompiler> = [];
+		var devVersions:Array<Program.HaxeCompiler> = [];
 		if(FileSystem.exists(dir)) {
 			for(name in FileSystem.readDirectory(dir)) {
 				var path = dir + name;
-				if(!FileSystem.isDirectory(path)) continue;
+				if(!FileSystem.isDirectory(path) || !FileSystem.exists('$path/haxe')) continue;
 
-				versions.push(name);
+				var version = name.replace("haxe-", "").replace("haxe_", "");
+
+				var data = {
+					dir: name,
+					version: version,
+				};
+
+				//if semver can be parsed it's a stable release
+				try {
+					(version:thx.semver.Version);
+					stableVersions.push(data);
+				} catch(e:Dynamic) {
+					devVersions.push(data);
+				}
 			}
 		}
-		return versions;
+
+		stableVersions.sort(function(a, b) {
+			return (a.version:thx.semver.Version) > (b.version:thx.semver.Version) ? -1 : 1;
+		});
+
+		return {stable: stableVersions, dev: devVersions};
 	}
 
 }

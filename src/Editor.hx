@@ -168,13 +168,23 @@ class Editor {
       libs : new Array()
     };
 
-    cnx.Compiler.getHaxeVersions.call([], function(versions:Array<HaxeVersion>) {
+    cnx.Compiler.getHaxeVersions.call([], function(versions:{stable:Array<api.Program.HaxeCompiler>, dev:Array<api.Program.HaxeCompiler>}) {
       var select = haxeVersion.find("select");
       select.empty();
-      program.haxeVersion = versions[0];
-      for(version in versions) {
-        select.append('<option value="${version}">${version}</option>');
+      program.haxeVersion = versions.stable[0].version;
+      var stableElem = new JQuery('<optgroup>');
+      stableElem.attr('label', "Stable releases");
+      var devElem = new JQuery('<optgroup>');
+      devElem.attr('label', "Development releases");
+      for(version in versions.stable) {
+        stableElem.append('<option value="${version.dir}">${version.version}</option>');
       }
+      for(version in versions.dev) {
+        devElem.append('<option value="${version.dir}">${version.version}</option>');
+      }
+
+      select.append(stableElem);
+      select.append(devElem);
     });
 
     initLibs();
@@ -445,7 +455,15 @@ class Editor {
       setDCE(program.dce);
       setAnalyzer(program.analyzer);
 
-      haxeVersion.find('select option:contains("${program.haxeVersion}")').prop('selected', true);
+      var versionElem = haxeVersion.find('select option:[value="${program.haxeVersion}"]');
+      if(versionElem.length == 0) {
+        // The version has been removed, move the program to the latest stable version
+        versionElem = haxeVersion.find('select option').first();
+        program.haxeVersion = versionElem.val();
+      }
+
+      versionElem.prop('selected', true);
+      
 
       if( program.libs != null ){
         for( lib in libs.find("input.lib") ){
