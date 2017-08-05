@@ -63,7 +63,11 @@ class Compiler {
 			FileSystem.createDirectory( tmpDir );
 		}
 
-		for(path in FileSystem.readDirectory(tmpDir)) {
+		for(name in FileSystem.readDirectory(tmpDir)) {
+			var path = tmpDir + name;
+			if(!FileSystem.exists(path)) {
+				throw 'Path does not exist ${path}';
+			}
 			if(FileSystem.isDirectory(path)) {
 				FileSystem.deleteDirectory(path);
 			} else {
