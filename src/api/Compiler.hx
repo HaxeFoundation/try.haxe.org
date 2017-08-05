@@ -122,7 +122,7 @@ class Compiler {
 					mainClass: old.main.name,
 					target: old.target,
 					libs: old.libs,
-					haxeVersion: Haxe_3_3_0_rc_1,
+					haxeVersion: null,
 					dce: old.dce,
 					analyzer: old.analizer,
 					modules: [
@@ -131,10 +131,6 @@ class Compiler {
 					]
 				}
 
-			}
-
-			if(p.haxeVersion == null) {
-				p.haxeVersion = Haxe_3_3_0_rc_1;
 			}
 
 			for(module in p.modules) {
