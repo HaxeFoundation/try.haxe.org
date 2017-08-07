@@ -211,12 +211,12 @@ class Editor {
 			//theme : "default",
 			lineWrapping : true,
 			lineNumbers : true,
-      /*
+      
       lint: {
         getAnnotations: lint.getLintData,
         async: true,
       },
-      */
+      
       matchBrackets: true,
       autoCloseBrackets: true,
       gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
@@ -737,7 +737,7 @@ class Editor {
 
   public function clearErrors(editorData:EditorData) {
     editorData.lint.data = [];
-    //editorData.lint.updateLinting(editorData.codeMirror);
+    editorData.lint.updateLinting(editorData.codeMirror);
   }
 
   public function markErrors(errors:Array<String>) {
@@ -760,24 +760,13 @@ class Editor {
         var data = errorMap.exists(file) ? errorMap.get(file) : {var a = []; errorMap.set(file, a); a;};
 
         data.push({from:{line:err.line, ch:err.from}, to:{line:err.line, ch:err.to}, message:err.msg, severity:"error"});
-
-        if( StringTools.trim( err.file ) == "Test.hx" ){
-            
-          //trace(err.line);
-//           var l = haxeSource.setMarker( err.line , "<i class='icon-warning-sign icon-white'></i>" , "error");
-//           lineHandles.push( l );
-
-//           var m = haxeSource.markText( { line : err.line , ch : err.from } , { line : err.line , ch : err.to } , "error");
-//           markers.push( m );
-        }
-
       }
     }
 
     for(key in errorMap.keys()) {
       var editorData = haxeEditors.find(function(data) return data.nameElement.val() == key);
       editorData.lint.data = errorMap.get(key);
-      //editorData.lint.updateLinting(editorData.codeMirror);
+      editorData.lint.updateLinting(editorData.codeMirror);
     }
   }
 
