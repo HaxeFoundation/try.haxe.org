@@ -1,0 +1,8 @@
+-lib thx.semver
+
+-cp lib/haxe-bootstrap
+-D noEmbedBootstrap
+-D noEmbedJS
+-cp src
+-php app
+-main App

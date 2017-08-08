@@ -1,0 +1,7 @@
+{
+    "haxe.displayConfigurations": [
+        ["completion-php.hxml"],
+        ["completion-js.hxml"],
+        ["downloader.hxml"]
+    ]
+}
