@@ -72,9 +72,18 @@ class HaxeDownloader {
         }
         sys.io.File.saveBytes('${DIR}/${entry.fileName}', entry.data);
       }
+
+      var chmod = new sys.io.Process('chmod', ['+x', '${DIR}/${folder}/haxe', '${DIR}/${folder}/haxelib']);
+      var exitCode = chmod.exitCode(true);
+      if(exitCode == 0) {
+        trace('Set executable permissions to haxe and haxelib');
+      } else {
+        throw ('Couldn\'t change permissions: ${exitCode}');
+      }
+
     } catch(e:Dynamic) {
       trace('Something went wrong! ${e}');
-      FileSystem.deleteDirectory('${DIR}/${folder}');
+      deleteDirRecursively('${DIR}/${folder}');
       return;
     }
 
