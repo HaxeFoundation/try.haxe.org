@@ -172,19 +172,25 @@ class Editor {
       var select = haxeVersion.find("select");
       select.empty();
       program.haxeVersion = versions.stable[0].version;
-      var stableElem = new JQuery('<optgroup>');
-      stableElem.attr('label', "Stable releases");
-      var devElem = new JQuery('<optgroup>');
-      devElem.attr('label', "Development releases");
-      for(version in versions.stable) {
-        stableElem.append('<option value="${version.dir}">${version.version}</option>');
-      }
-      for(version in versions.dev) {
-        devElem.append('<option value="${version.dir}">${version.version}</option>');
+      
+      if(versions.stable.length > 0) {
+        var stableElem = new JQuery('<optgroup>');
+        stableElem.attr('label', "Stable releases");
+        for(version in versions.stable) {
+          stableElem.append('<option value="${version.dir}">${version.version}</option>');
+        }
+        select.append(stableElem);
       }
 
-      select.append(stableElem);
-      select.append(devElem);
+      if(versions.dev.length > 0) {
+        var devElem = new JQuery('<optgroup>');
+        devElem.attr('label', "Development releases");
+        for(version in versions.dev) {
+          devElem.append('<option value="${version.dir}">${version.version}</option>');
+        }
+        select.append(devElem);
+      }
+      
     });
 
     initLibs();
