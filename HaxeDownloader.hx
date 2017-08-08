@@ -65,7 +65,6 @@ class HaxeDownloader {
 
     try {
       for(entry in content.iterator()) {
-        trace('Writing ${entry.fileName}');
         if(entry.data == null || entry.fileSize  == 0) {
           FileSystem.createDirectory('${DIR}/${entry.fileName}');
           continue;
