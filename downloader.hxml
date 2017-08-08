@@ -1,0 +1,6 @@
+-lib thx.semver
+-lib format
+-main HaxeDownloader
+-cp .
+-cp src
+--interp

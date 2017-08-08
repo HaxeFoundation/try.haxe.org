@@ -598,36 +598,7 @@ class Compiler {
 	}
 
 	public function getHaxeVersions():{stable:Array<Program.HaxeCompiler>, dev:Array<Program.HaxeCompiler>} {
-		var dir = '../haxe/versions/';
-		var stableVersions:Array<Program.HaxeCompiler> = [];
-		var devVersions:Array<Program.HaxeCompiler> = [];
-		if(FileSystem.exists(dir)) {
-			for(name in FileSystem.readDirectory(dir)) {
-				var path = dir + name;
-				if(!FileSystem.isDirectory(path) || !FileSystem.exists('$path/haxe')) continue;
-
-				var version = name.replace("haxe-", "").replace("haxe_", "");
-
-				var data = {
-					dir: name,
-					version: version,
-				};
-
-				//if semver can be parsed it's a stable release
-				try {
-					(version:thx.semver.Version);
-					stableVersions.push(data);
-				} catch(e:Dynamic) {
-					devVersions.push(data);
-				}
-			}
-		}
-
-		stableVersions.sort(function(a, b) {
-			return (a.version:thx.semver.Version) > (b.version:thx.semver.Version) ? -1 : 1;
-		});
-
-		return {stable: stableVersions, dev: devVersions};
+		return Utils.getHaxeVersions('../haxe/versions/');
 	}
 
 }
