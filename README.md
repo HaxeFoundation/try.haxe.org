@@ -5,7 +5,7 @@ try-haxe
 
 The try-haxe project is a browser-based IDE for testing Haxe code.  It provides a
 quick and easy environment for playing with the Haxe language and compiles to
-JavaScript or Flash, instantly viewable in the browser.  It also allows saving
+JavaScript, Flash or Neko, instantly viewable in the browser.  It also allows saving
 and sharing of programs with the auto-generated hyperlink hash-codes.
 
 The official project is hosted at [try.haxe.org](http://try.haxe.org).
@@ -15,57 +15,111 @@ Technical notes:
 The try-haxe project is written in Haxe, with part of the application compiling to
 JavaScript for use on the client, and part of the application compiling to PHP as
 a backend service.  The backend PHP service provides server-side compilation of
-programs as well as language auto-complete results.
+programs as well as language auto-complete results. The backend uses Docker to enable the use of multiple Haxe versions and macro support.
+
 
 Run your own instance:
 ----------------------
 
-You can run the try-haxe project on a server with Apache, PHP, and Haxe installed.  Some commands may be distribution-specific (location of web server root, etc) -- the below works on Ubuntu.
+This guide has been tested on Ubuntu 16.04 desktop and server.
 
-Clone the repo and initialize the submodules:
+Clone this git repo and initialize its submodules:
 
-    git clone https://github.com/clemos/try-haxe.git
-    cd try-haxe
-    git submodule init
-    git submodule update
+```
+git clone --recursive https://github.com/mrcdk/try-haxe -b docker
+```
 
-You may need to update the location of the haxe compiler executable in the `Compiler.hx` source file, line 26.  You can specify a full path to your haxe compiler, such as:
+Install the needed libraries and build the `try-haxe` project:
 
-    public static var haxePath = "/opt/haxe-3.1.3/haxe";
+```
+cd try-haxe
+haxelib install build.hxml
+haxe build.hxml
+```
 
-Build the try-haxe compiler and app:
+Install docker following [this guide](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/).
 
-    haxe build.hxml
 
-Link (or copy) this project directory to a location served by Apache (or other PHP-enabled web server):
+Download the docker image that will be used when the compilation is triggered. This image `thecodec/haxe-3.3.0.slim` is a stripped down image that only contains the needed functionality to run `haxe` and `neko`. The server will mount the selected haxe version and the haxelib libraries when compiling.
 
-    sudo ln -s `pwd` /var/www/
+```
+docker pull thecodec/haxe-3.3.0.slim
+```
 
-The above creates a `/var/www/try-haxe` symlinked to your git repo.
+Setup Apache and PHP:
 
-Create the tmp directory (where web-based projects will be created and saved):
+- Install Apache and PHP:
 
-    mkdir tmp
-    chmod a+rw tmp
+```
+sudo apt-get install apache2 php libapache2-mod-php
+```
 
-Ensure Apache has mod_rewrite enabled:
+- Create a symlink from the project root folder to `/var/www`
 
-    sudo a2enmod rewrite
+``` 
+sudo ln -s `pwd` /var/www
+``` 
 
-Edit the apache configuration file and add the `/var/www/try-haxe` location with `AllowOverrides All` directive (so it can use the .htaccess file):
+- Create the `tmp` folder where the code will be saved:
 
-    sudo emacs /etc/apache2/sites-available/default
+```
+mkdir tmp
+chmod a+rw tmp
+```
 
-Add a `<Directory>` entry like so:
+- Enable the Apache rewrite module:
 
-    # Required by try-haxe
-    <Directory /var/www/try-haxe>
-      Options FollowSymLinks
-      AllowOverride All
+```
+sudo a2enmod rewrite
+```
+
+- Edit the Apache configuration file with:
+
+```
+sudo nano /etc/apache2/sites-available/000-default.conf
+```
+
+- Modify the file adding the `try-haxe` directory configuration:
+
+```
+<VirtualHost>
+
+    ...
+
+    DocumentRoot /var/www
+    
+    <Directory "/var/www/try-haxe">
+        Options FollowSymLinks
+        AllowOverride All
     </Directory>
 
-Restart the apache server:
+    ...
 
-    sudo /etc/init.d/apache2 restart
+</VirtualHost>
+```
 
-Navigate to your server (by name, ip address, or localhost) and enjoy try-haxe!  [http://localhost/try-haxe/](http://localhost/try-haxe/)
+- Finally restart Apache:
+
+```
+sudo systemctl restart apache2
+```
+
+Create a group `docker`and add the users `www-data` and your current user to it:
+
+```
+sudo groupadd docker
+sudo gpasswd -a ${USER} docker
+sudo gpasswd -a www-data docker
+```
+
+Then restart the docker service:
+
+```
+sudo service docker restart
+```
+
+Add the Haxe libraries that will be used by the site inside `haxe/haxelib`
+
+Add the Haxe versions that will be listed in the site inside `haxe/versions` 
+
+You can use `haxe downloader.hxml` to download the latest Haxe development version.
