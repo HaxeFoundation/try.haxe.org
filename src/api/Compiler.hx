@@ -445,7 +445,7 @@ class Compiler {
 					output.source = File.getContent(outputPath);
 					html.body.push("<script>" + output.source + "</script>");
 				case NEKO(_):
-					html.body.push("<pre>"+out.out+"</pre>");
+					html.body.push("<div style='overflow:auto; height:100%; width: 100%;'><pre>"+out.out+"</pre></div>");
 				default:
 			}
 			var h = new StringBuf();
