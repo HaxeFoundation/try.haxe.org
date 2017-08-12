@@ -27,6 +27,8 @@ class Libs
 			{name:"thx.core", help:"https://github.com/fponticelli/thx.core"},
 			{name:"thx.culture", help:"https://github.com/fponticelli/thx.culture"},
 			{name:"hxColorToolkit", help:"https://github.com/andyli/hxColorToolkit"},
+			{name:"box2d", help:"https://github.com/openfl/box2d"},
+			{name:"nape", help:"https://github.com/deltaluca/nape"},
 			{name:"threejs", head: ["<script src='../../../lib/js/three.min.js'></script>"]},
 			{name:"pixijs", head: ["<script src='../../../lib/js/pixi.min.js'></script>"]},
 		],
@@ -39,6 +41,8 @@ class Libs
 			{name:"thx.core", help:"https://github.com/fponticelli/thx.core"},
 			{name:"thx.culture", help:"https://github.com/fponticelli/thx.culture"},
 			{name:"hxColorToolkit", help:"https://github.com/andyli/hxColorToolkit"},
+			{name:"box2d", help:"https://github.com/openfl/box2d"},
+			{name:"nape", help:"https://github.com/deltaluca/nape"},
 			{name:"away3d", swf:{src:"away3d4.swf"}, help:"http://away3d.com/livedocs/away3d/4.0/"},
 		],
 		"NEKO" => [

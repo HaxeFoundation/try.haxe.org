@@ -1,0 +1,13 @@
+-lib actuate
+-lib format
+-lib tink_core
+-lib tink_lang
+-lib tink_macro
+-lib thx.core
+-lib thx.culture
+-lib hxColorToolkit
+-lib away3d
+-lib threejs
+-lib pixijs
+-lib nape
+-lib box2d

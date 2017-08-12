@@ -120,6 +120,18 @@ sudo service docker restart
 
 Add the Haxe libraries that will be used by the site inside `haxe/haxelib`
 
+- Change the `haxelib` install path to `haxe/haxelib`
+
+```
+haxelib setup haxe/haxelib
+```
+
+- Install all the libs from the `install.hxml` inside `haxe/haxelib`
+
+```
+haxelib install haxe/haxelib/install.hxml 
+```
+
 Add the Haxe versions that will be listed in the site inside `haxe/versions` 
 
 You can use `haxe downloader.hxml` to download the latest Haxe development version.
