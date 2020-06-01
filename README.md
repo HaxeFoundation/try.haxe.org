@@ -1,3 +1,6 @@
+# This project is dead and won't be maintained anymore. Sorry :(
+
+
 try-haxe
 ========
 
