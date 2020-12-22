@@ -1,6 +1,3 @@
-# This project is dead and won't be maintained anymore. Sorry :(
-
-
 try-haxe
 ========
 
@@ -21,7 +18,28 @@ a backend service.  The backend PHP service provides server-side compilation of
 programs as well as language auto-complete results. The backend uses Docker to enable the use of multiple Haxe versions and macro support.
 
 
-Run your own instance:
+Run your own instance (Docker):
+----------------------
+
+Install Docker and docker-compose:
+
+https://www.docker.com/get-started
+
+Build/run container:
+
+`docker-compose -f docker-compose-dev.yml up -d`
+
+You should get http server on `127.0.0.1:623`
+
+Recompile haxe code after you change source code outside:
+
+`docker-compose -f docker-compose-dev.yml exec web haxe build.hxml`
+
+To close container:
+
+`docker-compose -f docker-compose-dev.yml down`
+
+Run your own instance (old method):
 ----------------------
 
 This guide has been tested on Ubuntu 16.04 desktop and server.
@@ -59,9 +77,9 @@ sudo apt-get install apache2 php libapache2-mod-php
 
 - Create a symlink from the project root folder to `/var/www`
 
-``` 
+```
 sudo ln -s `pwd` /var/www
-``` 
+```
 
 - Create the `tmp` folder where the code will be saved:
 
@@ -90,7 +108,7 @@ sudo nano /etc/apache2/sites-available/000-default.conf
     ...
 
     DocumentRoot /var/www
-    
+
     <Directory "/var/www/try-haxe">
         Options FollowSymLinks
         AllowOverride All
@@ -132,9 +150,9 @@ haxelib setup haxe/haxelib
 - Install all the libs from the `install.hxml` inside `haxe/haxelib`
 
 ```
-haxelib install haxe/haxelib/install.hxml 
+haxelib install haxe/haxelib/install.hxml
 ```
 
-Add the Haxe versions that will be listed in the site inside `haxe/versions` 
+Add the Haxe versions that will be listed in the site inside `haxe/versions`
 
 You can use `haxe downloader.hxml` to download the latest Haxe development version.

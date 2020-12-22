@@ -189,15 +189,16 @@ class Compiler {
 		}
 
 		var source = module.source;
-		var display = module.name + ".hx@" + idx;
-		
+		var display = tmpDir + module.name + ".hx@" + idx;
+
 		if (completionType == CompletionType.TOP_LEVEL)
 		{
 			display += "@toplevel";
 		}
-		
+
 		var args = [
 			"-main" , program.mainClass,
+			"-cp", tmpDir,
 			"-v",
 			"--display" , display
 		];
@@ -220,7 +221,7 @@ class Compiler {
 
 		addLibs(args, program);
 
-		var out = runHaxeDocker( program, args );
+		var out = runHaxe( program, args );
 
 		try{
 			var xml = new haxe.xml.Fast( Xml.parse( out.err ).firstChild() );
@@ -237,23 +238,23 @@ class Compiler {
 			}
 
 			var words:Array<CompletionItem> = [];
-			
+
 			if (completionType == CompletionType.DEFAULT)
 			{
 				for( e in xml.nodes.i ){
 					var w:CompletionItem = {n: e.att.n, d: ""};
-					
+
 					if (e.hasNode.t)
 					{
 						w.t = e.node.t.innerData;
 						//w.d = w.t + "<br/>";
 					}
-					
+
 					if (e.hasNode.d)
 					{
 						w.d += e.node.d.innerData;
 					}
-					
+
 					if( !words.has( w ) )
 						words.push( w );
 
@@ -263,15 +264,15 @@ class Compiler {
 			{
 				for (e in xml.nodes.i) {
 					var w:CompletionItem = {n: e.innerData};
-					
+
 					var elements = [];
-					
+
 					if (e.has.k)
 					{
 						w.k = e.att.k;
 						elements.push(w.k);
 					}
-					
+
 					if (e.has.p)
 					{
 						elements.push(e.att.p);
@@ -281,16 +282,16 @@ class Compiler {
 						w.t = e.att.t;
 						elements.push(w.t);
 					}
-					
+
 					w.d = elements.join(" ");
-					
+
 					if (!words.has(w))
 					{
 						words.push(w);
 					}
 				}
 			}
-			
+
 			return {list:words};
 
 		}catch(e:Dynamic){
@@ -350,6 +351,7 @@ class Compiler {
 
 		var args = [
 			"-main" , program.mainClass,
+			"-cp", tmpDir,
 			"--times",
 			"-D", "macro-times",
 			"-dce", program.dce
@@ -371,7 +373,7 @@ class Compiler {
 				Api.checkSanity( name );
 				outputPath = tmpDir + name + ".js";
 				args.push( "-js" );
-				args.push( name + ".js" );
+				args.push( outputPath );
 				html.body.push("<script src='//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>");
 				html.body.push("<script src='//markknol.github.io/console-log-viewer/console-log-viewer.js'></script>");
 				html.head.push("<link rel='stylesheet' href='"+Api.root+"/console.css' type='text/css'>");
@@ -402,7 +404,7 @@ class Compiler {
 		addLibs(args, program, html);
 		//trace(args);
 
-		var out = runHaxeDocker( program, args );
+		var out = runHaxe( program, args );
 		var err = out.err.replace(tmpDir, "");
 		var errors = SourceTools.splitLines(err);
 
@@ -466,7 +468,6 @@ class Compiler {
 	}
 
 	function runHaxeDocker ( program:Program, args : Array<String> ) {
-
 		var isNeko = program.target.match(NEKO(_));
 		var programDir = FileSystem.absolutePath(tmpDir);
 		var haxeDir = FileSystem.absolutePath(tmpDir+'../../haxe/versions/${program.haxeVersion}/');
@@ -504,7 +505,7 @@ class Compiler {
 				} catch(e:Dynamic) {
 
 				}
-				
+
 				return s;
 			}
 			return "";
@@ -578,9 +579,12 @@ class Compiler {
 
 	}
 
-	function runHaxe( args : Array<String> ){
+	function runHaxe( program:Program, args : Array<String> ){
 
-		var proc = new sys.io.Process( haxePath , args );
+		var programDir = FileSystem.absolutePath(tmpDir);
+		var haxeDir = FileSystem.absolutePath(tmpDir+'../../haxe/versions/${program.haxeVersion}');
+		var haxelibDir = FileSystem.absolutePath(tmpDir+"../../haxe/haxelib");
+		var proc = new sys.io.Process('$haxeDir/$haxePath', args);
 
 		var exit = proc.exitCode();
 		var out = proc.stdout.readAll().toString();
@@ -590,7 +594,9 @@ class Compiler {
 			proc : proc,
 			exitCode : exit,
 			out : out,
-			err : err
+			err : err,
+			haxe_out: "",
+			haxe_times: "",
 		};
 
 		return o;

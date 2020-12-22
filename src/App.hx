@@ -4,7 +4,7 @@ import php.Web;
 
 class App {
 
-	#if js 
+	#if js
 	public static function main(){
 		new Editor();
   	}
@@ -31,11 +31,14 @@ class App {
 		  		// / is rewritten to /app
 		  		Api.base = Api.root;
 	  		}
-	  		Api.host = Web.getHostName();
+				// Api.host = Web.getHostName();
+				var host:String = untyped __php__("$_SERVER['SERVER_NAME']");
+				var port:String = untyped __php__("$_SERVER['SERVER_PORT']");
+				Api.host = '$host:$port';
 
 	  		var origin = Web.getClientHeader('Origin');
 
-	  		if( StringTools.endsWith(origin,'try.haxe.org') 
+	  		if( StringTools.endsWith(origin,'try.haxe.org')
 	  			|| StringTools.endsWith(origin, 'localhost:8080') ) {
 	  			Web.setHeader('Access-Control-Allow-Origin', origin);
 	  			Web.setHeader('Access-Control-Allow-Headers', 'X-Haxe-Remoting');
@@ -43,9 +46,9 @@ class App {
 
 	  		var api = new Api();
 
-	  		haxe.web.Dispatch.run( url , params , api );   
+	  		haxe.web.Dispatch.run( url , params , api );
 		}
   	#end
 
-  	
+
 }

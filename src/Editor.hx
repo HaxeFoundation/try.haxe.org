@@ -8,7 +8,7 @@ import js.codemirror.*;
 import js.jquery.*;
 import js.Lib;
 
-using js.bootstrap.Button;
+// using js.bootstrap.Button;
 using Lambda;
 using StringTools;
 using haxe.EnumTools;
@@ -24,7 +24,7 @@ typedef EditorData = {
 
 class Editor {
 
-  // min height to be bigger than the "options" tab, so it never has scrollbars 
+  // min height to be bigger than the "options" tab, so it never has scrollbars
   // FIXME: measure
   static inline var MIN_HEIGHT = 525;
 
@@ -32,10 +32,10 @@ class Editor {
 
 	var program : Program;
 	var output : Output;
-	
+
 	var gateway : String;
   var apiRoot : String;
-	
+
 	var form : JQuery;
   var haxeEditors : Array<EditorData> = [];
 	var jsSource : CodeMirror;
@@ -171,8 +171,12 @@ class Editor {
     cnx.Compiler.getHaxeVersions.call([], function(versions:{stable:Array<api.Program.HaxeCompiler>, dev:Array<api.Program.HaxeCompiler>}) {
       var select = haxeVersion.find("select");
       select.empty();
-      program.haxeVersion = versions.stable[0].version;
-      
+      if (versions.stable.length > 0) {
+        program.haxeVersion = versions.stable[0].dir;
+      } else {
+        program.haxeVersion = versions.dev[0].dir;
+      }
+
       if(versions.stable.length > 0) {
         var stableElem = new JQuery('<optgroup>');
         stableElem.attr('label', "Stable releases");
@@ -190,7 +194,7 @@ class Editor {
         }
         select.append(devElem);
       }
-      
+
     });
 
     initLibs();
@@ -217,12 +221,12 @@ class Editor {
 			//theme : "default",
 			lineWrapping : true,
 			lineNumbers : true,
-      
+
       lint: {
         getAnnotations: lint.getLintData,
         async: true,
       },
-      
+
       matchBrackets: true,
       autoCloseBrackets: true,
       gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
@@ -251,18 +255,18 @@ class Editor {
       "F5" : "compile",
       "F11" : "togglefullscreen"
     });
-        
+
     haxeSource.on("cursorActivity", function()
     {
       colorPreview.update(completionManager, haxeSource);
 		  functionParametersHelper.update(this, editorData);
-    });  
-      
+    });
+
     haxeSource.on("scroll", function ()
     {
         colorPreview.scroll(haxeSource);
-    });   
-	
+    });
+
     haxeSource.on("change", onChange.bind(_, _, editorData));
 	}
 
@@ -273,7 +277,7 @@ class Editor {
     var win = js.Browser.window;
     var body = new JQuery(win.document.body);
     var main = new JQuery('.main');
-    
+
     // window height - 160 - footer height
     var h = win.innerHeight - 160;
     h -= new JQuery('.foot').height();
@@ -430,7 +434,7 @@ class Editor {
             '<label class="checkbox"><input class="lib" type="checkbox" value="${l.name}"'
           + (Lambda.has(def, l.name) ? "checked='checked'" : "")
           + ' /> ${l.name}'
-          + "<span class='help-inline'><a href='" + (l.help == null ? "http://lib.haxe.org/p/" + l.name : l.help) 
+          + "<span class='help-inline'><a href='" + (l.help == null ? "http://lib.haxe.org/p/" + l.name : l.help)
           + "' target='_blank'><i class='fa fa-question-circle'></i></a></span>"
           + "</label>"
           );
@@ -469,7 +473,7 @@ class Editor {
       }
 
       versionElem.prop('selected', true);
-      
+
 
       if( program.libs != null ){
         for( lib in libs.find("input.lib") ){
@@ -488,17 +492,17 @@ class Editor {
 		}
 
 	}
-	
+
 	function saveCompletion( editorData:EditorData, comps:CompletionResult, onComplete:CodeMirror->CompletionResult->Void) {
 		completionManager.completions = [];
-		
+
 		if (comps.list != null) {
 			completionManager.completions = comps.list;
 		}
-		
+
 		onComplete(editorData.codeMirror, comps);
 	}
-	
+
 	public function getCompletion( editorData:EditorData, onComplete: CodeMirror->CompletionResult->Void, ?pos: CodeMirror.Pos, ?targetCompletionType: CompletionType){
 		updateProgram();
     var cm = editorData.codeMirror;
@@ -507,13 +511,13 @@ class Editor {
 		var completionType = CompletionType.DEFAULT;
 
 		var cursorPos = pos;
-		
+
 		if (cursorPos == null) {
 			cursorPos = cm.getCursor();
 		}
-		
+
 		var idx = SourceTools.getAutocompleteIndex( src , cursorPos );
-		
+
 		if( idx == null ) {
 		  // TODO: topLevel completion?
 		  idx = SourceTools.posToIndex(src, cm.getCursor());
@@ -521,8 +525,8 @@ class Editor {
 		}
 
 		// sometimes show incorrect result (time.getDate| change to value.length| -> completionIndex are equals)
-		// if( idx == completionIndex && completions != null ){ 
-		//   displayCompletions( cm , {list:completions} ); 
+		// if( idx == completionIndex && completions != null ){
+		//   displayCompletions( cm , {list:completions} );
 		//   return;
 		// }
 		completionIndex = idx;
@@ -541,7 +545,7 @@ class Editor {
 			cnx.Compiler.autocomplete.call( [ program, module, idx, completionType ] , function( comps:CompletionResult ) saveCompletion(editorData, comps, onComplete));
 		}
 	}
-	
+
 	public function autocomplete(editorData:EditorData) {
     clearErrors(editorData);
     messages.fadeOut(0);
@@ -572,16 +576,16 @@ class Editor {
 //   }
 
 	public function displayCompletions(cm : CodeMirror , comps : CompletionResult ) {
-	
+
 	  cm.execCommand("autocomplete");
-	
+
     // if (comps.type != null) {
     //   trace(comps.type);
     //    var pos = cm.getCursor();
     //    var end = {line:pos.line, ch:pos.ch+comps.type.length};
     //    cm.replaceRange(comps.type, pos, pos);
     //    cm.setSelection(pos, end);
-    // } 
+    // }
     if (comps.errors != null) {
       messages.html( "<div class='alert alert-error'><h4 class='alert-heading'>Completion error</h4><div class='message'></div></div>" );
       for( m in comps.errors ){
@@ -621,8 +625,8 @@ class Editor {
 		if( e != null ) e.preventDefault();
     messages.fadeOut(0);
     for(data in haxeEditors) clearErrors(data);
-		compileBtn.buttonLoading();
-		updateProgram();
+		untyped compileBtn.button('loading');
+    updateProgram();
 		cnx.Compiler.compile.call( [program] , onCompile );
 	}
 
@@ -655,8 +659,8 @@ class Editor {
   		var run = output.href;
       run = run.replace("/try-haxe/", "/");
   		runner.attr("src" , apiRoot + run + "?r=" + Std.string(Math.random()) );
-      new JQuery(".link-btn, .fullscreen-btn")
-        .buttonReset()
+      untyped new JQuery(".link-btn, .fullscreen-btn")
+        .button('reset')
         .attr("href" , apiRoot + run + "?r=" + Std.string(Math.random()) );
 
 		}else{
@@ -735,7 +739,7 @@ class Editor {
 		}
 
     messages.fadeIn();
-		compileBtn.buttonReset();
+		untyped compileBtn.button('reset');
 
 		run();
 
