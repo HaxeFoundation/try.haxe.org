@@ -790,8 +790,10 @@ class Editor {
 
     for(key in errorMap.keys()) {
       var editorData = haxeEditors.find(function(data) return data.nameElement.val() == key);
-      editorData.lint.data = errorMap.get(key);
-      editorData.lint.updateLinting(editorData.codeMirror);
+      if (editorData != null) {
+        editorData.lint.data = errorMap.get(key);
+        editorData.lint.updateLinting(editorData.codeMirror);
+      }
     }
   }
 
