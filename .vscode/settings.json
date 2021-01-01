@@ -4,10 +4,10 @@
         ["completion-js.hxml"],
         ["downloader.hxml"]
     ],
-    // "[haxe]": {
-    //     "editor.formatOnSave": false,
-    //     "editor.formatOnPaste": false
-    // },
+    "[haxe]": {
+        "editor.formatOnSave": false,
+        "editor.formatOnPaste": false
+    },
     "editor.codeActionsOnSave": {
         "source.sortImports": false
     },
