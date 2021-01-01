@@ -1,11 +1,7 @@
 -lib thx.semver
-
--cp lib/haxe-bootstrap
--D noEmbedBootstrap
--D noEmbedJS
+-lib jQueryExtern
 -cp src
 -js app.js
-# -lib jQueryExtern
+--macro allowPackage('sys')
 -main App
--D source-map-content
 -debug

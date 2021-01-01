@@ -1,3 +1,4 @@
+import haxe.remoting.AsyncProxy;
 import api.Completion.CompletionResult;
 import api.Completion.CompletionType;
 import api.Completion.CompletionItem;
@@ -21,6 +22,8 @@ typedef EditorData = {
   functionParametersHelper:FunctionParametersHelper,
   lint:HaxeLint,
 }
+
+class CompilerProxy extends AsyncProxy<api.Compiler> {}
 
 class Editor {
 
@@ -68,6 +71,8 @@ class Editor {
 
   var functionParametersHelper:FunctionParametersHelper;
   var completionManager:Completion;
+
+  var cnxCompiler:CompilerProxy;
 
 	public function new(){
     markers = [];
@@ -127,35 +132,37 @@ class Editor {
 		compilerOutTab.hide();
 		compilerTimesTab.hide();
 
-    new JQuery(".link-btn").bind("click", function(e){
+    new JQuery(".link-btn").click(function(e){
       var _this = new JQuery(e.target);
       if( _this.attr('href') == "#" ){
         e.preventDefault();
       }
     });
 
-    new JQuery(".fullscreen-btn").bind("click" , toggleFullscreenRunner);
-    new JQuery("a.hx-example").bind("click" , toggleExampleClick);
+    new JQuery(".fullscreen-btn").click(toggleFullscreenRunner);
+    new JQuery("a.hx-example").click(toggleExampleClick);
 
-		new JQuery("body").bind("keyup", onKey );
+		new JQuery("body").keyup(onKey);
 
-		new JQuery("a[data-toggle='tab']").bind( "shown", function(e){
+    new JQuery("a[data-toggle='tab']").bind("shown", function(e){
 			jsSource.refresh();
 			for(src in haxeEditors){
-				src.codeMirror.refresh();
+        src.codeMirror.refresh();
 			}
       embedSource.refresh();
 		});
 
-    dceName.delegate("input[name='dce']" , "change" , onDce );
-    analyzerName.delegate("input[name='analyzer']" , "change" , onAnalyzer );
-    targets.delegate("input[name='target']" , "change" , onTarget );
-		haxeVersion.delegate("select", "change", onHaxeVersion);
+		dceName.on("change", "input[name='dce']", onDce);
+		analyzerName.on("change", "input[name='analyzer']", onAnalyzer);
+		targets.on("change", "input[name='target']", onTarget);
+		haxeVersion.on("change", "select", onHaxeVersion);
 
-		compileBtn.bind( "click" , compile );
+		compileBtn.click(compile);
 
 	  apiRoot = new JQuery("body").data("api");
-		cnx = HttpAsyncConnection.urlConnect(apiRoot+"/compiler");
+    cnx = HttpAsyncConnection.urlConnect(apiRoot+"/compiler");
+    cnx.setErrorHandler(d -> trace(d));
+    cnxCompiler = new CompilerProxy(cnx.resolve("Compiler"));
 
     program = {
       uid : null,
@@ -168,7 +175,7 @@ class Editor {
       libs : new Array()
     };
 
-    cnx.Compiler.getHaxeVersions.call([], function(versions:{stable:Array<api.Program.HaxeCompiler>, dev:Array<api.Program.HaxeCompiler>}) {
+    cnxCompiler.getHaxeVersions(function(versions:{stable:Array<api.Program.HaxeCompiler>, dev:Array<api.Program.HaxeCompiler>}) {
       var select = haxeVersion.find("select");
       select.empty();
       if (versions.stable.length > 0) {
@@ -204,7 +211,7 @@ class Editor {
 		var uid = Browser.window.location.hash;
 		if (uid.length > 0){
       uid = uid.substr(1);
-  		cnx.Compiler.getProgram.call([uid], onProgram);
+  		cnxCompiler.getProgram(uid, onProgram);
     }
 
     js.Browser.window.addEventListener('resize', resize);
@@ -246,7 +253,7 @@ class Editor {
       lint: lint,
     };
 
-		haxeEditors.push(editorData);
+    haxeEditors.push(editorData);
 
     haxeSource.setOption("extraKeys", {
       "Ctrl-Space" : function (cm:CodeMirror) autocomplete(editorData),
@@ -292,7 +299,7 @@ class Editor {
 		for(src in haxeEditors) {
 			src.codeMirror.getScrollerElement().style.height=h+'px';
 			src.codeMirror.getWrapperElement().style.height=h+'px';
-			src.codeMirror.refresh();
+      src.codeMirror.refresh();
 		}
     runner.height(h-12);
     new JQuery('#hx-options').height(h+2);
@@ -336,7 +343,7 @@ class Editor {
 
   function toggleExampleClick(e : Event) {
     var _this = new JQuery(e.target);
-    var ajax = untyped __js__("$.ajax");
+    var ajax = js.Syntax.code("$.ajax");
     ajax({
       url:'examples/Example-${_this.data("value")}.hx',
       dataType: "text"
@@ -349,7 +356,7 @@ class Editor {
   }
 
   function fullscreen(){
-     untyped __js__("var el = window.document.documentElement;
+     js.Syntax.code("var el = window.document.documentElement;
             var rfs = el.requestFullScreen
                 || el.webkitRequestFullScreen
                 || el.mozRequestFullScreen;
@@ -538,11 +545,11 @@ class Editor {
 		var module = program.modules.find(function(m) return m.name == editorData.nameElement.val());
 		if (targetCompletionType == null)
 		{
-			cnx.Compiler.autocomplete.call( [ program, module, idx, completionType ] , function( comps:CompletionResult ) saveCompletion(editorData, comps, onComplete));
+			cnxCompiler.autocomplete(program, module, idx, completionType , function( comps:CompletionResult ) saveCompletion(editorData, comps, onComplete));
 		}
 		else if (targetCompletionType == completionType)
 		{
-			cnx.Compiler.autocomplete.call( [ program, module, idx, completionType ] , function( comps:CompletionResult ) saveCompletion(editorData, comps, onComplete));
+			cnxCompiler.autocomplete(program, module, idx, completionType , function( comps:CompletionResult ) saveCompletion(editorData, comps, onComplete));
 		}
 	}
 
@@ -627,7 +634,7 @@ class Editor {
     for(data in haxeEditors) clearErrors(data);
 		untyped compileBtn.button('loading');
     updateProgram();
-		cnx.Compiler.compile.call( [program] , onCompile );
+		cnxCompiler.compile(program, onCompile);
 	}
 
 	function updateProgram(){

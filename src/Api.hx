@@ -54,7 +54,8 @@ class Api {
 	}
 
 	function notFound(){
-		Web.setReturnCode(404);
+		// Web.setReturnCode(404);
+		php.Global.header("HTTP/1.1 " + "404 Not Found", true, 404);
 	}
 
 	public function doProgram( id : String , d : Dispatch ){

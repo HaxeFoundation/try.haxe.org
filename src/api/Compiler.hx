@@ -1,9 +1,9 @@
 package api;
 
-#if php
 import api.Completion.CompletionResult;
 import api.Completion.CompletionType;
 import api.Completion.CompletionItem;
+#if php
 import php.Web;
 import Sys;
 import php.Lib;
@@ -190,6 +190,7 @@ class Compiler {
 
 		var source = module.source;
 		var display = tmpDir + module.name + ".hx@" + idx;
+		// var display = module.name + ".hx@" + idx;
 
 		if (completionType == CompletionType.TOP_LEVEL)
 		{
@@ -224,7 +225,7 @@ class Compiler {
 		var out = runHaxe( program, args );
 
 		try{
-			var xml = new haxe.xml.Fast( Xml.parse( out.err ).firstChild() );
+			var xml = new haxe.xml.Access( Xml.parse( out.err ).firstChild() );
 
 			if (xml.name == "type") {
 				var res = xml.innerData.trim().htmlUnescape();
@@ -331,7 +332,8 @@ class Compiler {
 
 	}
 
-	public function compile( program : Program ){
+	public function compile( program : Program ):Null<Dynamic> {
+		// TODO investigate return type and proxy callback
 		try{
 			prepareProgram( program );
 		}catch(err:String){

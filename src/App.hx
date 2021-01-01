@@ -13,14 +13,14 @@ class App {
 	  	public static function main(){
 
 	  		var params = Web.getParams();
-	  		var url = params.get('_url');
+				var url = params.get('_url');
 	  		params.remove('_url');
 
 	  		if( params.exists('_root') ){
 	  			Api.root = params.get('_root');
 	  			Api.base = '${Api.root}';
 	  		}else{
-		  		var base :String = untyped __php__("$_SERVER['SCRIPT_NAME']");
+		  		var base :String = php.Syntax.code("$_SERVER['SCRIPT_NAME']");
 		  		var spl = base.split("/");
 		  		spl.pop();
 
@@ -32,8 +32,8 @@ class App {
 		  		Api.base = Api.root;
 	  		}
 				// Api.host = Web.getHostName();
-				var host:String = untyped __php__("$_SERVER['SERVER_NAME']");
-				var port:String = untyped __php__("$_SERVER['SERVER_PORT']");
+				var host:String = php.Syntax.code("$_SERVER['SERVER_NAME']");
+				var port:String = php.Syntax.code("$_SERVER['SERVER_PORT']");
 				Api.host = '$host:$port';
 
 	  		var origin = Web.getClientHeader('Origin');
@@ -44,7 +44,7 @@ class App {
 	  			Web.setHeader('Access-Control-Allow-Headers', 'X-Haxe-Remoting');
 	  	  }
 
-	  		var api = new Api();
+				var api = new Api();
 
 	  		haxe.web.Dispatch.run( url , params , api );
 		}

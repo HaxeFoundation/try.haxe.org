@@ -6,5 +6,6 @@ services:
       - "623:80"
     volumes:
       - ./src:/srv/try-haxe/src
+      - ./www:/srv/try-haxe/www
       # - /var/run/docker.sock:/var/run/docker.sock
     command: sh -c "service apache2 start && tail -f /dev/null"

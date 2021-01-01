@@ -3,7 +3,7 @@ import sys.FileSystem;
 class HaxeDownloader {
 
   static var MAX_DEV = 10;
-  static var DIR = 'haxe/versions';
+  static var DIR = 'www/haxe/versions';
   static var LATEST_URL = "http://hxbuilds.s3-website-us-east-1.amazonaws.com/builds/haxe/linux64/haxe_latest.tar.gz";
 
   public static function main() {
@@ -27,7 +27,7 @@ class HaxeDownloader {
 
     var out = new haxe.io.BytesOutput();
     var progress = new ProgressOut(out, 0);
-    
+
     downloader.cnxTimeout = 10;
     downloader.onError = function(error) {
       throw 'ERROR ${error}';

@@ -1,0 +1,46 @@
+DirectorySlash Off
+Options -Indexes
+
+php_flag display_errors on
+php_value error_reporting -1
+
+RewriteEngine on
+
+# redirecting to new url
+RewriteCond %{HTTP_HOST} aaaliasing\.net
+RewriteRule ^(.*)$ https://try.haxe.org/$1 [R=301,L]
+
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP_HOST} try\.haxe\.org
+RewriteRule ^(.*)$ https://try.haxe.org/$1 [R=301,L]
+
+# local userdir :S
+RewriteCond %{HTTP_HOST} localhost
+RewriteCond %{REQUEST_URI} !index.php
+RewriteCond %{REQUEST_URI} ^/~([^/]*)/
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ /~%1/try-haxe/app/index.php?_url=$1 [L,QSA]
+
+# try.haxe.org
+RewriteCond %{HTTP_HOST} try\.haxe\.org
+RewriteRule ^$ /index.html [L,QSA]
+
+RewriteCond %{HTTP_HOST} try\.haxe\.org
+RewriteCond %{REQUEST_URI} !index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ /app/index.php?_url=$1&_root= [L,QSA]
+
+#try-haxe.mrcdk.com
+RewriteCond %{HTTP_HOST} try-haxe.mrcdk.com
+RewriteRule ^$ /index.html [L,QSA]
+
+RewriteCond %{HTTP_HOST} try-haxe.mrcdk.com
+RewriteCond %{REQUEST_URI} !index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ /app/index.php?_url=$1&_root= [L,QSA]
+
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ app/index.php?_url=$1 [L,QSA]

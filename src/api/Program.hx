@@ -22,6 +22,7 @@ enum Target {
 	SWF( name : String , ?version : Float );
 }
 
+@:transitive
 @:enum abstract HaxeVersion(String) to String from String {
 	var Haxe_3_3_0_rc_1 = "3.3.0-rc.1";
 	var Haxe_3_2_1 = "3.2.1";

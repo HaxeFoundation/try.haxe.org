@@ -1,16 +1,12 @@
 -lib thx.semver
 
 -cp src
--php app
+-php www/app
 -main App
 
 --next
--cp lib/haxe-bootstrap
--D noEmbedBootstrap
--D noEmbedJS
+-lib jQueryExtern
 -cp src
--js app.js
-# -lib jQueryExtern
+-js www/app.js
 -main App
--D source-map-content
 -debug

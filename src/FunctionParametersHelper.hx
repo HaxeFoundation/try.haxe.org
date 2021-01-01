@@ -16,59 +16,59 @@ class FunctionParametersHelper
 {
 	public var widgets:Array<LineWidget> = [];
 	var lastPos:Pos;
-	
+
 	public function new()
 	{
-			
+
 	}
-	
+
 	public function addWidget(cm:CodeMirror, type:String, name:String, parameters:Array<String>, retType:String, description:String, currentParameter:Int, pos:Pos):Void
-	{		
+	{
 		var lineWidget:LineWidget = new LineWidget(cm, type, name, parameters, retType, description, currentParameter, pos);
 		widgets.push(lineWidget);
 	}
-	
+
 	public function alreadyShown():Bool
 	{
 		return widgets.length > 0;
 	}
-	
+
 	public function updateScroll(cm:CodeMirror):Void
 	{
 		var info = cm.getScrollInfo();
 		var after = cm.charCoords( { line: cm.getCursor().line + 1, ch: 0 }, "local").top;
-		
+
 		if (info.top + info.clientHeight < after)
 		{
 			cm.scrollTo(null, after - info.clientHeight + 3);
 		}
 	}
-	
+
 	public function clear(cm:CodeMirror):Void
 	{
-		for (widget in widgets) 
+		for (widget in widgets)
 		{
 			cm.removeLineWidget(widget.getWidget());
 		}
-		
+
 		widgets = [];
 	}
-	
+
 	public function update(editorInstance:Editor, editorData:Editor.EditorData):Void
 	{
 		var cm = editorData.codeMirror;
 
 
 		var doc = cm.getDoc();
-		
+
 		if (doc != null)
 		{
 			var modeName:String = doc.getMode().name;
-			
+
 			if (modeName == "haxe" && !cm.state.completionActive)
-			{	
+			{
 				var cursor = cm.getCursor();
-				var data = cm.getLine(cursor.line);			
+				var data = cm.getLine(cursor.line);
 
 				if (cursor != null && data.charAt(cursor.ch - 1) != ".")
 				{
@@ -77,38 +77,39 @@ class FunctionParametersHelper
 			}
 		}
 	}
-	
+
 	function scanForBracket(editorInstance:Editor, editorData:Editor.EditorData, cursor:Pos):Void
 	{
 		var cm = editorData.codeMirror;
-		var bracketsData = cm.scanForBracket(cursor, -1, null, {bracketRegex: untyped __js__("/[([\\]]/")});
-		
+		// TODO what is this bracketRegex
+		var bracketsData = cm.scanForBracket(cursor, -1, null, {bracketRegex: js.Syntax.code("/[([\\]]/")});
+
 		var pos:Pos = null;
-        
-		if (bracketsData != null && bracketsData.ch == "(") 
+
+		if (bracketsData != null && bracketsData.ch == "(")
 		{
             pos = {line:bracketsData.pos.line, ch:bracketsData.pos.ch};
-            
+
             var matchedBracket:Pos = cm.findMatchingBracket(pos, false, null).to;
-            
+
             if (matchedBracket == null || (cursor.line <= matchedBracket.line && cursor.ch <= matchedBracket.ch))
             {
                 var range:String = cm.getRange(bracketsData.pos, cursor);
-			
+
                 var currentParameter:Int = range.split(",").length - 1;
-                
+
                 if (lastPos == null || lastPos.ch != pos.ch || lastPos.line != pos.line)
                 {
-                    getFunctionParams(editorInstance, editorData, pos, currentParameter);  
+                    getFunctionParams(editorInstance, editorData, pos, currentParameter);
                 }
                 else if (alreadyShown())
                 {
                     for (widget in widgets)
 					{
-						widget.updateParameters(currentParameter);	 
+						widget.updateParameters(currentParameter);
 					}
                 }
-                
+
                 lastPos = pos;
 			}
             else
@@ -123,27 +124,27 @@ class FunctionParametersHelper
 			clear(cm);
 		}
 	}
-	
+
 	function getFunctionParams(editorInstance:Editor, editorData:Editor.EditorData, pos:Pos, currentParameter:Int):Void
 	{
 		var cm = editorData.codeMirror;
 		var completionInstance = editorData.completionManager;
 		var posBeforeBracket:Pos = {line:pos.line, ch:pos.ch - 1};
-		
+
 		var word = completionInstance.getCurrentWord(cm, {}, posBeforeBracket).word;
-    
+
 		editorInstance.getCompletion(editorData, function (cm:CodeMirror, comps:CompletionResult)
 		{
 			var found:Bool = false;
-			
+
 			clear(cm);
-			
-			for (completion in completionInstance.completions) 
-			{							
-				if (word == completion.n) 
+
+			for (completion in completionInstance.completions)
+			{
+				if (word == completion.n)
 				{
 					var functionData = parseFunctionParams(completion.n, completion.t, completion.d);
-					
+
 					if (functionData.parameters != null)
 					{
 						var description = parseDescription(completion.d);
@@ -153,49 +154,49 @@ class FunctionParametersHelper
 					}
 				}
 			}
-				
+
 			updateScroll(cm);
-			
-// 			if (!found) 
+
+// 			if (!found)
 // 			{
 // 				FunctionParametersHelper.clear();
-// 			}  
+// 			}
 		}
 		, posBeforeBracket, CompletionType.DEFAULT);
 	}
-	
+
 	function parseDescription(description:String)
-	{						
-		if (description != null) 
+	{
+		if (description != null)
 		{
-			if (description.indexOf(".") != -1) 
+			if (description.indexOf(".") != -1)
 			{
 				description = description.split(".")[0];
 			}
 		}
-		
+
 		return description;
 	}
-	
+
 	public function parseFunctionParams(name:String, type:String, description:String)
 	{
 		var parameters:Array<String> = null;
-		
+
 		var retType:String = null;
-		
-		if (type != null && type.indexOf("->") != -1) 
+
+		if (type != null && type.indexOf("->") != -1)
 		{
 			var openBracketsCount:Int = 0;
 			var positions:Array<{start:Int, end:Int}> = [];
 			var i:Int = 0;
 			var lastPos:Int = 0;
-			
-			while (i < type.length) 
-			{				
-				switch (type.charAt(i)) 
+
+			while (i < type.length)
+			{
+				switch (type.charAt(i))
 				{
 					case "-":
-						if (openBracketsCount == 0 && type.charAt(i + 1) == ">") 
+						if (openBracketsCount == 0 && type.charAt(i + 1) == ">")
 						{
 							positions.push({start: lastPos, end: i-1});
 							i++;
@@ -207,36 +208,36 @@ class FunctionParametersHelper
 					case ")":
 						openBracketsCount--;
 					default:
-						
+
 				}
-				
+
 				i++;
 			}
-			
+
 			positions.push( { start: lastPos, end: type.length } );
-			
+
 			parameters = [];
-			
-			for (j in 0...positions.length) 
+
+			for (j in 0...positions.length)
 			{
 				var param:String = StringTools.trim(type.substring(positions[j].start, positions[j].end));
-				
-				if (j < positions.length - 1) 
+
+				if (j < positions.length - 1)
 				{
 					parameters.push(param);
 				}
-				else 
+				else
 				{
 					retType = param;
 				}
 			}
-			
-			if (parameters.length == 1 && parameters[0] == "Void") 
+
+			if (parameters.length == 1 && parameters[0] == "Void")
 			{
 				parameters = [];
 			}
 		}
-		
+
 		return {parameters: parameters, retType: retType};
 	}
 }
