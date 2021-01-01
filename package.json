@@ -1,0 +1,23 @@
+{
+  "name": "try-haxe",
+  "version": "1.0.0",
+  "description": "try-haxe",
+  "main": "www/app.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "lix": "^15.10.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RblSb/try-haxe.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RblSb/try-haxe/issues"
+  },
+  "homepage": "https://github.com/RblSb/try-haxe#readme"
+}

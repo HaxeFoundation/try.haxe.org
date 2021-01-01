@@ -9,7 +9,6 @@ import js.codemirror.*;
 import js.jquery.*;
 import js.Lib;
 
-// using js.bootstrap.Button;
 using Lambda;
 using StringTools;
 using haxe.EnumTools;
@@ -170,7 +169,7 @@ class Editor {
       modules : [for(src in haxeEditors) {name: src.nameElement.val(), source: src.codeMirror.getValue()}],
       dce : "full",
       analyzer : "yes",
-			haxeVersion: Haxe_3_3_0_rc_1,
+			haxeVersion: Haxe_4_1_5,
       target : SWF( "test", 11.4 ),
       libs : new Array()
     };
@@ -356,12 +355,11 @@ class Editor {
   }
 
   function fullscreen(){
-     js.Syntax.code("var el = window.document.documentElement;
+    js.Syntax.code("var el = window.document.documentElement;
             var rfs = el.requestFullScreen
                 || el.webkitRequestFullScreen
                 || el.mozRequestFullScreen;
               rfs.call(el); ");
-
   }
 
   function toggleFullscreenRunner(e : Event){
@@ -389,6 +387,10 @@ class Editor {
         api.Program.Target.SWF('test',11.4);
 			case "NEKO":
 				api.Program.Target.NEKO('test');
+      case "HL":
+        api.Program.Target.HL('test');
+      case "EVAL":
+        api.Program.Target.EVAL('test');
       case _ :
         api.Program.Target.JS('test');
     }
@@ -416,6 +418,12 @@ class Editor {
 
 			case NEKO(_):
 				jsTab.hide();
+
+      case HL(_):
+        jsTab.hide();
+
+      case EVAL(_):
+        jsTab.hide();
     }
 
     var radio = new JQuery( 'input[name=\'target\'][value=\'$sel\']' );
@@ -545,12 +553,12 @@ class Editor {
 		var module = program.modules.find(function(m) return m.name == editorData.nameElement.val());
 		if (targetCompletionType == null)
 		{
-			cnxCompiler.autocomplete(program, module, idx, completionType , function( comps:CompletionResult ) saveCompletion(editorData, comps, onComplete));
-		}
+      cnxCompiler.autocomplete(program, module, idx, completionType , function( comps:CompletionResult ) saveCompletion(editorData, comps, onComplete));
+    }
 		else if (targetCompletionType == completionType)
 		{
-			cnxCompiler.autocomplete(program, module, idx, completionType , function( comps:CompletionResult ) saveCompletion(editorData, comps, onComplete));
-		}
+      cnxCompiler.autocomplete(program, module, idx, completionType , function( comps:CompletionResult ) saveCompletion(editorData, comps, onComplete));
+    }
 	}
 
 	public function autocomplete(editorData:EditorData) {
@@ -634,7 +642,7 @@ class Editor {
     for(data in haxeEditors) clearErrors(data);
 		untyped compileBtn.button('loading');
     updateProgram();
-		cnxCompiler.compile(program, onCompile);
+    cnxCompiler.compile(program, onCompile);
 	}
 
 	function updateProgram(){

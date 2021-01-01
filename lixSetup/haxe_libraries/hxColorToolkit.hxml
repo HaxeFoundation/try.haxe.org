@@ -1,0 +1,3 @@
+# @install: lix --silent download "haxelib:/hxColorToolkit#1.6.1" into hxColorToolkit/1.6.1/haxelib
+-cp ${HAXE_LIBCACHE}/hxColorToolkit/1.6.1/haxelib/
+-D hxColorToolkit=1.6.1

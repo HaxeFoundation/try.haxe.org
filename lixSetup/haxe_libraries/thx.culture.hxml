@@ -1,0 +1,6 @@
+# @install: lix --silent download "haxelib:/thx.culture#0.5.0" into thx.culture/0.5.0/haxelib
+-lib thx.core
+-cp ${HAXE_LIBCACHE}/thx.culture/0.5.0/haxelib/src
+-D thx.culture=0.5.0
+-D thx_color
+-lib thx.core

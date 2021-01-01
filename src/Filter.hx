@@ -24,16 +24,14 @@ class Filter
 			{
 				var n = completion.text.toLowerCase();
 				var b = true;
-			  
-				  for (j in 0...word.length)
-				  {
-					  if (n.indexOf(word.charAt(j)) == -1)
-					  {
-						  b = false;
-						  break;
-					  }
-				  }
-
+				for (j in 0...word.length)
+				{
+					if (n.indexOf(word.charAt(j)) == -1)
+					{
+						b = false;
+						break;
+					}
+				}
 				if (b)
 				{
 					filtered_results.push(completion);
