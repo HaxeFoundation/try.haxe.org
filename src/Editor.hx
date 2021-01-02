@@ -143,7 +143,7 @@ class Editor {
 
 		new JQuery("body").keyup(onKey);
 
-    new JQuery("a[data-toggle='tab']").on("shown", function(e){
+    new JQuery("a[data-toggle='tab']").on("shown.bs.tab", function(e){
 			jsSource.refresh();
 			for(src in haxeEditors){
         src.codeMirror.refresh();
