@@ -1,13 +1,10 @@
 package api;
 
-import haxe.Exception;
 import api.Completion.CompletionResult;
 import api.Completion.CompletionType;
 import api.Completion.CompletionItem;
 #if php
-import php.Web;
-import Sys;
-import php.Lib;
+import haxe.io.Path;
 import sys.FileSystem;
 import sys.io.File;
 #end
@@ -524,8 +521,8 @@ class Compiler {
 
 		var docker = 'docker run --rm --read-only --net none --tmpfs /run --tmpfs /tmp ${mountDirs} -w /root/program ${Compiler.dockerContainer} sh -c "';
 
-		docker += ' lix scope create && lix use haxe ${correctHaxeVersion(program.haxeVersion)}';
-		docker += " && timeout -k 1s 1s haxe " + args.join(" ") + " > haxe_out 2> haxe_err";
+		File.saveContent(Path.join([programDir, ".haxerc"]), '{"version": "${correctHaxeVersion(program.haxeVersion)}", "resolveLibs": "scoped"}');
+		docker += " timeout -k 1s 1s haxe " + args.join(" ") + " > haxe_out 2> haxe_err";
 
 		if(isNeko) {
 			docker += ' && timeout -k 1s 1s neko test.n > raw_out 2> raw_err';
