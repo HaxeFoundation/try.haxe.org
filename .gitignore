@@ -3,6 +3,9 @@ www/app.js.map
 www/app/*
 www/examples/bin
 www/tmp/*
+www/lib/bootstrap/*
+www/lib/codemirror/*
+www/lib/js/*
 
 tmp/*
 lixSetup/haxe/haxe_libraries

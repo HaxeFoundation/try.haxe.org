@@ -143,7 +143,7 @@ class Editor {
 
 		new JQuery("body").keyup(onKey);
 
-    new JQuery("a[data-toggle='tab']").bind("shown", function(e){
+    new JQuery("a[data-toggle='tab']").on("shown", function(e){
 			jsSource.refresh();
 			for(src in haxeEditors){
         src.codeMirror.refresh();
@@ -480,7 +480,7 @@ class Editor {
       setDCE(program.dce);
       setAnalyzer(program.analyzer);
 
-      var versionElem = haxeVersion.find('select option:[value="${program.haxeVersion}"]');
+      var versionElem = haxeVersion.find('select option[value="${program.haxeVersion}"]');
       if(versionElem.length == 0) {
         // The version has been removed, move the program to the latest stable version
         versionElem = haxeVersion.find('select option').first();
