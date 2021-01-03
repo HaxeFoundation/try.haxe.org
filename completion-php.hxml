@@ -1,4 +1,5 @@
 -lib thx.semver
+-lib hx3compat
 -cp src
 -php app
 -main App

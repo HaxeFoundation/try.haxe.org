@@ -1,0 +1,32 @@
+{
+  "name": "try-haxe",
+  "version": "1.0.0",
+  "description": "try-haxe",
+  "main": "www/app.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "bootstrap": "^3.4.1",
+    "codemirror": "^5.59.1",
+    "pixi.js": "^5.3.7",
+    "stats.js": "^0.17.0",
+    "three": "^0.124.0"
+  },
+  "devDependencies": {
+    "lix": "^15.10.1"
+  },
+  "scripts": {
+    "postinstall": "haxe -x PostinstallLibs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RblSb/try-haxe.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RblSb/try-haxe/issues"
+  },
+  "homepage": "https://github.com/RblSb/try-haxe#readme"
+}

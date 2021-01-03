@@ -1,0 +1,3 @@
+# @install: lix --silent download "haxelib:/nape#2.0.20" into nape/2.0.20/haxelib
+-cp ${HAXE_LIBCACHE}/nape/2.0.20/haxelib/
+-D nape=2.0.20

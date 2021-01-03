@@ -4,9 +4,7 @@ import api.Completion.CompletionResult;
 import api.Completion.CompletionType;
 import api.Completion.CompletionItem;
 #if php
-import php.Web;
-import Sys;
-import php.Lib;
+import haxe.io.Path;
 import sys.FileSystem;
 import sys.io.File;
 #end
@@ -25,7 +23,7 @@ class Compiler {
 	var tmpDir : String;
 	var mainFile : String;
 	public static var haxePath = "haxe";
-	public static var dockerContainer = "thecodec/haxe-3.3.0.slim";
+	public static var dockerContainer = "try-haxe_compiler";
 
 	public function new(){}
 
@@ -36,6 +34,21 @@ class Compiler {
 			~/macro/
 		];
 		for( f in forbidden ) if( f.match( s ) ) throw "Unauthorized macro : "+f.matched(0)+"";
+	}
+
+	function correctHaxeVersion(version:String) {
+		var versions = getHaxeVersions();
+		for (v in versions.stable) {
+			if (v.version == version ) {
+				return v.version;
+			}
+		}
+		for (v in versions.dev) {
+			if (v.gitHash == version ) {
+				return v.gitHash;
+			}
+		}
+		return Haxe_4_1_5;
 	}
 
 	public function prepareProgram( program : Program ) {
@@ -132,6 +145,9 @@ class Compiler {
 				}
 
 			}
+			if ((p.haxeVersion == null) || (p.haxeVersion=="null")){
+				p.haxeVersion = Haxe_4_1_5;
+			}
 
 			for(module in p.modules) {
 				var file = tmpDir + module.name + ".hx";
@@ -140,8 +156,6 @@ class Compiler {
 				} catch(e:Dynamic) {
 					module.source = "// empty";
 				}
-
-
 			}
 
 			/*
@@ -199,7 +213,7 @@ class Compiler {
 
 		var args = [
 			"-main" , program.mainClass,
-			"-cp", tmpDir,
+			"-cp", ".",
 			"-v",
 			"--display" , display
 		];
@@ -218,11 +232,17 @@ class Compiler {
 			case NEKO(_):
 				args.push("-neko");
 				args.push("dummy.n");
+
+			case HL(_):
+				args.push("-hl");
+				args.push("dummy.hl");
+
+			case EVAL(_):
 		}
 
 		addLibs(args, program);
 
-		var out = runHaxe( program, args );
+		var out = runHaxeDocker( program, args );
 
 		try{
 			var xml = new haxe.xml.Access( Xml.parse( out.err ).firstChild() );
@@ -350,10 +370,13 @@ class Compiler {
 				embed : ""
 			}
 		}
+		if (tmpDir.length <= 0) {
+			throw '$program';
+		}
 
 		var args = [
 			"-main" , program.mainClass,
-			"-cp", tmpDir,
+			"-cp", ".",
 			"--times",
 			"-D", "macro-times",
 			"-dce", program.dce
@@ -375,17 +398,29 @@ class Compiler {
 				Api.checkSanity( name );
 				outputPath = tmpDir + name + ".js";
 				args.push( "-js" );
-				args.push( outputPath );
+				args.push(name + ".js");
 				html.body.push("<script src='//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>");
 				html.body.push("<script src='//markknol.github.io/console-log-viewer/console-log-viewer.js'></script>");
 				html.head.push("<link rel='stylesheet' href='"+Api.root+"/console.css' type='text/css'>");
 
 			case NEKO ( name ):
 				Api.checkSanity( name );
-				outputPath = tmpDir + name + ".n";
+				outputPath = name + ".n";
 				args.push( "-neko" );
-				args.push( name + ".n" );
+				args.push( outputPath );
 
+			case HL ( name ):
+				Api.checkSanity( name );
+				outputPath = name + ".hl";
+				args.push( "-hl" );
+				args.push( outputPath );
+
+			case EVAL ( name ):
+				Api.checkSanity( name );
+				outputPath = "";
+				args.push( "--run" );
+				args.push( program.mainClass );
+	
 			case SWF( name , version ):
 				Api.checkSanity( name );
 				outputPath = tmpDir + name + ".swf";
@@ -404,9 +439,8 @@ class Compiler {
 		}
 
 		addLibs(args, program, html);
-		//trace(args);
 
-		var out = runHaxe( program, args );
+		var out = runHaxeDocker( program, args );
 		var err = out.err.replace(tmpDir, "");
 		var errors = SourceTools.splitLines(err);
 
@@ -448,7 +482,7 @@ class Compiler {
 				case JS(_):
 					output.source = File.getContent(outputPath);
 					html.body.push("<script>" + output.source + "</script>");
-				case NEKO(_):
+				case NEKO(_) | HL(_) | EVAL(_):
 					html.body.push("<div style='overflow:auto; height:100%; width: 100%;'><pre>"+out.out+"</pre></div>");
 				default:
 			}
@@ -471,24 +505,31 @@ class Compiler {
 
 	function runHaxeDocker ( program:Program, args : Array<String> ) {
 		var isNeko = program.target.match(NEKO(_));
+		var isHL = program.target.match(HL(_));
+		var isEval = program.target.match(EVAL(_));
 		var programDir = FileSystem.absolutePath(tmpDir);
-		var haxeDir = FileSystem.absolutePath(tmpDir+'../../haxe/versions/${program.haxeVersion}/');
-		var haxelibDir =FileSystem.absolutePath(tmpDir+"../../haxe/haxelib");
+		// var haxeDir = FileSystem.absolutePath(tmpDir+'../../haxe/versions/${program.haxeVersion}/');
+		// var haxelibDir =FileSystem.absolutePath(tmpDir+"../../haxe/haxelib");
+		var haxeDir = "/srv/try-haxe/lixSetup/haxe";
+		var haxe_librariesDir = "/srv/try-haxe/lixSetup/haxe_libraries";
 
-		var mountDirs = '-v ${programDir}:/root/program -v ${haxelibDir}:/opt/haxelib:ro';
+		var hashlinkDir = "/srv/try-haxe/hashlink";
+		var haxe_librariesDir = "/srv/try-haxe/lixSetup/haxe_libraries";
 
-		if(FileSystem.exists(haxeDir)) {
-			mountDirs += ' -v ${haxeDir}:/opt/haxe:ro ';
-		}
+		var mountDirs = '-v ${programDir}:/root/program -v ${haxeDir}:/root/haxe:ro ' + 
+			'-v ${hashlinkDir}:/opt/hashlink:ro -v ${haxe_librariesDir}:/root/program/haxe_libraries';
 
 		var docker = 'docker run --rm --read-only --net none --tmpfs /run --tmpfs /tmp ${mountDirs} -w /root/program ${Compiler.dockerContainer} sh -c "';
 
-		docker += "timeout -k 1s 1s haxe " + args.join(" ") + " > haxe_out 2> haxe_err";
+		File.saveContent(Path.join([programDir, ".haxerc"]), '{"version": "${correctHaxeVersion(program.haxeVersion)}", "resolveLibs": "scoped"}');
+		docker += " timeout -k 1s 1s haxe " + args.join(" ") + " > haxe_out 2> haxe_err";
 
 		if(isNeko) {
 			docker += ' && timeout -k 1s 1s neko test.n > raw_out 2> raw_err';
 		}
-
+		if(isHL) {
+			docker += ' && LD_LIBRARY_PATH="/opt/hashlink:$$LD_LIBRARY_PATH" timeout -k 1s 1s /opt/hashlink/hl test.hl > raw_out 2> raw_err';
+		}
 		docker += "\"";
 
 		var proc = new sys.io.Process( docker , null );
@@ -559,13 +600,18 @@ class Compiler {
 		// if the compilation timeout it's probably because some infinite loop, clear the compier output
 		if(skipHaxeOut) haxe_out = "";
 
-		if(isNeko) {
+		if(isNeko || isHL) {
 			out += raw_out;
 			try {
 				FileSystem.deleteFile('$programDir/test.n');
-			} catch(e:Dynamic) {
-
-			}
+			} catch(e:Dynamic) {}
+			try {
+				FileSystem.deleteFile('$programDir/test.hl');
+			} catch(e:Dynamic) {}
+		}
+		if (isEval) {
+			out += haxe_out;
+			haxe_out = "";
 		}
 
 		var o = {
@@ -576,7 +622,6 @@ class Compiler {
 			out : out,
 			err : err
 		};
-
 		return o;
 
 	}
@@ -606,7 +651,7 @@ class Compiler {
 	}
 
 	public function getHaxeVersions():{stable:Array<Program.HaxeCompiler>, dev:Array<Program.HaxeCompiler>} {
-		return Utils.getHaxeVersions('../haxe/versions/');
+		return Utils.getHaxeVersions("/srv/try-haxe/lixSetup/haxe/versions");
 	}
 
 }

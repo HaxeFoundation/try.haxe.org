@@ -23,7 +23,7 @@ class Libs
 			{name:"format", help:"https://github.com/HaxeFoundation/format"},
 			{name:"tink_core", help:"https://github.com/haxetink/tink_core"},
 			{name:"tink_lang", help:"https://github.com/haxetink/tink_lang"},
-			{name:"tink_macro", help:"https://github.com/haxetink/tink_macro"},
+			{name:"tink_state", help:"https://github.com/haxetink/tink_state"},
 			{name:"thx.core", help:"https://github.com/fponticelli/thx.core"},
 			{name:"thx.culture", help:"https://github.com/fponticelli/thx.culture"},
 			{name:"hxColorToolkit", help:"https://github.com/andyli/hxColorToolkit"},
@@ -37,7 +37,7 @@ class Libs
 			{name:"format", help:"https://github.com/HaxeFoundation/format"},
 			{name:"tink_core", help:"https://github.com/haxetink/tink_core"},
 			{name:"tink_lang", help:"https://github.com/haxetink/tink_lang"},
-			{name:"tink_macro", help:"https://github.com/haxetink/tink_macro"},
+			{name:"tink_state", help:"https://github.com/haxetink/tink_state"},
 			{name:"thx.core", help:"https://github.com/fponticelli/thx.core"},
 			{name:"thx.culture", help:"https://github.com/fponticelli/thx.culture"},
 			{name:"hxColorToolkit", help:"https://github.com/andyli/hxColorToolkit"},
@@ -55,9 +55,29 @@ class Libs
 			{name:"thx.culture", help:"https://github.com/fponticelli/thx.culture"},
 			{name:"hxColorToolkit", help:"https://github.com/andyli/hxColorToolkit"},
 		],
+		"EVAL" => [
+			{name:"actuate" , help:"https://github.com/openfl/actuate",args : []},
+			{name:"format", help:"https://github.com/HaxeFoundation/format"},
+			{name:"tink_core", help:"https://github.com/haxetink/tink_core"},
+			{name:"tink_lang", help:"https://github.com/haxetink/tink_lang"},
+			{name:"tink_macro", help:"https://github.com/haxetink/tink_macro"},
+			{name:"thx.core", help:"https://github.com/fponticelli/thx.core"},
+			{name:"thx.culture", help:"https://github.com/fponticelli/thx.culture"},
+			{name:"hxColorToolkit", help:"https://github.com/andyli/hxColorToolkit"},
+		],
+		"HL" => [
+			{name:"actuate" , help:"https://github.com/openfl/actuate",args : []},
+			{name:"format", help:"https://github.com/HaxeFoundation/format"},
+			{name:"tink_core", help:"https://github.com/haxetink/tink_core"},
+			{name:"tink_lang", help:"https://github.com/haxetink/tink_lang"},
+			{name:"tink_macro", help:"https://github.com/haxetink/tink_macro"},
+			{name:"thx.core", help:"https://github.com/fponticelli/thx.core"},
+			{name:"thx.culture", help:"https://github.com/fponticelli/thx.culture"},
+			{name:"hxColorToolkit", help:"https://github.com/andyli/hxColorToolkit"},
+		],
 	];
 
-	static var defaultChecked : Map < String, Array<String> > = ["JS" => [], "SWF" => [], "NEKO" => []]; // array of lib names
+	static var defaultChecked : Map < String, Array<String> > = ["JS" => [], "SWF" => [], "NEKO" => [], "EVAL" => [], "HL" => []]; // array of lib names
 
 
 	static public function getLibsConfig(?target:Target, ?targetName:String):Array<LibConf>

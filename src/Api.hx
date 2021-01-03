@@ -114,29 +114,24 @@ class Api {
 			}
 			req.onData = function(src){
 				var program : api.Program = {
-			      uid : uid,
-						mainClass: main,
-			      modules : [
-							{
-				        name : main,
-				        source : src
-				      },
-						],
-						haxeVersion: Haxe_3_3_0_rc_1,
-			      dce : dce,
-			      analyzer: analyzer,
-			      target : SWF( "test", 11.4 ),
-			      libs : new Array()
+					uid : uid,
+					mainClass: main,
+					modules : [
+						{
+							name : main,
+							source : src
+						},
+					],
+					haxeVersion: Haxe_4_1_5,
+					dce : dce,
+					analyzer: analyzer,
+					target : SWF( "test", 11.4 ),
+					libs : new Array()
 				}
-
 				compiler.prepareProgram( program );
-
 				redirectToProgram( program.uid );
-
 			}
-
 			req.request(false);
-
 		} else {
 			redirectToProgram( program.uid );
 		}
@@ -149,7 +144,4 @@ class Api {
 		redirect = redirect.replace('__url__','/#' + uid );
 		php.Lib.print( redirect );
 	}
-
-
-
 }

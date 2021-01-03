@@ -1,0 +1,5 @@
+version: '3'
+services:
+  try_haxe_compiler:
+    image: try-haxe_compiler
+    build: .

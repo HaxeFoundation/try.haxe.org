@@ -1,4 +1,5 @@
 -lib thx.semver
+-lib hx3compat
 
 -cp src
 -php www/app
@@ -6,6 +7,7 @@
 
 --next
 -lib jQueryExtern
+-lib hx3compat
 -cp src
 -js www/app.js
 -main App

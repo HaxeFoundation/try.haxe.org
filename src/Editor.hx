@@ -9,7 +9,6 @@ import js.codemirror.*;
 import js.jquery.*;
 import js.Lib;
 
-// using js.bootstrap.Button;
 using Lambda;
 using StringTools;
 using haxe.EnumTools;
@@ -144,7 +143,7 @@ class Editor {
 
 		new JQuery("body").keyup(onKey);
 
-    new JQuery("a[data-toggle='tab']").bind("shown", function(e){
+    new JQuery("a[data-toggle='tab']").on("shown.bs.tab", function(e){
 			jsSource.refresh();
 			for(src in haxeEditors){
         src.codeMirror.refresh();
@@ -170,7 +169,7 @@ class Editor {
       modules : [for(src in haxeEditors) {name: src.nameElement.val(), source: src.codeMirror.getValue()}],
       dce : "full",
       analyzer : "yes",
-			haxeVersion: Haxe_3_3_0_rc_1,
+			haxeVersion: Haxe_4_1_5,
       target : SWF( "test", 11.4 ),
       libs : new Array()
     };
@@ -356,12 +355,11 @@ class Editor {
   }
 
   function fullscreen(){
-     js.Syntax.code("var el = window.document.documentElement;
+    js.Syntax.code("var el = window.document.documentElement;
             var rfs = el.requestFullScreen
                 || el.webkitRequestFullScreen
                 || el.mozRequestFullScreen;
               rfs.call(el); ");
-
   }
 
   function toggleFullscreenRunner(e : Event){
@@ -389,6 +387,10 @@ class Editor {
         api.Program.Target.SWF('test',11.4);
 			case "NEKO":
 				api.Program.Target.NEKO('test');
+      case "HL":
+        api.Program.Target.HL('test');
+      case "EVAL":
+        api.Program.Target.EVAL('test');
       case _ :
         api.Program.Target.JS('test');
     }
@@ -416,6 +418,12 @@ class Editor {
 
 			case NEKO(_):
 				jsTab.hide();
+
+      case HL(_):
+        jsTab.hide();
+
+      case EVAL(_):
+        jsTab.hide();
     }
 
     var radio = new JQuery( 'input[name=\'target\'][value=\'$sel\']' );
@@ -472,7 +480,7 @@ class Editor {
       setDCE(program.dce);
       setAnalyzer(program.analyzer);
 
-      var versionElem = haxeVersion.find('select option:[value="${program.haxeVersion}"]');
+      var versionElem = haxeVersion.find('select option[value="${program.haxeVersion}"]');
       if(versionElem.length == 0) {
         // The version has been removed, move the program to the latest stable version
         versionElem = haxeVersion.find('select option').first();
@@ -545,12 +553,12 @@ class Editor {
 		var module = program.modules.find(function(m) return m.name == editorData.nameElement.val());
 		if (targetCompletionType == null)
 		{
-			cnxCompiler.autocomplete(program, module, idx, completionType , function( comps:CompletionResult ) saveCompletion(editorData, comps, onComplete));
-		}
+      cnxCompiler.autocomplete(program, module, idx, completionType , function( comps:CompletionResult ) saveCompletion(editorData, comps, onComplete));
+    }
 		else if (targetCompletionType == completionType)
 		{
-			cnxCompiler.autocomplete(program, module, idx, completionType , function( comps:CompletionResult ) saveCompletion(editorData, comps, onComplete));
-		}
+      cnxCompiler.autocomplete(program, module, idx, completionType , function( comps:CompletionResult ) saveCompletion(editorData, comps, onComplete));
+    }
 	}
 
 	public function autocomplete(editorData:EditorData) {
@@ -634,7 +642,7 @@ class Editor {
     for(data in haxeEditors) clearErrors(data);
 		untyped compileBtn.button('loading');
     updateProgram();
-		cnxCompiler.compile(program, onCompile);
+    cnxCompiler.compile(program, onCompile);
 	}
 
 	function updateProgram(){
@@ -782,8 +790,10 @@ class Editor {
 
     for(key in errorMap.keys()) {
       var editorData = haxeEditors.find(function(data) return data.nameElement.val() == key);
-      editorData.lint.data = errorMap.get(key);
-      editorData.lint.updateLinting(editorData.codeMirror);
+      if (editorData != null) {
+        editorData.lint.data = errorMap.get(key);
+        editorData.lint.updateLinting(editorData.codeMirror);
+      }
     }
   }
 

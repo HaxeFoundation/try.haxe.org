@@ -31,15 +31,15 @@
   <link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.css">
 
 
-  <link rel="stylesheet" href="lib/codemirror-5.28.0/lib/codemirror.css"/>
-  <link rel="stylesheet" href="lib/codemirror-5.28.0/addon/hint/show-hint.css"/>
-  <link rel="stylesheet" href="lib/codemirror-5.28.0/theme/rubyblue.css"/>
-  <link rel="stylesheet" href="lib/codemirror-5.28.0/theme/cobalt.css"/>
+  <link rel="stylesheet" href="lib/codemirror/lib/codemirror.css"/>
+  <link rel="stylesheet" href="lib/codemirror/addon/hint/show-hint.css"/>
+  <link rel="stylesheet" href="lib/codemirror/theme/rubyblue.css"/>
+  <link rel="stylesheet" href="lib/codemirror/theme/cobalt.css"/>
   <link rel="stylesheet" href="style.css"/>
 
-  <link rel="stylesheet" href="lib/codemirror-5.28.0/addon/fold/foldgutter.css">
-  <link rel="stylesheet" href="lib/codemirror-5.28.0/addon/dialog/dialog.css">
-  <link href="lib/codemirror-5.28.0/addon/lint/lint.css" type="text/css" rel="stylesheet">
+  <link rel="stylesheet" href="lib/codemirror/addon/fold/foldgutter.css">
+  <link rel="stylesheet" href="lib/codemirror/addon/dialog/dialog.css">
+  <link href="lib/codemirror/addon/lint/lint.css" type="text/css" rel="stylesheet">
 
   <link rel="stylesheet" type="text/css" href="haxe-nav.css"/>
 </head>
@@ -103,21 +103,21 @@
   					<li class=" dropdown">
   						<a class="dropdown-toggle" data-toggle="dropdown" href="#">Connect <b class="caret"></b></a>
   						<ul class="dropdown-menu">
-  							<li><a href="https://github.com/clemos/try-haxe/"><i class="fa fa-github"></i> Github</a></li>
-  							<li><a href="https://github.com/clemos/try-haxe/issues"><i class="fa fa-github"></i> Bug reports</a></li>
-  							<li><a href="https://stackoverflow.com/questions/tagged/haxe"><i class="fa fa-stack-exchange"></i> Stack Overflow</a></li>
-  							<li><a href="https://groups.google.com/group/haxelang?hl=en"><i class="fa fa-envelope-o"></i> Google Groups</a></li>
-  							<li><a href="https://webchat.freenode.net/?channels=haxe"><i class="fa fa-comments-o"></i> IRC</a></li>
-  							<li><a href="https://haxe.org/blog"><i class="fa fa-rss"></i> Blog</a></li>
-  							<li class="divider"></li>
-  							<li><a href="https://plus.google.com/communities/103302587329918132234"><i class="fa fa-google-plus"></i> Google+</a></li>
-  							<li><a href="https://www.facebook.com/haxe.org/"><i class="fa fa-facebook"></i> Facebook</a></li>
-  							<li><a href="https://twitter.com/search?q=%23haxe"><i class="fa fa-twitter"></i> #haxe</a></li>
-  							<li><a href="https://twitter.com/haxelang"><i class="fa fa-twitter"></i> @haxelang</a></li>
-  							<li><a href="https://twitter.com/haxe_org"><i class="fa fa-twitter"></i> @haxe_org</a></li>
-  							<li class="divider"></li>
-  							<li><a href="https://haxe.org/foundation/contact.html">Contact</a></li>
-  						</ul>
+							<li><a href="https://github.com/HaxeFoundation" rel="external"><i class="fa fa-github"></i> Github</a></li>
+							<li><a href="https://github.com/HaxeFoundation/haxe/issues" rel="external"><i class="fa fa-github"></i> Bug reports</a></li>
+							<li><a href="https://stackoverflow.com/questions/tagged/haxe" rel="external"><i class="fa fa-stack-overflow"></i> Stack Overflow</a></li>
+							<li><a href="http://community.haxe.org/" rel="external"><i class="fa fa-envelope-o"></i> Forums</a></li>
+							<li><a href="https://discordapp.com/invite/0uEuWH3spjck73Lo" rel="external nofollow"><i class="fa fa-comments-o"></i> Discord</a></li>
+							<li><a href="https://gitter.im/HaxeFoundation/haxe" rel="external nofollow"><i class="fa fa-comments-o"></i> Gitter</a></li>
+							<li><a href="https://haxe.org/blog"><i class="fa fa-rss"></i> Blog</a></li>
+							<li class="divider"></li>
+							<li><a href="https://www.facebook.com/haxe.org/" rel="external"><i class="fa fa-facebook"></i> Facebook</a></li>
+							<li><a href="https://twitter.com/search?q=%23haxe" rel="external"><i class="fa fa-twitter"></i> #haxe</a></li>
+							<li><a href="https://twitter.com/haxelang" rel="external"><i class="fa fa-twitter"></i> @haxelang</a></li>
+							<li><a href="https://twitter.com/haxe_org" rel="external"><i class="fa fa-twitter"></i> @haxe_org</a></li>
+							<li class="divider"></li>
+							<li><a href="https://haxe.org/foundation/contact.html" rel="external">Contact</a></li>
+						</ul>
   					</li>
   				</ul>
 
@@ -192,6 +192,8 @@ class Macro {
                       <label class="radio inline"><input type="radio" name="target" value="JS" checked></input> Javascript</label>
                       <label class="radio inline"><input type="radio" name="target" value="SWF"></input> SWF</label>
                       <label class="radio inline"><input type="radio" name="target" value="NEKO"></input> Neko</label>
+                      <label class="radio inline"><input type="radio" name="target" value="EVAL"></input> Eval</label>
+                      <label class="radio inline"><input type="radio" name="target" value="HL"></input> Hashlink</label>
                     </div>
 
                   </div>
@@ -220,6 +222,8 @@ class Macro {
                     <div class="controls SWF-libs"></div>
                     <div class="controls JS-libs"></div>
                     <div class="controls NEKO-libs"></div>
+                    <div class="controls EVAL-libs"></div>
+                    <div class="controls HL-libs"></div>
 
                   </div>
               </form>
@@ -310,7 +314,7 @@ class Macro {
       </div>
       <!---
       <div class="span6 text-muted">
-        <span class="pull-right">Haxe version: 3.4.2</span>
+        <span class="pull-right">Haxe version: 4.1.5</span>
       </div>
       -->
     </div>
@@ -325,36 +329,32 @@ class Macro {
   <!-- JavaScript at the bottom for fast page loading -->
 
   <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-  <script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.1.min.js"><\/script>')</script>
-
-	<script src="https://haxe.org/js/bootstrap.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 
   <!-- scripts concatenated and minified via build script -->
-  <script src="lib/codemirror-5.28.0/lib/codemirror.js"></script>
-  <script src="lib/codemirror-5.28.0/addon/hint/show-hint.js"></script>
-  <script src="lib/codemirror-5.28.0/mode/haxe/haxe.js"></script>
-  <script src="lib/codemirror-5.28.0/mode/javascript/javascript.js"></script>
-  <script src="lib/codemirror-5.28.0/mode/xml/xml.js"></script>
-  <script src="lib/codemirror-5.28.0/mode/css/css.js"></script>
-  <script src="lib/codemirror-5.28.0/mode/htmlmixed/htmlmixed.js"></script>
-	<!--script src="https://haxe.org/js/bootstrap.min.js"></script-->
+  <script src="lib/codemirror/lib/codemirror.js"></script>
+  <script src="lib/codemirror/addon/hint/show-hint.js"></script>
+  <script src="lib/codemirror/mode/haxe/haxe.js"></script>
+  <script src="lib/codemirror/mode/javascript/javascript.js"></script>
+  <script src="lib/codemirror/mode/xml/xml.js"></script>
+  <script src="lib/codemirror/mode/css/css.js"></script>
+  <script src="lib/codemirror/mode/htmlmixed/htmlmixed.js"></script>
   <script src="lib/bootstrap/js/bootstrap.min.js" ></script>
-  <!--<script src="lib/codemirror-5.28.0/addon/search/searchcursor.js"></script>
-  <script src="lib/codemirror-5.28.0/addon/search/search.js"></script>
-  <script src="lib/codemirror-5.28.0/addon/dialog/dialog.js"></script>-->
-  <script src="lib/codemirror-5.28.0/addon/comment/comment.js"></script>
-  <script src="lib/codemirror-5.28.0/addon/lint/lint.js"></script>
-  <script src="lib/codemirror-5.28.0/addon/wrap/hardwrap.js"></script>
-  <script src="lib/codemirror-5.28.0/keymap/sublime.js"></script>
+  <!--<script src="lib/codemirror/addon/search/searchcursor.js"></script>
+  <script src="lib/codemirror/addon/search/search.js"></script>
+  <script src="lib/codemirror/addon/dialog/dialog.js"></script>-->
+  <script src="lib/codemirror/addon/comment/comment.js"></script>
+  <script src="lib/codemirror/addon/lint/lint.js"></script>
+  <script src="lib/codemirror/addon/wrap/hardwrap.js"></script>
+  <script src="lib/codemirror/keymap/sublime.js"></script>
 
-  <script src="lib/codemirror-5.28.0/addon/hint/show-hint.js"></script>
-  <script src="lib/codemirror-5.28.0/addon/edit/matchbrackets.js"></script>
-  <script src="lib/codemirror-5.28.0/addon/edit/closebrackets.js"></script>
-  <script src="lib/codemirror-5.28.0/addon/fold/foldcode.js"></script>
-  <script src="lib/codemirror-5.28.0/addon/fold/foldgutter.js"></script>
-  <script src="lib/codemirror-5.28.0/addon/fold/brace-fold.js"></script>
-  <script src="lib/codemirror-5.28.0/addon/fold/comment-fold.js"></script>
+  <script src="lib/codemirror/addon/hint/show-hint.js"></script>
+  <script src="lib/codemirror/addon/edit/matchbrackets.js"></script>
+  <script src="lib/codemirror/addon/edit/closebrackets.js"></script>
+  <script src="lib/codemirror/addon/fold/foldcode.js"></script>
+  <script src="lib/codemirror/addon/fold/foldgutter.js"></script>
+  <script src="lib/codemirror/addon/fold/brace-fold.js"></script>
+  <script src="lib/codemirror/addon/fold/comment-fold.js"></script>
   <script src="lib/js/addons/show-context-info.js"></script>
   <script src="app.js?v=2"></script>
   <!-- end scripts -->
