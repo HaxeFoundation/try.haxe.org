@@ -5,10 +5,10 @@
         ["downloader.hxml"]
     ],
     "[haxe]": {
-        "editor.formatOnSave": false,
-        "editor.formatOnPaste": false
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true
     },
     "editor.codeActionsOnSave": {
-        "source.sortImports": false
+        "source.sortImports": true
     },
 }

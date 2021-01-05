@@ -1,4 +1,5 @@
-package ;
+package;
+
 import js.codemirror.*;
 
 typedef Info = {
@@ -12,23 +13,17 @@ typedef Info = {
  * ...
  * @author AS3Boyan
  */
-
-//Ported from HIDE, adjusted for try-haxe
-class HaxeLint
-{
+// Ported from HIDE, adjusted for try-haxe
+class HaxeLint {
 	public var data:Array<Info> = [];
 
-	public function new() {
-
-	}
+	public function new() {}
 
 	public function getLintData(cm:CodeMirror, update:haxe.Constraints.Function, options:Dynamic) {
 		update(data);
 	}
-    
-	public function updateLinting(cm:CodeMirror):Void
-	{
+
+	public function updateLinting(cm:CodeMirror):Void {
 		untyped cm.performLint();
 	}
-	
 }

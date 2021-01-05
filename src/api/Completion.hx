@@ -1,8 +1,8 @@
 package api;
 
 typedef Completion = {
-	trigger : String,
-	contents : String
+	trigger:String,
+	contents:String
 }
 
 @:enum
@@ -11,8 +11,7 @@ abstract CompletionType(Int) {
 	var TOP_LEVEL = 1;
 }
 
-typedef CompletionItem = 
-{
+typedef CompletionItem = {
 	@:optional
 	var d:String;
 	@:optional
