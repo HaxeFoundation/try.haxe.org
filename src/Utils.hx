@@ -1,11 +1,9 @@
 import haxe.Exception;
 import haxe.Json;
 import haxe.io.Path;
+import sys.FileSystem;
 import sys.io.File;
 import api.Program;
-import sys.FileSystem;
-
-using StringTools;
 
 class Utils {
 	static function readVersionJson(path:String) {

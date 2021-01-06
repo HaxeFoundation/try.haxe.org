@@ -1,16 +1,15 @@
 import haxe.remoting.AsyncProxy;
-import api.Completion.CompletionResult;
-import api.Completion.CompletionType;
-import api.Completion.CompletionItem;
-import api.Program;
 import haxe.remoting.HttpAsyncConnection;
 import js.Browser;
+import js.Lib;
 import js.codemirror.*;
 import js.jquery.*;
-import js.Lib;
+import api.Completion.CompletionItem;
+import api.Completion.CompletionResult;
+import api.Completion.CompletionType;
+import api.Program;
 
 using Lambda;
-using StringTools;
 using haxe.EnumTools;
 
 typedef EditorData = {
@@ -166,7 +165,8 @@ class Editor {
 			uid: null,
 			mainClass: "Test",
 			modules: [
-				for (src in haxeEditors) {name: src.nameElement.val(), source: src.codeMirror.getValue()}
+				for (src in haxeEditors)
+					{name: src.nameElement.val(), source: src.codeMirror.getValue()}
 			],
 			dce: "full",
 			analyzer: "yes",

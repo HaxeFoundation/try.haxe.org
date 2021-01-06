@@ -1,13 +1,11 @@
-import haxe.remoting.HttpConnection;
 import haxe.remoting.Context;
-import sys.io.File;
-import sys.FileSystem;
-import php.Web;
-import php.Lib;
+import haxe.remoting.HttpConnection;
 import haxe.web.Dispatch;
+import php.Lib;
+import php.Web;
+import sys.FileSystem;
+import sys.io.File;
 import template.Templates;
-
-using StringTools;
 
 class Api {
 	var program:api.Program;

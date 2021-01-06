@@ -1,10 +1,10 @@
 package js.codemirror;
 
-import Completion;
-import js.jquery.JQuery;
 import js.Browser;
-import js.html.DivElement;
 import js.codemirror.*;
+import js.html.DivElement;
+import js.jquery.JQuery;
+import Completion;
 
 /**
  * ...
@@ -31,9 +31,9 @@ class ColorPreview {
 		var color:String = null;
 
 		if (word != null && word.length > 2) {
-			if (StringTools.startsWith(word, "0x")) {
+			if (word.startsWith("0x")) {
 				color = word.substr(2);
-			} else if (StringTools.startsWith(word, "#")) {
+			} else if (word.startsWith("#")) {
 				color = word.substr(1);
 			}
 

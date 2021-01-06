@@ -1,13 +1,13 @@
 package;
 
-import api.Completion.CompletionType;
-import api.Completion.CompletionResult;
-import js.codemirror.CodeMirror;
-import js.codemirror.CodeMirror.Pos;
-import api.Completion.CompletionItem;
 import js.Browser;
+import js.codemirror.CodeMirror.Pos;
+import js.codemirror.CodeMirror;
 import js.html.DivElement;
 import js.html.SpanElement;
+import api.Completion.CompletionItem;
+import api.Completion.CompletionResult;
+import api.Completion.CompletionType;
 
 /**
  * ...
@@ -181,7 +181,7 @@ class FunctionParametersHelper {
 			parameters = [];
 
 			for (j in 0...positions.length) {
-				var param:String = StringTools.trim(type.substring(positions[j].start, positions[j].end));
+				var param:String = type.substring(positions[j].start, positions[j].end).trim();
 
 				if (j < positions.length - 1) {
 					parameters.push(param);
