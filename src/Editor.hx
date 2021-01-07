@@ -36,6 +36,8 @@ class Editor {
 	var gateway:String;
 	var apiRoot:String;
 
+	var selectedJsVersion:ECMAScriptVersion;
+
 	var form:JQuery;
 	var haxeEditors:Array<EditorData> = [];
 	var jsSource:CodeMirror;
@@ -44,6 +46,7 @@ class Editor {
 	var compileBtn:JQuery;
 	var libs:JQuery;
 	var targets:JQuery;
+	var jsVersion:JQuery;
 	var mainName:JQuery;
 	var dceName:JQuery;
 	var analyzerName:JQuery;
@@ -74,6 +77,8 @@ class Editor {
 	public function new() {
 		markers = [];
 		lineHandles = [];
+
+		selectedJsVersion = ES6;
 
 		// CodeMirror.commands.autocomplete = autocomplete;
 		CodeMirror.commands.compile = function(_) compile();
@@ -107,6 +112,7 @@ class Editor {
 		compileBtn = new JQuery(".compile-btn");
 		libs = new JQuery("#hx-options-form .hx-libs");
 		targets = new JQuery("#hx-options-form .hx-targets");
+		jsVersion = new JQuery("#hx-options-form .hx-js-es-version");
 		stage = new JQuery(".js-output .js-canvas");
 		outputTab = new JQuery("#output");
 		jsTab = new JQuery("a[href='#js-source']");
@@ -152,6 +158,7 @@ class Editor {
 		dceName.on("change", "input[name='dce']", onDce);
 		analyzerName.on("change", "input[name='analyzer']", onAnalyzer);
 		targets.on("change", "input[name='target']", onTarget);
+		jsVersion.on("change", "input[name='js-es']", onJsVersion);
 		haxeVersion.on("change", "select", onHaxeVersion);
 
 		compileBtn.click(compile);
@@ -205,7 +212,7 @@ class Editor {
 
 		initLibs();
 
-		setTarget(api.Program.Target.JS("test"));
+		setTarget(api.Program.Target.JS("test", selectedJsVersion));
 
 		var uid = Browser.window.location.hash;
 		if (uid.length > 0) {
@@ -384,7 +391,7 @@ class Editor {
 			case "EVAL":
 				api.Program.Target.EVAL('test');
 			case _:
-				api.Program.Target.JS('test');
+				api.Program.Target.JS('test', selectedJsVersion);
 		}
 
 		if (name == "SWF") {
@@ -394,6 +401,19 @@ class Editor {
 		setTarget(target);
 	}
 
+	function onJsVersion(e:Event) {
+		var cb = new JQuery(e.target);
+		var name = cb.val();
+
+		selectedJsVersion = switch (name) {
+			case "ES5":
+				ES5;
+			case _:
+				ES6;
+		}
+		setTarget(JS("test", selectedJsVersion));
+	}
+
 	function setTarget(target:api.Program.Target) {
 		program.target = target;
 		libs.find(".controls").hide();
@@ -401,19 +421,12 @@ class Editor {
 		var sel:String = Type.enumConstructor(target);
 
 		switch (target) {
-			case JS(_):
+			case JS(_, _):
+				jsVersion.fadeIn();
 			// jsTab.fadeIn();
 
-			case SWF(_, _):
-				jsTab.hide();
-
-			case NEKO(_):
-				jsTab.hide();
-
-			case HL(_):
-				jsTab.hide();
-
-			case EVAL(_):
+			case SWF(_, _) | NEKO(_) | HL(_) | EVAL(_):
+				jsVersion.hide();
 				jsTab.hide();
 		}
 

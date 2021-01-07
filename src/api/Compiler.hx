@@ -373,11 +373,20 @@ class Compiler {
 		var html:HTMLConf = {head: [], body: []};
 
 		switch (program.target) {
-			case JS(name):
+			case JS(name, version):
 				Api.checkSanity(name);
 				outputPath = tmpDir + "run.js";
 				args.push("-js");
 				args.push('run.js');
+				switch (version) {
+					case ES5:
+						args.push("-D");
+						args.push("js-es=5");
+					case ES6:
+						args.push("-D");
+						args.push("js-es=6");
+				}
+
 				html.body.push("<script src='//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>");
 				html.body.push("<script src='//markknol.github.io/console-log-viewer/console-log-viewer.js'></script>");
 				html.head.push("<link rel='stylesheet' href='" + Api.root + "/console.css' type='text/css'>");

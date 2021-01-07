@@ -17,11 +17,16 @@ typedef Module = {
 }
 
 enum Target {
-	JS(name:String);
+	JS(name:String, version:ECMAScriptVersion);
 	NEKO(name:String);
 	EVAL(name:String);
 	HL(name:String);
 	SWF(name:String, ?version:Float);
+}
+
+enum ECMAScriptVersion {
+	ES5;
+	ES6;
 }
 
 @:transitive
