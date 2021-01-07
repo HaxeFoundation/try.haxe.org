@@ -1,14 +1,13 @@
+import api.Program.ProgramV2;
 import haxe.remoting.Context;
-import haxe.remoting.HttpConnection;
 import haxe.web.Dispatch;
 import php.Lib;
-import php.Web;
 import sys.FileSystem;
 import sys.io.File;
 import template.Templates;
 
 class Api {
-	var program:api.Program;
+	var program:api.Program.ProgramV2;
 	var dir:String;
 
 	public static var base:String;
@@ -104,7 +103,7 @@ class Api {
 		var uid = 'u' + haxe.crypto.Md5.encode(url);
 		var compiler = new api.Compiler();
 
-		var program:api.Program = compiler.getProgram(uid);
+		var program:ProgramV2 = compiler.getProgram(uid);
 
 		if (program == null) {
 			var req = new haxe.Http(url);
@@ -114,7 +113,7 @@ class Api {
 				throw m;
 			}
 			req.onData = function(src) {
-				var program:api.Program = {
+				var program:ProgramV2 = {
 					uid: uid,
 					mainClass: main,
 					modules: [
@@ -126,7 +125,7 @@ class Api {
 					haxeVersion: Haxe_4_1_5,
 					dce: dce,
 					analyzer: analyzer,
-					target: SWF("test", 11.4),
+					target: JS("test", ES6),
 					libs: new Array()
 				}
 				compiler.prepareProgram(program);

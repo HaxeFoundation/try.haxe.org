@@ -4,6 +4,8 @@ import haxe.Exception;
 import api.Completion.CompletionItem;
 import api.Completion.CompletionResult;
 import api.Completion.CompletionType;
+import api.Program.ProgramV2;
+import api.Program.Target;
 #if php
 import haxe.io.Path;
 import sys.FileSystem;
@@ -50,7 +52,7 @@ class Compiler {
 		return Haxe_4_1_5;
 	}
 
-	public function prepareProgram(program:Program) {
+	public function prepareProgram(program:ProgramV2) {
 		while (program.uid == null) {
 			var id = haxe.crypto.Md5.encode(Std.string(Math.random()) + Std.string(Date.now().getTime()));
 			id = id.substr(0, 5);
@@ -102,7 +104,7 @@ class Compiler {
 	}
 
 	// public function getProgram(uid:String):{p:Program, o:Program.Output}
-	public function getProgram(uid:String):Program {
+	public function getProgram(uid:String):ProgramV2 {
 		Api.checkSanity(uid);
 
 		if (FileSystem.isDirectory(Api.tmp + "/" + uid)) {
@@ -118,12 +120,19 @@ class Compiler {
 
 			s = File.getContent(tmpDir + "program");
 
-			var p:Program = haxe.Unserializer.run(s);
+			var p:ProgramV2 = haxe.Unserializer.run(s);
+			if ((p.target is Target)) {
+				var target:Target = cast p.target;
+				switch (target) {
+					case JS(name):
+						p.target = JS(name, ES6);
+					case _:
+				}
+			}
 
 			if (p.mainClass == null) {
 				// old format!
 				var old:Dynamic = haxe.Unserializer.run(s);
-
 				p = {
 					uid: old.uid,
 					mainClass: old.main.name,
@@ -191,7 +200,7 @@ class Compiler {
 	}
 
 	// TODO: topLevel competion
-	public function autocomplete(program:Program, module:Program.Module, idx:Int, completionType:CompletionType):CompletionResult {
+	public function autocomplete(program:ProgramV2, module:Program.Module, idx:Int, completionType:CompletionType):CompletionResult {
 		try {
 			prepareProgram(program);
 		} catch (err:String) {
@@ -301,7 +310,7 @@ class Compiler {
 		return {errors: SourceTools.splitLines(out.err.replace(tmpDir, ""))};
 	}
 
-	function addLibs(args:Array<String>, program:Program, ?html:HTMLConf) {
+	function addLibs(args:Array<String>, program:ProgramV2, ?html:HTMLConf) {
 		var availableLibs = Libs.getLibsConfig(program.target);
 		for (l in availableLibs) {
 			if (program.libs.contains(l.name)) {
@@ -326,7 +335,7 @@ class Compiler {
 		}
 	}
 
-	public function compile(program:Program):Null<Dynamic> {
+	public function compile(program:ProgramV2):Null<Dynamic> {
 		// TODO investigate return type and proxy callback
 		try {
 			prepareProgram(program);
@@ -503,7 +512,7 @@ class Compiler {
 		return output;
 	}
 
-	function runHaxeDocker(program:Program, args:Array<String>) {
+	function runHaxeDocker(program:ProgramV2, args:Array<String>) {
 		var programDir = FileSystem.absolutePath(tmpDir);
 
 		var outDir = '/srv/try-haxe/outTemp/${program.uid}';
@@ -528,7 +537,7 @@ class Compiler {
 		return processOutput(program, programDir, outDir, proc.exitCode());
 	}
 
-	function processOutput(program:Program, programDir:String, outDir:String, exitCode:Int) {
+	function processOutput(program:ProgramV2, programDir:String, outDir:String, exitCode:Int) {
 		var out = "";
 		var err = "";
 

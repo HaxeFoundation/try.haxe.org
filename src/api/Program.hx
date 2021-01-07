@@ -11,12 +11,31 @@ typedef Program = {
 	analyzer:String,
 }
 
+typedef ProgramV2 = {
+	uid:String,
+	mainClass:String,
+	modules:Array<Module>,
+	target:TargetV2,
+	haxeVersion:HaxeVersion,
+	libs:Array<String>,
+	dce:String,
+	analyzer:String,
+}
+
 typedef Module = {
 	name:String,
 	source:String
 }
 
 enum Target {
+	JS(name:String);
+	NEKO(name:String);
+	EVAL(name:String);
+	HL(name:String);
+	SWF(name:String, ?version:Float);
+}
+
+enum TargetV2 {
 	JS(name:String, version:ECMAScriptVersion);
 	NEKO(name:String);
 	EVAL(name:String);

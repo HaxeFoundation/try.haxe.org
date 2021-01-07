@@ -106,12 +106,12 @@ class Libs {
 
 	static var defaultChecked:Map<String, Array<String>> = ["JS" => [], "SWF" => [], "NEKO" => [], "EVAL" => [], "HL" => []]; // array of lib names
 
-	static public function getLibsConfig(?target:Target, ?targetName:String):Array<LibConf> {
+	static public function getLibsConfig(?target:TargetV2, ?targetName:String):Array<LibConf> {
 		var name = targetName != null ? targetName : Type.enumConstructor(target);
 		return if (available.exists(name)) return available.get(name) else [];
 	}
 
-	static public function getDefaultLibs(?target:Target, ?targetName:String):Array<String> {
+	static public function getDefaultLibs(?target:TargetV2, ?targetName:String):Array<String> {
 		var name = targetName != null ? targetName : Type.enumConstructor(target);
 		return if (defaultChecked.exists(name)) return defaultChecked.get(name) else [];
 	}

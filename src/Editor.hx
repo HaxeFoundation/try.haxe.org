@@ -30,7 +30,7 @@ class Editor {
 
 	var cnx:HttpAsyncConnection;
 
-	var program:Program;
+	var program:ProgramV2;
 	var output:Output;
 
 	var gateway:String;
@@ -212,7 +212,7 @@ class Editor {
 
 		initLibs();
 
-		setTarget(api.Program.Target.JS("test", selectedJsVersion));
+		setTarget(api.Program.TargetV2.JS("test", selectedJsVersion));
 
 		var uid = Browser.window.location.hash;
 		if (uid.length > 0) {
@@ -383,15 +383,15 @@ class Editor {
 		var name = cb.val();
 		var target = switch (name) {
 			case "SWF":
-				api.Program.Target.SWF('test', 11.4);
+				api.Program.TargetV2.SWF('test', 11.4);
 			case "NEKO":
-				api.Program.Target.NEKO('test');
+				api.Program.TargetV2.NEKO('test');
 			case "HL":
-				api.Program.Target.HL('test');
+				api.Program.TargetV2.HL('test');
 			case "EVAL":
-				api.Program.Target.EVAL('test');
+				api.Program.TargetV2.EVAL('test');
 			case _:
-				api.Program.Target.JS('test', selectedJsVersion);
+				api.Program.TargetV2.JS('test', selectedJsVersion);
 		}
 
 		if (name == "SWF") {
@@ -414,7 +414,7 @@ class Editor {
 		setTarget(JS("test", selectedJsVersion));
 	}
 
-	function setTarget(target:api.Program.Target) {
+	function setTarget(target:api.Program.TargetV2) {
 		program.target = target;
 		libs.find(".controls").hide();
 
@@ -461,7 +461,7 @@ class Editor {
 	}
 
 	// function onProgram(p:{p:Program, o:Output})
-	function onProgram(p:Program) {
+	function onProgram(p:ProgramV2) {
 		// trace(p);
 		if (p != null) {
 			// sharing
