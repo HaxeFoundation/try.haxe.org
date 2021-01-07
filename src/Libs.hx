@@ -33,6 +33,7 @@ class Libs {
 			{name: "pixijs", head: ["<script src='../../../lib/js/pixi.min.js'></script>"]},
 			{name: "utest", help: "https://github.com/haxe-utest/utest"},
 			{name: "hx3compat", help: "https://github.com/HaxeFoundation/hx3compat"},
+			{name: "safety", help: "https://github.com/RealyUniqueName/Safety"},
 		],
 		"SWF" => [
 			{name: "actuate", help: "https://github.com/openfl/actuate", args: []},
@@ -51,6 +52,7 @@ class Libs {
 			{name: "away3d", swf: {src: "away3d4.swf"}, help: "http://away3d.com/livedocs/away3d/4.0/"},
 			{name: "utest", help: "https://github.com/haxe-utest/utest"},
 			{name: "hx3compat", help: "https://github.com/HaxeFoundation/hx3compat"},
+			{name: "safety", help: "https://github.com/RealyUniqueName/Safety"},
 		],
 		"NEKO" => [
 			{name: "actuate", help: "https://github.com/openfl/actuate", args: []},
@@ -66,6 +68,7 @@ class Libs {
 			},
 			{name: "utest", help: "https://github.com/haxe-utest/utest"},
 			{name: "hx3compat", help: "https://github.com/HaxeFoundation/hx3compat"},
+			{name: "safety", help: "https://github.com/RealyUniqueName/Safety"},
 		],
 		"EVAL" => [
 			{name: "actuate", help: "https://github.com/openfl/actuate", args: []},
@@ -81,6 +84,7 @@ class Libs {
 			},
 			{name: "utest", help: "https://github.com/haxe-utest/utest"},
 			{name: "hx3compat", help: "https://github.com/HaxeFoundation/hx3compat"},
+			{name: "safety", help: "https://github.com/RealyUniqueName/Safety"},
 		],
 		"HL" => [
 			{name: "actuate", help: "https://github.com/openfl/actuate", args: []},
@@ -96,6 +100,7 @@ class Libs {
 			},
 			{name: "utest", help: "https://github.com/haxe-utest/utest"},
 			{name: "hx3compat", help: "https://github.com/HaxeFoundation/hx3compat"},
+			{name: "safety", help: "https://github.com/RealyUniqueName/Safety"},
 		],
 	];
 
