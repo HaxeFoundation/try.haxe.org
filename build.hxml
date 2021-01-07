@@ -11,4 +11,4 @@
 -cp src
 -js www/app.js
 -main App
--debug
+

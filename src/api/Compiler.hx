@@ -1,16 +1,14 @@
 package api;
 
+import haxe.Exception;
+import api.Completion.CompletionItem;
 import api.Completion.CompletionResult;
 import api.Completion.CompletionType;
-import api.Completion.CompletionItem;
 #if php
 import haxe.io.Path;
 import sys.FileSystem;
 import sys.io.File;
 #end
-
-using StringTools;
-using Lambda;
 
 typedef HTMLConf = {
 	head:Array<String>,
@@ -114,7 +112,7 @@ class Compiler {
 			var s = null;
 			try {
 				s = File.getContent(tmpDir + "program");
-			} catch (e:Dynamic) {
+			} catch (e:Exception) {
 				return null;
 			}
 
@@ -151,7 +149,7 @@ class Compiler {
 				var file = tmpDir + module.name + ".hx";
 				try {
 					module.source = File.getContent(file);
-				} catch (e:Dynamic) {
+				} catch (e:Exception) {
 					module.source = "// empty";
 				}
 			}
@@ -201,7 +199,8 @@ class Compiler {
 		}
 
 		var source = module.source;
-		var display = tmpDir + module.name + ".hx@" + idx;
+		// var display = tmpDir + module.name + ".hx@" + idx;
+		var display = Path.join(["/home/haxer/programs", program.uid, module.name + ".hx@" + idx]);
 		// var display = module.name + ".hx@" + idx;
 
 		if (completionType == CompletionType.TOP_LEVEL) {
@@ -267,7 +266,7 @@ class Compiler {
 						w.d += e.node.d.innerData;
 					}
 
-					if (!words.has(w))
+					if (!words.contains(w))
 						words.push(w);
 				}
 			} else if (completionType == CompletionType.TOP_LEVEL) {
@@ -290,14 +289,14 @@ class Compiler {
 
 					w.d = elements.join(" ");
 
-					if (!words.has(w)) {
+					if (!words.contains(w)) {
 						words.push(w);
 					}
 				}
 			}
 
 			return {list: words};
-		} catch (e:Dynamic) {}
+		} catch (e:Exception) {}
 
 		return {errors: SourceTools.splitLines(out.err.replace(tmpDir, ""))};
 	}
@@ -305,7 +304,7 @@ class Compiler {
 	function addLibs(args:Array<String>, program:Program, ?html:HTMLConf) {
 		var availableLibs = Libs.getLibsConfig(program.target);
 		for (l in availableLibs) {
-			if (program.libs.has(l.name)) {
+			if (program.libs.contains(l.name)) {
 				if (html != null) {
 					if (l.head != null)
 						html.head = html.head.concat(l.head);
@@ -376,22 +375,22 @@ class Compiler {
 		switch (program.target) {
 			case JS(name):
 				Api.checkSanity(name);
-				outputPath = tmpDir + name + ".js";
+				outputPath = tmpDir + "run.js";
 				args.push("-js");
-				args.push(name + ".js");
+				args.push('run.js');
 				html.body.push("<script src='//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>");
 				html.body.push("<script src='//markknol.github.io/console-log-viewer/console-log-viewer.js'></script>");
 				html.head.push("<link rel='stylesheet' href='" + Api.root + "/console.css' type='text/css'>");
 
 			case NEKO(name):
 				Api.checkSanity(name);
-				outputPath = name + ".n";
+				outputPath = 'run.n';
 				args.push("-neko");
 				args.push(outputPath);
 
 			case HL(name):
 				Api.checkSanity(name);
-				outputPath = name + ".hl";
+				outputPath = 'run.hl';
 				args.push("-hl");
 				args.push(outputPath);
 
@@ -403,10 +402,10 @@ class Compiler {
 
 			case SWF(name, version):
 				Api.checkSanity(name);
-				outputPath = tmpDir + name + ".swf";
+				outputPath = tmpDir + "run.swf";
 
 				args.push("-swf");
-				args.push(name + ".swf");
+				args.push('run.swf');
 				args.push("-swf-version");
 				args.push(Std.string(version));
 				args.push("-debug");
@@ -429,7 +428,7 @@ class Compiler {
 		addLibs(args, program, html);
 
 		var out = runHaxeDocker(program, args);
-		var err = out.err.replace(tmpDir, "");
+		var err = out.err.replace(tmpDir, "").replace("/srv/try-haxe", "").replace("/home/haxer", "");
 		var errors = SourceTools.splitLines(err);
 
 		var output:Program.Output = if (out.exitCode == 0) {
@@ -496,66 +495,69 @@ class Compiler {
 	}
 
 	function runHaxeDocker(program:Program, args:Array<String>) {
-		var isNeko = program.target.match(NEKO(_));
-		var isHL = program.target.match(HL(_));
-		var isEval = program.target.match(EVAL(_));
 		var programDir = FileSystem.absolutePath(tmpDir);
-		// var haxeDir = FileSystem.absolutePath(tmpDir+'../../haxe/versions/${program.haxeVersion}/');
-		// var haxelibDir =FileSystem.absolutePath(tmpDir+"../../haxe/haxelib");
-		var haxeDir = "/srv/try-haxe/lixSetup/haxe";
-		var haxe_librariesDir = "/srv/try-haxe/lixSetup/haxe_libraries";
 
-		var hashlinkDir = "/srv/try-haxe/hashlink";
-		var haxe_librariesDir = "/srv/try-haxe/lixSetup/haxe_libraries";
+		var outDir = '/srv/try-haxe/outTemp/${program.uid}';
 
-		var mountDirs = '-v ${programDir}:/root/program -v ${haxeDir}:/root/haxe:ro '
-			+ '-v ${hashlinkDir}:/opt/hashlink:ro -v ${haxe_librariesDir}:/root/program/haxe_libraries';
+		prepareSnippetSources(programDir, outDir);
 
-		var docker = 'docker run --rm --read-only --net none --tmpfs /run --tmpfs /tmp ${mountDirs} -w /root/program ${Compiler.dockerContainer} sh -c "';
+		File.saveContent(Path.join([outDir, ".haxerc"]), '{"version": "${correctHaxeVersion(program.haxeVersion)}", "resolveLibs": "scoped"}');
+		var docker = 'docker exec -u haxer try-haxe_compiler sh -c "cd /home/haxer/programs/${program.uid}; ';
+		docker += " timeout 1s haxe " + args.join(" ") + ' > haxe_out 2> haxe_err';
 
-		File.saveContent(Path.join([programDir, ".haxerc"]), '{"version": "${correctHaxeVersion(program.haxeVersion)}", "resolveLibs": "scoped"}');
-		docker += " timeout -k 1s 1s haxe " + args.join(" ") + " > haxe_out 2> haxe_err";
-
-		if (isNeko) {
-			docker += ' && timeout -k 1s 1s neko test.n > raw_out 2> raw_err';
-		}
-		if (isHL) {
-			docker += ' && LD_LIBRARY_PATH="/opt/hashlink:$$LD_LIBRARY_PATH" timeout -k 1s 1s /opt/hashlink/hl test.hl > raw_out 2> raw_err';
+		switch (program.target) {
+			case JS(_) | EVAL(_) | SWF(_, _):
+			case NEKO(_):
+				docker += ' && timeout 1s neko run.n > raw_out 2> raw_err';
+			case HL(_):
+				docker += ' && LD_LIBRARY_PATH="/opt/hashlink:$$LD_LIBRARY_PATH" timeout 1s /opt/hashlink/hl run.hl > raw_out 2> raw_err';
 		}
 		docker += "\"";
 
 		var proc = new sys.io.Process(docker, null);
 
-		var exit = proc.exitCode();
+		return processOutput(program, programDir, outDir, proc.exitCode());
+	}
 
+	function processOutput(program:Program, programDir:String, outDir:String, exitCode:Int) {
 		var out = "";
 		var err = "";
 
-		inline function r(f:String) {
-			if (FileSystem.exists('$programDir/$f')) {
-				var s = sys.io.File.getContent('$programDir/$f');
+		function saveOutputArtifacts(name:String) {
+			var source:String = Path.join([outDir, name]);
+			var dest:String = Path.join([programDir, name]);
+			if (!FileSystem.exists(source)) {
+				return;
+			}
+			try {
+				File.saveBytes(dest, File.getBytes(source));
+			} catch (e:Any) {}
+		}
+		saveOutputArtifacts("run.js");
+		saveOutputArtifacts("run.swf");
 
-				try {
-					FileSystem.deleteFile('$programDir/$f');
-				} catch (e:Dynamic) {}
-
-				return s;
+		function readCompileOutput(name:String) {
+			var source:String = Path.join([outDir, name]);
+			if (FileSystem.exists(source)) {
+				return sys.io.File.getContent(source);
 			}
 			return "";
 		}
 
 		// contains haxe macro traces
-		var haxe_out = r('haxe_out');
+		var haxe_out = readCompileOutput('haxe_out');
 		// contains compilation errors, $type() and times
-		var haxe_err = r('haxe_err');
+		var haxe_err = readCompileOutput('haxe_err');
 		// contains program output
-		var raw_out = r('raw_out');
+		var raw_out = readCompileOutput('raw_out');
 		// contains program errors
-		var raw_err = r('raw_err');
+		var raw_err = readCompileOutput('raw_err');
+
+		cleanupOutput(outDir);
 
 		var skipHaxeOut = false;
-		if (exit != 0) {
-			if (exit == 124) {
+		if (exitCode != 0) {
+			if (exitCode == 124) {
 				err += haxe_err.length > 0 ? "Program execution timeout." : "Haxe compilation failed.";
 				err += '\n';
 				skipHaxeOut = true;
@@ -591,23 +593,17 @@ class Compiler {
 		if (skipHaxeOut)
 			haxe_out = "";
 
-		if (isNeko || isHL) {
-			out += raw_out;
-			try {
-				FileSystem.deleteFile('$programDir/test.n');
-			} catch (e:Dynamic) {}
-			try {
-				FileSystem.deleteFile('$programDir/test.hl');
-			} catch (e:Dynamic) {}
-		}
-		if (isEval) {
-			out += haxe_out;
-			haxe_out = "";
+		switch (program.target) {
+			case JS(_) | SWF(_, _):
+			case NEKO(_) | HL(_):
+				out += raw_out;
+			case EVAL(_):
+				out += haxe_out;
+				haxe_out = "";
 		}
 
 		var o = {
-			proc: proc,
-			exitCode: exit,
+			exitCode: exitCode,
 			haxe_out: haxe_out,
 			haxe_times: haxe_times,
 			out: out,
@@ -616,26 +612,48 @@ class Compiler {
 		return o;
 	}
 
-	function runHaxe(program:Program, args:Array<String>) {
-		var programDir = FileSystem.absolutePath(tmpDir);
-		var haxeDir = FileSystem.absolutePath(tmpDir + '../../haxe/versions/${program.haxeVersion}');
-		var haxelibDir = FileSystem.absolutePath(tmpDir + "../../haxe/haxelib");
-		var proc = new sys.io.Process('$haxeDir/$haxePath', args);
+	function prepareSnippetSources(snippetFolder:String, compileFolder:String) {
+		function copySnippetToOutput(name:String) {
+			var source:String = Path.join([snippetFolder, name]);
+			var dest:String = Path.join([compileFolder, name]);
+			if (!FileSystem.exists(source)) {
+				return;
+			}
+			try {
+				File.saveBytes(dest, File.getBytes(source));
+			} catch (e:Any) {}
+		}
+		FileSystem.createDirectory(compileFolder);
+		new sys.io.Process('chmod 777 $compileFolder', null);
 
-		var exit = proc.exitCode();
-		var out = proc.stdout.readAll().toString();
-		var err = proc.stderr.readAll().toString();
+		for (file in FileSystem.readDirectory(snippetFolder)) {
+			if (Path.extension(file) == "hx") {
+				copySnippetToOutput(file);
+			}
+		}
+		var destHaxeLibraries:String = Path.join([compileFolder, "haxe_libraries"]);
+		FileSystem.createDirectory(destHaxeLibraries);
+		for (file in FileSystem.readDirectory("/srv/try-haxe/lixSetup/haxe_libraries")) {
+			var source:String = Path.join(["/srv/try-haxe/lixSetup/haxe_libraries", file]);
+			var dest:String = Path.join([destHaxeLibraries, file]);
+			File.saveBytes(dest, File.getBytes(source));
+		}
+	}
 
-		var o = {
-			proc: proc,
-			exitCode: exit,
-			out: out,
-			err: err,
-			haxe_out: "",
-			haxe_times: "",
-		};
-
-		return o;
+	function cleanupOutput(outputFolder:String) {
+		for (file in FileSystem.readDirectory(outputFolder)) {
+			var path:String = Path.join([outputFolder, file]);
+			if (FileSystem.isDirectory(path)) {
+				cleanupOutput(path);
+				continue;
+			}
+			try {
+				FileSystem.deleteFile(path);
+			} catch (e:Exception) {}
+		}
+		try {
+			FileSystem.deleteDirectory(outputFolder);
+		} catch (e:Exception) {}
 	}
 
 	public function getHaxeVersions():{stable:Array<Program.HaxeCompiler>, dev:Array<Program.HaxeCompiler>} {

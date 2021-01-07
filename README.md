@@ -33,32 +33,16 @@ lix download
 haxe build.hxml
 ```
 
-prepare compilation image
+build all containers (in project root)
 
 ```bash
-cd lixSetup
-docker-compose -f docker-compose-compiler.yml create
-docker export -o compiler.img lixsetup_try_haxe_compiler_1
+docker-compose -f docker-compose-all.yml up -d
 ```
 
-build application container (in project root)
+you should get http server on `127.0.0.1:623`
 
-```bash
-docker-compose -f docker-compose-dev.yml up -d
-```
+Note: you might have to adjust web container's gid for docker group, to match your outside docker's gid. also make sure outside www-data user is part of docker group.
 
-start inner docker and import compilation image
-
-```bash
-docker exec -it try-haxe_web_1 /bin/bash # enter running application container
-
-dockerd &
-cd lixSetup
-docker import compiler.img try-haxe_compiler:latest
-exit
-```
-
-You should get http server on `127.0.0.1:623`
 
 install Haxe versions (outside container - copy selected versions from your local lix installation). new versions show up after reloading your browser.
 
@@ -73,7 +57,7 @@ Recompile haxe code after you change source code outside:
 
 To close container:
 
-`docker-compose -f docker-compose-dev.yml down`
+`docker-compose -f docker-compose-all.yml down`
 
 Run your own instance (old method):
 ----------------------
