@@ -5,18 +5,24 @@ services:
     ports:
       - "623:80"
     volumes:
-      - ./www:/var/www/html
-      - ./hashlink-bin:/srv/try-haxe/hashlink
-      - ./lixSetup:/srv/try-haxe/lixSetup
+      - ./www:/var/www/html:ro
+      - ./hashlink-bin:/srv/try-haxe/hashlink:ro
+      - ./lixSetup:/srv/try-haxe/lixSetup:ro
       - ./programs:/var/www/html/tmp
       - ./tmp:/srv/try-haxe/outTemp
       - /var/run/docker.sock:/var/run/docker.sock
     command: sh -c "service apache2 start && tail -f /dev/null"
     # privileged: true
+  try_haxe_setup:
+    image: try-haxe_lix-setup
+    container_name: try-haxe_lix-setup
+    build: ./lixSetup
+    volumes:
+      - ./lixSetup:/srv/lixSetup
   try_haxe_compiler:
     image: try-haxe_compiler
     container_name: try-haxe_compiler
-    build: ./lixSetup
+    build: ./compilation
     volumes:
       - ./hashlink-bin:/opt/hashlink:ro
       - ./lixSetup/haxe:/home/haxer/haxe:ro
