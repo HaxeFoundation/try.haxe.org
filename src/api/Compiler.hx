@@ -18,7 +18,7 @@ typedef HTMLConf = {
 }
 
 class Compiler {
-	var tmpDir:String;
+	var programFolder:String;
 	var mainFile:String;
 
 	public static var haxePath = "haxe";
@@ -60,7 +60,7 @@ class Compiler {
 			for (i in 0...id.length)
 				uid += if (Math.random() > 0.5) id.charAt(i).toUpperCase() else id.charAt(i);
 
-			var tmpDir = Api.tmp + '/$uid/';
+			var tmpDir = Path.join([Api.programsRootFolder, uid]);
 			if (!(FileSystem.exists(tmpDir))) {
 				program.uid = uid;
 			}
@@ -70,14 +70,14 @@ class Compiler {
 		Api.checkSanity(program.mainClass);
 		Api.checkDCE(program.dce);
 
-		tmpDir = Api.tmp + "/" + program.uid + "/";
+		programFolder = Path.join([Api.programsRootFolder, program.uid]);
 
-		if (!FileSystem.isDirectory(tmpDir)) {
-			FileSystem.createDirectory(tmpDir);
+		if (!FileSystem.isDirectory(programFolder)) {
+			FileSystem.createDirectory(programFolder);
 		}
 
-		for (name in FileSystem.readDirectory(tmpDir)) {
-			var path = tmpDir + name;
+		for (name in FileSystem.readDirectory(programFolder)) {
+			var path = Path.join([programFolder, name]);
 			if (!FileSystem.exists(path)) {
 				throw 'Path does not exist ${path}';
 			}
@@ -90,7 +90,7 @@ class Compiler {
 
 		for (module in program.modules) {
 			Api.checkSanity(module.name);
-			var file = tmpDir + module.name + ".hx";
+			var file = Path.join([programFolder, module.name + ".hx"]);
 			var src = module.source;
 			checkMacros(src);
 			File.saveContent(file, src);
@@ -99,7 +99,7 @@ class Compiler {
 		var s = program.modules.copy();
 		for (module in program.modules)
 			module.source = null;
-		File.saveContent(tmpDir + "program", haxe.Serializer.run(program));
+		File.saveContent(Path.join([programFolder, "program"]), haxe.Serializer.run(program));
 		program.modules = s;
 	}
 
@@ -107,18 +107,18 @@ class Compiler {
 	public function getProgram(uid:String):ProgramV2 {
 		Api.checkSanity(uid);
 
-		if (FileSystem.isDirectory(Api.tmp + "/" + uid)) {
-			tmpDir = Api.tmp + "/" + uid + "/";
+		if (FileSystem.isDirectory(Api.programsRootFolder + "/" + uid)) {
+			programFolder = Path.join([Api.programsRootFolder, uid]);
 
 			// if we don't find a program to unserialize return null
 			var s = null;
 			try {
-				s = File.getContent(tmpDir + "program");
+				s = File.getContent(Path.join([programFolder, "program"]));
 			} catch (e:Exception) {
 				return null;
 			}
 
-			s = File.getContent(tmpDir + "program");
+			s = File.getContent(Path.join([programFolder, "program"]));
 
 			var p:ProgramV2 = haxe.Unserializer.run(s);
 			if ((p.target is Target)) {
@@ -155,7 +155,7 @@ class Compiler {
 			}
 
 			for (module in p.modules) {
-				var file = tmpDir + module.name + ".hx";
+				var file = Path.join([programFolder, module.name + ".hx"]);
 				try {
 					module.source = File.getContent(file);
 				} catch (e:Exception) {
@@ -163,36 +163,6 @@ class Compiler {
 				}
 			}
 
-			/*
-				var o:Program.Output = null;
-
-				var htmlPath : String = tmpDir + "/" + "index.html";
-
-				if (FileSystem.exists(htmlPath))
-				{
-					var runUrl = Api.base + "/program/"+p.uid+"/run";
-					o = {
-						uid : p.uid,
-						stderr : null,
-						stdout : "",
-						args : [],
-						errors : [],
-						success : true,
-						message : "Build success!",
-						href : runUrl,
-						source : ""
-					}
-
-					switch (p.target) {
-						case JS(name):
-						var outputPath = tmpDir + "/" + name + ".js";
-						o.source = File.getContent(outputPath);
-						default:
-					}
-				}
-			 */
-
-			// return {p:p, o:o};
 			return p;
 		}
 
@@ -307,7 +277,7 @@ class Compiler {
 			return {list: words};
 		} catch (e:Exception) {}
 
-		return {errors: SourceTools.splitLines(out.err.replace(tmpDir, ""))};
+		return {errors: SourceTools.splitLines(out.err.replace(programFolder, ""))};
 	}
 
 	function addLibs(args:Array<String>, program:ProgramV2, ?html:HTMLConf) {
@@ -353,7 +323,7 @@ class Compiler {
 				embed: ""
 			}
 		}
-		if (tmpDir.length <= 0) {
+		if (programFolder.length <= 0) {
 			throw '$program';
 		}
 
@@ -373,7 +343,7 @@ class Compiler {
 			args = args.concat(["-D", "analyzer-optimize", "-D", "analyzer"]);
 
 		var outputPath:String;
-		var htmlPath:String = tmpDir + "index.html";
+		var htmlPath:String = Path.join([programFolder, "index.html"]);
 		var runUrl = '${Api.base}/program/${program.uid}/run';
 		var embedSrc = '<iframe src="//${Api.host}${Api.base}/embed/${program.uid}" width="100%" height="300" frameborder="no" allowfullscreen>
 	<a href="//${Api.host}/#${program.uid}">Try Haxe !</a>
@@ -384,7 +354,7 @@ class Compiler {
 		switch (program.target) {
 			case JS(name, version):
 				Api.checkSanity(name);
-				outputPath = tmpDir + "run.js";
+				outputPath = Path.join([programFolder, "run.js"]);
 				args.push("-js");
 				args.push('run.js');
 				switch (version) {
@@ -420,7 +390,7 @@ class Compiler {
 
 			case SWF(name, version):
 				Api.checkSanity(name);
-				outputPath = tmpDir + "run.swf";
+				outputPath = Path.join([programFolder, "run.swf"]);
 
 				args.push("-swf");
 				args.push('run.swf');
@@ -446,7 +416,7 @@ class Compiler {
 		addLibs(args, program, html);
 
 		var out = runHaxeDocker(program, args);
-		var err = out.err.replace(tmpDir, "").replace("/srv/try-haxe", "").replace("/home/haxer", "");
+		var err = cleanOutput(out.err);
 		var errors = SourceTools.splitLines(err);
 
 		var output:Program.Output = if (out.exitCode == 0) {
@@ -456,7 +426,7 @@ class Compiler {
 				stdout: out.out,
 				args: args,
 				errors: [],
-				haxeout: out.haxe_out,
+				haxeout: cleanOutput(out.haxe_out),
 				times: out.haxe_times,
 				success: true,
 				message: "Build success!",
@@ -471,7 +441,7 @@ class Compiler {
 				stdout: out.out,
 				args: args,
 				errors: errors,
-				haxeout: out.haxe_out,
+				haxeout: cleanOutput(out.haxe_out),
 				times: out.haxe_times,
 				success: false,
 				message: "Build failure",
@@ -512,12 +482,20 @@ class Compiler {
 		return output;
 	}
 
+	function cleanOutput(text:String) {
+		return text.replace(programFolder, "")
+			.replace(Api.programsRootFolder, "")
+			.replace(Api.lixSetupRootFolder, "")
+			.replace(Api.programsTempRootFolder, "")
+			.replace("/home/haxer/haxe/haxe_libraries", "")
+			.replace("/home/haxer/haxe", "")
+			.replace("/home/haxer/programs", "");
+	}
+
 	function runHaxeDocker(program:ProgramV2, args:Array<String>) {
-		var programDir = FileSystem.absolutePath(tmpDir);
+		var outDir = Path.join([Api.programsTempRootFolder, program.uid]);
 
-		var outDir = '/srv/try-haxe/outTemp/${program.uid}';
-
-		prepareSnippetSources(programDir, outDir);
+		prepareSnippetSources(programFolder, outDir);
 
 		File.saveContent(Path.join([outDir, ".haxerc"]), '{"version": "${correctHaxeVersion(program.haxeVersion)}", "resolveLibs": "scoped"}');
 		var docker = 'docker exec -u haxer try-haxe_compiler sh -c "cd /home/haxer/programs/${program.uid}; ';
@@ -534,7 +512,7 @@ class Compiler {
 
 		var proc = new sys.io.Process(docker, null);
 
-		return processOutput(program, programDir, outDir, proc.exitCode());
+		return processOutput(program, programFolder, outDir, proc.exitCode());
 	}
 
 	function processOutput(program:ProgramV2, programDir:String, outDir:String, exitCode:Int) {
@@ -571,7 +549,7 @@ class Compiler {
 		// contains program errors
 		var raw_err = readCompileOutput('raw_err');
 
-		cleanupOutput(outDir);
+		// cleanupOutput(outDir);
 
 		var skipHaxeOut = false;
 		if (exitCode != 0) {
@@ -651,8 +629,8 @@ class Compiler {
 		}
 		var destHaxeLibraries:String = Path.join([compileFolder, "haxe_libraries"]);
 		FileSystem.createDirectory(destHaxeLibraries);
-		for (file in FileSystem.readDirectory("/srv/try-haxe/lixSetup/haxe_libraries")) {
-			var source:String = Path.join(["/srv/try-haxe/lixSetup/haxe_libraries", file]);
+		for (file in FileSystem.readDirectory(Path.join([Api.lixSetupRootFolder, "haxe_libraries"]))) {
+			var source:String = Path.join([Api.lixSetupRootFolder, "haxe_libraries", file]);
 			var dest:String = Path.join([destHaxeLibraries, file]);
 			File.saveBytes(dest, File.getBytes(source));
 		}
@@ -675,6 +653,6 @@ class Compiler {
 	}
 
 	public function getHaxeVersions():{stable:Array<Program.HaxeCompiler>, dev:Array<Program.HaxeCompiler>} {
-		return Utils.getHaxeVersions("/srv/try-haxe/lixSetup/haxe/versions");
+		return Utils.getHaxeVersions(Path.join([Api.lixSetupRootFolder, "haxe", "versions"]));
 	}
 }

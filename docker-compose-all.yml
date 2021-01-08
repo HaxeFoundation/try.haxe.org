@@ -8,7 +8,7 @@ services:
       - ./www:/var/www/html:ro
       - ./hashlink-bin:/srv/try-haxe/hashlink:ro
       - ./lixSetup:/srv/try-haxe/lixSetup:ro
-      - ./programs:/var/www/html/tmp
+      - ./programs:/srv/try-haxe/programs
       - ./tmp:/srv/try-haxe/outTemp
       - /var/run/docker.sock:/var/run/docker.sock
     command: sh -c "service apache2 start && tail -f /dev/null"

@@ -1,9 +1,10 @@
-import api.Program.ProgramV2;
+import haxe.io.Path;
 import haxe.remoting.Context;
 import haxe.web.Dispatch;
 import php.Lib;
 import sys.FileSystem;
 import sys.io.File;
+import api.Program.ProgramV2;
 import template.Templates;
 
 class Api {
@@ -14,7 +15,10 @@ class Api {
 	public static var root:String;
 	public static var host:String;
 
-	public static var tmp = "../tmp";
+	public static final tryHaxeRootFolder = "/srv/try-haxe";
+	public static final programsRootFolder = Path.join([tryHaxeRootFolder, "programs"]);
+	public static final programsTempRootFolder = Path.join([tryHaxeRootFolder, "outTemp"]);
+	public static final lixSetupRootFolder = Path.join([tryHaxeRootFolder, "lixSetup"]);
 
 	public function new() {}
 
@@ -59,7 +63,7 @@ class Api {
 
 	public function doProgram(id:String, d:Dispatch) {
 		checkSanity(id);
-		dir = '$tmp/$id';
+		dir = '$programsRootFolder/$id';
 		if (FileSystem.exists(dir) && FileSystem.isDirectory(dir)) {
 			d.dispatch({
 				doRun: runProgram,
