@@ -345,10 +345,19 @@ class Editor {
 		ajax({
 			url: 'examples/Example-${_this.data("value")}.hx',
 			dataType: "text"
-		}).done(function(data) {
+		}).done(function(data:String) {
 			haxeEditors[0].nameElement.val("Test");
 			haxeEditors[0].codeMirror.setValue(data);
 			new JQuery("input[name='main']").val("Test");
+
+			var requiredLibs:String = _this.data("libs");
+			if ((requiredLibs == null) || (requiredLibs == "")) {
+				return;
+			}
+			var sel:String = Type.enumConstructor(program.target);
+			for (lib in requiredLibs.split(",")) {
+				new JQuery('#hx-options .hx-libs .$sel-libs input[value="$lib"]').prop("checked", true);
+			}
 		});
 		e.preventDefault();
 	}
@@ -358,7 +367,7 @@ class Editor {
             var rfs = el.requestFullScreen
                 || el.webkitRequestFullScreen
                 || el.mozRequestFullScreen;
-              rfs.call(el); ");
+			rfs.call(el); ");
 	}
 
 	function toggleFullscreenRunner(e:Event) {

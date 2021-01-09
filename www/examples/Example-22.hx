@@ -1,31 +1,42 @@
+import utest.Assert;
+import utest.ITest;
+import utest.Runner;
+import utest.ui.Report;
+
 class Test {
-    static function main() {
-        var r = new haxe.unit.TestRunner();
-        r.add(new MyTests());
-        r.run();
-    }
+	static function main() {
+		var tests:Array<ITest> = [new MyTests()];
+		var runner:Runner = new Runner();
+
+		Report.create(runner);
+		for (test in tests) {
+			runner.addCase(test);
+		}
+		runner.run();
+	}
 }
 
-class MyTests extends haxe.unit.TestCase {
-    var myVal:String;
-    var myInt:Int;
+class MyTests implements ITest {
+	var myVal:String;
+	var myInt:Int;
 
-    override public function setup() {
-        myVal = "foo";
-        myInt = 1+1;
-    }
-    
-    /* Every test function name has to start with 'test' */
-    
-    public function testValue() {
-        assertEquals("foo", myVal);
-    }
-    
-    public function testMath1() {
-        assertTrue(myInt == 2);
-    }
-    
-    public function testMath2() {
-        assertFalse(myInt == 3);
-    }
+	public function new() {}
+
+	public function setup() {
+		myVal = "foo";
+		myInt = 1 + 1;
+	}
+
+	/* Every test function name has to start with 'test' */
+	public function testValue() {
+		Assert.equals("foo", myVal);
+	}
+
+	public function testMath1() {
+		Assert.isTrue(myInt == 2);
+	}
+
+	public function testMath2() {
+		Assert.isFalse(myInt == 3);
+	}
 }

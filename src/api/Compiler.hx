@@ -351,6 +351,8 @@ class Compiler {
 
 		var html:HTMLConf = {head: [], body: []};
 
+		addLibs(args, program, html);
+
 		switch (program.target) {
 			case JS(name, version):
 				Api.checkSanity(name);
@@ -412,8 +414,6 @@ class Compiler {
 					+ '.0.0" , null , {} , {wmode:"direct", scale:"noscale"})</script>');
 				html.body.push('<div id="flashContent"><p><a href="http://www.adobe.com/go/getflashplayer"><img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" /></a></p></div>');
 		}
-
-		addLibs(args, program, html);
 
 		var out = runHaxeDocker(program, args);
 		var err = cleanOutput(out.err);
@@ -499,7 +499,7 @@ class Compiler {
 
 		File.saveContent(Path.join([outDir, ".haxerc"]), '{"version": "${correctHaxeVersion(program.haxeVersion)}", "resolveLibs": "scoped"}');
 		var docker = 'docker exec -u haxer try-haxe_compiler sh -c "cd /home/haxer/programs/${program.uid}; ';
-		docker += " timeout 1s haxe " + args.join(" ") + ' > haxe_out 2> haxe_err';
+		docker += " timeout 2s haxe " + args.join(" ") + ' > haxe_out 2> haxe_err';
 
 		switch (program.target) {
 			case JS(_) | EVAL(_) | SWF(_, _):
