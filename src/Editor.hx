@@ -178,7 +178,7 @@ class Editor {
 			dce: "full",
 			analyzer: "yes",
 			haxeVersion: Haxe_4_1_5,
-			target: SWF("test", 11.4),
+			target: JS("test", ES6),
 			libs: new Array()
 		};
 
@@ -391,8 +391,6 @@ class Editor {
 		var cb = new JQuery(e.target);
 		var name = cb.val();
 		var target = switch (name) {
-			case "SWF":
-				api.Program.TargetV2.SWF('test', 11.4);
 			case "NEKO":
 				api.Program.TargetV2.NEKO('test');
 			case "HL":
@@ -401,10 +399,6 @@ class Editor {
 				api.Program.TargetV2.EVAL('test');
 			case _:
 				api.Program.TargetV2.JS('test', selectedJsVersion);
-		}
-
-		if (name == "SWF") {
-			new JQuery("#output").click();
 		}
 
 		setTarget(target);
@@ -434,7 +428,7 @@ class Editor {
 				jsVersion.fadeIn();
 			// jsTab.fadeIn();
 
-			case SWF(_, _) | NEKO(_) | HL(_) | EVAL(_):
+			case NEKO(_) | HL(_) | EVAL(_):
 				jsVersion.hide();
 				jsTab.hide();
 		}

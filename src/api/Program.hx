@@ -40,7 +40,6 @@ enum TargetV2 {
 	NEKO(name:String);
 	EVAL(name:String);
 	HL(name:String);
-	SWF(name:String, ?version:Float);
 }
 
 enum ECMAScriptVersion {

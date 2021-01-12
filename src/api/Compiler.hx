@@ -126,6 +126,8 @@ class Compiler {
 				switch (target) {
 					case JS(name):
 						p.target = JS(name, ES6);
+					case SWF(name, _):
+						p.target = JS(name, ES6);
 					case _:
 				}
 			}
@@ -192,12 +194,6 @@ class Compiler {
 			case JS(_):
 				args.push("-js");
 				args.push("dummy.js");
-
-			case SWF(_, version):
-				args.push("-swf");
-				args.push("dummy.swf");
-				args.push("-swf-version");
-				args.push(Std.string(version));
 
 			case NEKO(_):
 				args.push("-neko");
@@ -290,13 +286,8 @@ class Compiler {
 					if (l.body != null)
 						html.body = html.body.concat(l.body);
 				}
-				if (l.swf != null) {
-					args.push("-swf-lib");
-					args.push("../../lib/swf/" + l.swf.src);
-				} else {
-					args.push("-lib");
-					args.push(l.name);
-				}
+				args.push("-lib");
+				args.push(l.name);
 				if (l.args != null)
 					for (a in l.args) {
 						args.push(a);
@@ -389,30 +380,6 @@ class Compiler {
 				outputPath = "";
 				args.push("--run");
 				args.push(program.mainClass);
-
-			case SWF(name, version):
-				Api.checkSanity(name);
-				outputPath = Path.join([programFolder, "run.swf"]);
-
-				args.push("-swf");
-				args.push('run.swf');
-				args.push("-swf-version");
-				args.push(Std.string(version));
-				args.push("-debug");
-				args.push("-D");
-				args.push("advanced-telemetry"); // for Scout
-				html.head.push("<link rel='stylesheet' href='" + Api.root + "/swf.css' type='text/css'/>");
-				html.head.push("<script src='" + Api.root + "/lib/swfobject.js'></script>");
-				html.head.push('<script type="text/javascript">swfobject.embedSWF("'
-					+ Api.base
-					+ "/"
-					+ outputPath
-					+ '?r='
-					+ Math.random()
-					+ '", "flashContent", "100%", "100%", "'
-					+ version
-					+ '.0.0" , null , {} , {wmode:"direct", scale:"noscale"})</script>');
-				html.body.push('<div id="flashContent"><p><a href="http://www.adobe.com/go/getflashplayer"><img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" /></a></p></div>');
 		}
 
 		var out = runHaxeDocker(program, args);
@@ -502,7 +469,7 @@ class Compiler {
 		docker += " timeout 2s haxe " + args.join(" ") + ' > haxe_out 2> haxe_err';
 
 		switch (program.target) {
-			case JS(_) | EVAL(_) | SWF(_, _):
+			case JS(_) | EVAL(_):
 			case NEKO(_):
 				docker += ' && timeout 1s neko run.n > raw_out 2> raw_err';
 			case HL(_):
@@ -530,7 +497,6 @@ class Compiler {
 			} catch (e:Any) {}
 		}
 		saveOutputArtifacts("run.js");
-		saveOutputArtifacts("run.swf");
 
 		function readCompileOutput(name:String) {
 			var source:String = Path.join([outDir, name]);
@@ -590,7 +556,7 @@ class Compiler {
 			haxe_out = "";
 
 		switch (program.target) {
-			case JS(_) | SWF(_, _):
+			case JS(_):
 			case NEKO(_) | HL(_):
 				out += raw_out;
 			case EVAL(_):
