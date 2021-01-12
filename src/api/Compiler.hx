@@ -549,7 +549,7 @@ class Compiler {
 		// contains program errors
 		var raw_err = readCompileOutput('raw_err');
 
-		// cleanupOutput(outDir);
+		cleanupOutput(outDir);
 
 		var skipHaxeOut = false;
 		if (exitCode != 0) {
