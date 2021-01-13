@@ -1,15 +1,10 @@
 import api.Program;
 
-typedef SWFInfo = {
-	src:String,
-}
-
 typedef LibConf = {
 	name:String,
 	?args:Array<String>,
 	?head:Array<String>,
 	?body:Array<String>,
-	?swf:SWFInfo,
 	?help:String
 }
 
@@ -31,25 +26,6 @@ class Libs {
 			{name: "nape", help: "https://github.com/deltaluca/nape"},
 			{name: "threejs", head: ["<script src='../../../lib/js/three.min.js'></script>"]},
 			{name: "pixijs", head: ["<script src='../../../lib/js/pixi.min.js'></script>"]},
-			{name: "utest", help: "https://github.com/haxe-utest/utest"},
-			{name: "hx3compat", help: "https://github.com/HaxeFoundation/hx3compat"},
-			{name: "safety", help: "https://github.com/RealyUniqueName/Safety"},
-		],
-		"SWF" => [
-			{name: "actuate", help: "https://github.com/openfl/actuate", args: []},
-			{name: "format", help: "https://github.com/HaxeFoundation/format"},
-			{name: "tink_core", help: "https://github.com/haxetink/tink_core"},
-			{name: "tink_lang", help: "https://github.com/haxetink/tink_lang"},
-			{name: "tink_state", help: "https://github.com/haxetink/tink_state"},
-			{name: "thx.core", help: "https://github.com/fponticelli/thx.core"},
-			{name: "thx.culture", help: "https://github.com/fponticelli/thx.culture"},
-			{
-				name: "hxColorToolkit",
-				help: "https://github.com/andyli/hxColorToolkit"
-			},
-			{name: "box2d", help: "https://github.com/openfl/box2d"},
-			{name: "nape", help: "https://github.com/deltaluca/nape"},
-			{name: "away3d", swf: {src: "away3d4.swf"}, help: "http://away3d.com/livedocs/away3d/4.0/"},
 			{name: "utest", help: "https://github.com/haxe-utest/utest"},
 			{name: "hx3compat", help: "https://github.com/HaxeFoundation/hx3compat"},
 			{name: "safety", help: "https://github.com/RealyUniqueName/Safety"},
@@ -104,7 +80,7 @@ class Libs {
 		],
 	];
 
-	static var defaultChecked:Map<String, Array<String>> = ["JS" => [], "SWF" => [], "NEKO" => [], "EVAL" => [], "HL" => []]; // array of lib names
+	static var defaultChecked:Map<String, Array<String>> = ["JS" => [], "NEKO" => [], "EVAL" => [], "HL" => []]; // array of lib names
 
 	static public function getLibsConfig(?target:TargetV2, ?targetName:String):Array<LibConf> {
 		var name = targetName != null ? targetName : Type.enumConstructor(target);
