@@ -1,11 +1,11 @@
 package api;
 
-import haxe.Exception;
 import api.Completion.CompletionItem;
 import api.Completion.CompletionResult;
 import api.Completion.CompletionType;
 import api.Program.ProgramV2;
 import api.Program.Target;
+import haxe.Exception;
 #if php
 import haxe.io.Path;
 import sys.FileSystem;

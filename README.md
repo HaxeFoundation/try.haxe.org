@@ -5,7 +5,7 @@ try-haxe
 
 The try-haxe project is a browser-based IDE for testing Haxe code.  It provides a
 quick and easy environment for playing with the Haxe language and compiles to
-JavaScript, Flash or Neko, instantly viewable in the browser.  It also allows saving
+JavaScript, Eval, HashLink or Neko, instantly viewable in the browser.  It also allows saving
 and sharing of programs with the auto-generated hyperlink hash-codes.
 
 The official project is hosted at [try.haxe.org](http://try.haxe.org).
