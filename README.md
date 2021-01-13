@@ -59,120 +59,24 @@ To close container:
 
 `docker-compose -f docker-compose-all.yml down`
 
-Run your own instance (old method):
-----------------------
+Linux:
 
-This guide has been tested on Ubuntu 16.04 desktop and server.
+Docker group can have a different group id / number than the web container's docker group. To fix it find docker group id:
 
-Clone this git repo and initialize its submodules:
+`cat /etc/group | grep docker`
 
-```bash
-git clone --recursive https://github.com/mrcdk/try-haxe -b docker
-```
-
-Install the needed libraries and build the `try-haxe` project:
+then use `docker exec -it try-haxe_web_1 /bin/bash` to enter web container and edit `/etc/group` inside:
 
 ```bash
-cd try-haxe
-haxelib install build.hxml
-haxe build.hxml
+apt install vim-tiny
+vi /etc/group
+# find entry with docker (should be last) and change number to host group id
+:wq
+service apache2 restart
 ```
 
-Install docker following [this guide](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/).
+macOS:
 
+After building containers run:
 
-Download the docker image that will be used when the compilation is triggered. This image `thecodec/haxe-3.3.0.slim` is a stripped down image that only contains the needed functionality to run `haxe` and `neko`. The server will mount the selected haxe version and the haxelib libraries when compiling.
-
-```bash
-docker pull thecodec/haxe-3.3.0.slim
-```
-
-Setup Apache and PHP:
-
-- Install Apache and PHP:
-
-```bash
-sudo apt-get install apache2 php libapache2-mod-php
-```
-
-- Create a symlink from the project root folder to `/var/www`
-
-```bash
-sudo ln -s `pwd` /var/www
-```
-
-- Create the `tmp` folder where the code will be saved:
-
-```bash
-mkdir tmp
-chmod a+rw tmp
-```
-
-- Enable the Apache rewrite module:
-
-```bash
-sudo a2enmod rewrite
-```
-
-- Edit the Apache configuration file with:
-
-```bash
-sudo nano /etc/apache2/sites-available/000-default.conf
-```
-
-- Modify the file adding the `try-haxe` directory configuration:
-
-```bash
-<VirtualHost>
-
-    ...
-
-    DocumentRoot /var/www
-
-    <Directory "/var/www/try-haxe">
-        Options FollowSymLinks
-        AllowOverride All
-    </Directory>
-
-    ...
-
-</VirtualHost>
-```
-
-- Finally restart Apache:
-
-```bash
-sudo systemctl restart apache2
-```
-
-Create a group `docker`and add the users `www-data` and your current user to it:
-
-```bash
-sudo groupadd docker
-sudo gpasswd -a ${USER} docker
-sudo gpasswd -a www-data docker
-```
-
-Then restart the docker service:
-
-```bash
-sudo service docker restart
-```
-
-Add the Haxe libraries that will be used by the site inside `haxe/haxelib`
-
-- Change the `haxelib` install path to `haxe/haxelib`
-
-```bash
-haxelib setup haxe/haxelib
-```
-
-- Install all the libs from the `install.hxml` inside `haxe/haxelib`
-
-```bash
-haxelib install haxe/haxelib/install.hxml
-```
-
-Add the Haxe versions that will be listed in the site inside `haxe/versions`
-
-You can use `haxe downloader.hxml` to download the latest Haxe development version.
+`docker exec -it try-haxe_web_1 sh -c "chgrp docker /var/run/docker.sock; chmod g+w /var/run/docker.sock"`
