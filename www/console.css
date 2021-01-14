@@ -1,3 +1,58 @@
+[dark-theme=""] body {
+	background-color: #111;
+	color: #ccc;
+}
+
+[dark-theme=""] #debug_console {
+	background: transparent !important;
+}
+[dark-theme=""] #debug_console font.log-normal {
+	color: #ccc !important;
+}
+
+/* utest */
+
+[dark-theme=""] .okbg {
+	background-color: #1E4D19;
+	color: #ccc;
+}
+
+[dark-theme=""] h1 {
+	border-color: #555;
+}
+
+[dark-theme=""] .headerinfo {
+	border-color: #555;
+}
+
+[dark-theme=""] li {
+	background-color: #333;
+	border-color: #555;
+}
+
+[dark-theme=""] h2 {
+	background-color: #444;
+	border-color: #444;
+}
+
+[dark-theme=""] h2.classname {
+	color: #ccc;
+}
+
+[dark-theme=""] li.fixture {
+	background-color: #333;
+}
+
+[dark-theme=""] .failurebg {
+	background-color: #4A0E09;
+}
+
+[dark-theme=""] .testoutput {
+	border: 1px dashed #2D2D2D;
+	background-color: #222;
+}
+
+
 #debug_console{
 	pointer-events:auto;
 	position:absolute;
@@ -7,7 +62,7 @@
 	right:auto;
 	max-height:100%;
 	width:98%;
-	background:rgba(250,250,250,.7)!important;
+	background: #ffffff !important;
 	overflow:auto;
 	font-size:14px;
 }

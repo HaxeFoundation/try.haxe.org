@@ -6,8 +6,9 @@ import api.Completion.CompletionType;
 import api.Program.ProgramV2;
 import api.Program.Target;
 import haxe.Exception;
-#if php
 import haxe.io.Path;
+#if php
+import php.SuperGlobal._COOKIE;
 import sys.FileSystem;
 import sys.io.File;
 #end
@@ -343,6 +344,7 @@ class Compiler {
 		var html:HTMLConf = {head: [], body: []};
 
 		addLibs(args, program, html);
+		html.head.push("<link rel='stylesheet' href='" + Api.root + "/console.css' type='text/css'>");
 
 		switch (program.target) {
 			case JS(name, version):
@@ -361,7 +363,6 @@ class Compiler {
 
 				html.body.push("<script src='//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>");
 				html.body.push("<script src='//markknol.github.io/console-log-viewer/console-log-viewer.js'></script>");
-				html.head.push("<link rel='stylesheet' href='" + Api.root + "/console.css' type='text/css'>");
 
 			case NEKO(name):
 				Api.checkSanity(name);
@@ -428,7 +429,9 @@ class Compiler {
 				default:
 			}
 			var h = new StringBuf();
-			h.add("<html>\n\t<head>\n\t\t<title>Haxe Run</title>");
+			final isDark = php.Global.isset(_COOKIE["dark-theme"]) && _COOKIE["dark-theme"] == "true";
+			final theme = isDark ? 'dark-theme=""' : "";
+			h.add('<html $theme>\n\t<head>\n\t\t<title>Haxe Run</title>');
 			for (i in html.head) {
 				h.add("\n\t\t");
 				h.add(i);

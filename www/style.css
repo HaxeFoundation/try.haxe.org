@@ -11,7 +11,7 @@ body, body p, body td, body li {
   line-height: 1.5;
 }
 
-textarea { 
+textarea {
   width: 95%;
   height:466px;
 }
@@ -46,6 +46,10 @@ h2 small {font-weight:normal; }
 
 .nav.nav-tabs { margin-bottom: 13px}
 
+.nav-tabs > li > a {
+	outline: 0;
+}
+
 .logo {
   float:left;
   margin-right:20px;
@@ -61,6 +65,9 @@ h2 small {font-weight:normal; }
 
 a.btn i {
   margin-top: 3px;
+}
+.btn:focus {
+	outline: 0;
 }
 
 .CodeMirror-wrap, .hx-options, .js-canvas
@@ -86,7 +93,7 @@ a.btn i {
 .CodeMirror {
 	font-size:13px;
 	line-height:1.2em;
-	
+
 	border: 1px solid #DDD;
 	-webkit-border-radius: 4px;
 	-moz-border-radius: 4px;
@@ -96,7 +103,7 @@ a.btn i {
 	box-shadow: 0 1px 1px rgba(0,0,0,0.075);
 	height:473px;
 }
-.js-source .CodeMirror {	
+.js-source .CodeMirror {
 	height:473px;
 }
 .embed-source .CodeMirror {
@@ -150,7 +157,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 	color:#fff;
 	font: 13px/1.4em Trebuchet, Verdana, sans-serif;
 	*/
-	
+
 	/* cobalt */
 	/*background:#002240;
 	color:#fff;
@@ -159,7 +166,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 	background:#fff;
 	color:#333;
 	font-family:monospace;
-	
+
 }
 
 .span-fb, .span-plusone, .span-twitter {
@@ -219,14 +226,14 @@ body.fullscreen-runner {
 	}
 }
 
-.CodeMirror-hint 
+.CodeMirror-hint
 {
   max-width: 100em;
 }
 
 .completionDescription
 {
-	
+
 }
 
 .CodeMirror-Tern-completion {

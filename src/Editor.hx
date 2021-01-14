@@ -1,13 +1,16 @@
-import haxe.remoting.AsyncProxy;
-import haxe.remoting.HttpAsyncConnection;
-import js.Browser;
-import js.Lib;
-import js.codemirror.*;
-import js.jquery.*;
 import api.Completion.CompletionItem;
 import api.Completion.CompletionResult;
 import api.Completion.CompletionType;
 import api.Program;
+import haxe.remoting.AsyncProxy;
+import haxe.remoting.HttpAsyncConnection;
+import js.Browser.document;
+import js.Browser.window;
+import js.Browser;
+import js.Lib;
+import js.codemirror.*;
+import js.html.IFrameElement;
+import js.jquery.*;
 
 using Lambda;
 using haxe.EnumTools;
@@ -95,19 +98,32 @@ class Editor {
 
 		jsSource = CodeMirror.fromTextArea(cast new JQuery("textarea[name='js-source']")[0], {
 			mode: "javascript",
-			// theme : "default",
+			theme: getCodeTheme(),
 			lineWrapping: true,
 			lineNumbers: true,
 			readOnly: true
 		});
 
 		embedSource = CodeMirror.fromTextArea(cast new JQuery("textarea[name='embed-source']")[0], {
+			theme: getCodeTheme(),
 			mode: "htmlmixed",
 			lineWrapping: true,
 			readonly: true
 		});
 
+		if (document.cookie.contains("dark-theme=true")) {
+			toggleTheme();
+		}
+		document.querySelector("#theme-toggle").addEventListener("click", event -> {
+			toggleTheme();
+			event.preventDefault();
+			return false;
+		});
+
 		runner = new JQuery("iframe[name='js-run']");
+		runner.on("load", function() {
+			updateIframeTheme();
+		});
 		messages = new JQuery(".messages");
 		compileBtn = new JQuery(".compile-btn");
 		libs = new JQuery("#hx-options-form .hx-libs");
@@ -214,14 +230,57 @@ class Editor {
 
 		setTarget(api.Program.TargetV2.JS("test", selectedJsVersion));
 
-		var uid = Browser.window.location.hash;
+		var uid = window.location.hash;
 		if (uid.length > 0) {
 			uid = uid.substr(1);
 			cnxCompiler.getProgram(uid, onProgram);
 		}
 
-		js.Browser.window.addEventListener('resize', resize);
+		window.addEventListener('resize', resize);
 		resize();
+	}
+
+	function isDarkTheme():Bool {
+		return document.querySelector("html").hasAttribute("dark-theme");
+	}
+
+	function getCodeTheme():String {
+		return isDarkTheme() ? "material-darker" : "default";
+	}
+
+	function toggleTheme() {
+		final htmlTag = document.querySelector("html");
+		htmlTag.toggleAttribute("dark-theme");
+		final isDark = htmlTag.hasAttribute("dark-theme");
+		document.cookie = 'dark-theme=$isDark; max-age=${60 * 60 * 24 * 365}; SameSite=Strict';
+		final text = isDark ? "Lighter" : "Darker";
+		document.querySelector("#theme-toggle .theme-label").innerText = text;
+
+		for (editor in haxeEditors) {
+			editor.codeMirror.setOption("theme", getCodeTheme());
+		}
+		jsSource.setOption("theme", getCodeTheme());
+		embedSource.setOption("theme", getCodeTheme());
+		updateIframeTheme();
+	}
+
+	function updateIframeTheme():Void {
+		final isDark = isDarkTheme();
+		final iframe:IFrameElement = cast document.querySelector(".js-run");
+		if (iframe == null || iframe.contentDocument == null)
+			return;
+		final iframeHtml = iframe.contentDocument.querySelector("html");
+		if (iframeHtml == null)
+			return;
+		if (isDark) {
+			iframeHtml.setAttribute("dark-theme", "");
+		} else {
+			iframeHtml.removeAttribute("dark-theme");
+		}
+		if (iframe.getAttribute("src") != "about:blank")
+			return;
+		final color = isDark ? "#111" : "#fff";
+		iframeHtml.style.backgroundColor = color;
 	}
 
 	function addHaxeSource(name:JQuery, elem) {
@@ -229,7 +288,7 @@ class Editor {
 
 		var haxeSource = CodeMirror.fromTextArea(elem, {
 			mode: "haxe",
-			// theme : "default",
+			theme: getCodeTheme(),
 			lineWrapping: true,
 			lineNumbers: true,
 
@@ -283,12 +342,11 @@ class Editor {
 		// reset
 		setHeight(10);
 
-		var win = js.Browser.window;
-		var body = new JQuery(win.document.body);
+		var body = new JQuery(document.body);
 		var main = new JQuery('.main');
 
 		// window height - 160 - footer height
-		var h = win.innerHeight - 160;
+		var h = window.innerHeight - 160;
 		h -= new JQuery('.foot').height();
 
 		h = Math.max(h, MIN_HEIGHT);
@@ -668,7 +726,9 @@ class Editor {
 			var run = output.href;
 			run = run.replace("/try-haxe/", "/");
 			runner.attr("src", apiRoot + run + "?r=" + Std.string(Math.random()));
-			untyped new JQuery(".link-btn, .fullscreen-btn").button('reset').attr("href", apiRoot + run + "?r=" + Std.string(Math.random()));
+			final standalone = new JQuery(".link-btn, .fullscreen-btn");
+			standalone.removeClass("disabled");
+			standalone.attr("href", apiRoot + run + "?r=" + Std.string(Math.random()));
 		} else {
 			runner.attr("src", "about:blank");
 			new JQuery(".link-btn, .fullscreen-btn").addClass("disabled").attr("href", "#");
@@ -680,7 +740,7 @@ class Editor {
 
 		output = o;
 		program.uid = output.uid;
-		Browser.window.location.hash = "#" + output.uid;
+		window.location.hash = "#" + output.uid;
 
 		jsSource.setValue(output.source);
 		embedSource.setValue(output.embed);
@@ -743,7 +803,7 @@ class Editor {
 		}
 
 		messages.fadeIn();
-		untyped compileBtn.button('reset');
+		untyped compileBtn.button("reset");
 
 		run();
 	}
