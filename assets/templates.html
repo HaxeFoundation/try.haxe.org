@@ -72,7 +72,7 @@
     text-decoration:none;
     background:#13110f;
   }
- 
+
   #nav a .fa {
     padding-right:5px;
     text-shadow: 0 0 5px #555;
@@ -99,6 +99,14 @@
     left:0;
     right:0;
   }
+  [dark-theme=""] body {
+    color: #ccc;
+  }
+  [dark-theme=""] pre {
+    color: #ccc;
+    background-color: #222;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+  }
 </style>
 </head>
 <body>
@@ -118,7 +126,6 @@
     <iframe id="iframe" src="" width="99%" frameborder="0" scrolling="no" height="100%"></iframe>
   </div>
   <link href='/highlighter.min.css' rel='stylesheet' type='text/css'/>
-  <script src="//haxe.org/js/jquery.min.js"></script>
   <script src="/highlighter.js"></script>
   <script>
   function run()
@@ -128,7 +135,7 @@
     $$("#results").style.display = "block";
     $$("#iframe").setAttribute("src", "$frameUrl" + Math.random());
   }
-  
+
   function showCode(idx)
   {
     if(idx == 1) {
@@ -141,7 +148,7 @@
     $$("#results").style.display = "none";
     $$("#btn-results").style.display = "inline-block";
   }
-  
+
   var _matches = {
     '#': document.getElementById,
     '.': document.getElementsByClassName,
@@ -149,10 +156,13 @@
     '=': document.getElementsByTagName,
     '?': document.querySelectorAll
   }
-  
-  window.$$ = function(s) 
+
+  window.$$ = function(s)
   {
     return _matches[s[0]].call(document, s.slice(1));
+  }
+  if (window.frameElement !=null && window.frameElement.hasAttribute("dark-theme")) {
+    document.body.setAttribute("dark-theme", "");
   }
   </script>
   <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.css"/>

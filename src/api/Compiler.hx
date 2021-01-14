@@ -334,10 +334,12 @@ class Compiler {
 		if (program.analyzer == "yes")
 			args = args.concat(["-D", "analyzer-optimize", "-D", "analyzer"]);
 
+		final isDark = php.Global.isset(_COOKIE["dark-theme"]) && _COOKIE["dark-theme"] == "true";
 		var outputPath:String;
 		var htmlPath:String = Path.join([programFolder, "index.html"]);
 		var runUrl = '${Api.base}/program/${program.uid}/run';
-		var embedSrc = '<iframe src="//${Api.host}${Api.base}/embed/${program.uid}" width="100%" height="300" frameborder="no" allowfullscreen>
+		var darkAttr = isDark ? ' dark-theme=""' : "";
+		var embedSrc = '<iframe src="//${Api.host}${Api.base}/embed/${program.uid}" width="100%" height="300" frameborder="no" allowfullscreen$darkAttr>
 	<a href="//${Api.host}/#${program.uid}">Try Haxe !</a>
 </iframe>';
 
@@ -429,7 +431,6 @@ class Compiler {
 				default:
 			}
 			var h = new StringBuf();
-			final isDark = php.Global.isset(_COOKIE["dark-theme"]) && _COOKIE["dark-theme"] == "true";
 			final theme = isDark ? 'dark-theme=""' : "";
 			h.add('<html $theme>\n\t<head>\n\t\t<title>Haxe Run</title>');
 			for (i in html.head) {

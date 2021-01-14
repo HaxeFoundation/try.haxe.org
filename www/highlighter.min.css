@@ -1,1 +1,92 @@
-code,pre{color:#333}html pre,html pre code{font-family:consolas,monospace;white-space:pre;overflow-x:auto}code a{color:#08c}pre{margin:15px 0;padding:.5em}pre .type{color:#0086b3}pre .kwd{color:#00a}pre .val{color:#44a}div.pre .str,pre .str,pre .str .kwd,pre .str .type,pre .str .val{color:#a00}pre .cmt,pre .cmt .kwd,pre .cmt .str,pre .cmt .type,pre .cmt .val{color:#998}pre .cmt{font-style:italic}.last-modified{color:#999}.semantic{display:none}
+code, pre {
+  color: #333
+}
+
+html pre, html pre code {
+  font-family: consolas, monospace;
+  white-space: pre;
+  overflow-x: auto
+}
+
+code a {
+  color: #08c
+}
+
+pre {
+  margin: 15px 0;
+  padding: .5em
+}
+
+pre .type {
+  color: #0086b3
+}
+
+pre .kwd {
+  color: #00a
+}
+
+pre .val {
+  color: #44a
+}
+
+div.pre .str, pre .str, pre .str .kwd, pre .str .type, pre .str .val {
+  color: #a00
+}
+
+pre .cmt, pre .cmt .kwd, pre .cmt .str, pre .cmt .type, pre .cmt .val {
+  color: #998
+}
+
+pre .cmt {
+  font-style: italic
+}
+
+.last-modified {
+  color: #999
+}
+
+.semantic {
+  display: none
+}
+
+/* dark */
+
+[dark-theme=""] code, pre {
+  color: #EEFFFF
+}
+
+[dark-theme=""] code a {
+  color: #08c
+}
+
+[dark-theme=""] pre .type {
+  color: #DECB6B
+}
+
+[dark-theme=""] pre .kwd {
+  color: #C792EA
+}
+
+[dark-theme=""] pre .val {
+  color: #FF5370
+}
+
+[dark-theme=""] div.pre .str,
+[dark-theme=""] pre .str,
+[dark-theme=""] pre .str .kwd,
+[dark-theme=""] pre .str .type,
+[dark-theme=""] pre .str .val {
+  color: #C3E88D
+}
+
+[dark-theme=""] pre .cmt,
+[dark-theme=""] pre .cmt .kwd,
+[dark-theme=""] pre .cmt .str,
+[dark-theme=""] pre .cmt .type,
+[dark-theme=""] pre .cmt .val {
+  color: #545454
+}
+
+[dark-theme=""] .last-modified {
+  color: #666
+}
