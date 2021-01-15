@@ -106,6 +106,20 @@
   box-shadow: 2px 3px 5px rgba(0,0,0,.2);
 }
 
+[dark-theme=""] .lint-error {
+  background: #2f2f2f;
+  color: #eee;
+  font-weight: normal;
+  opacity: 0.8;
+  border: 1px solid #444;
+}
+
+[dark-theme=""] .selectedParameter {
+  background-color: transparent;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
 [dark-theme=""] pre {
   background-color: #1c1c1c;
 }
