@@ -229,6 +229,9 @@ class Compiler {
 
 			var words:Array<CompletionItem> = [];
 
+			if (xml.hasNode.i && !xml.nodes.i[0].has.n)
+				completionType = CompletionType.TOP_LEVEL;
+
 			if (completionType == CompletionType.DEFAULT) {
 				for (e in xml.nodes.i) {
 					var w:CompletionItem = {n: e.att.n, d: ""};
