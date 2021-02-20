@@ -63,7 +63,7 @@ class Api {
 
 	public function doProgram(id:String, d:Dispatch) {
 		checkSanity(id);
-		dir = '$programsRootFolder/$id';
+		dir = '$programsRootFolder/${id.substr(0, 2)}/$id';
 		if (FileSystem.exists(dir) && FileSystem.isDirectory(dir)) {
 			d.dispatch({
 				doRun: runProgram,
@@ -130,7 +130,7 @@ class Api {
 					dce: dce,
 					analyzer: analyzer,
 					target: JS("test", ES6),
-					libs: new Array()
+					libs: []
 				}
 				compiler.prepareProgram(program);
 				redirectToProgram(program.uid);

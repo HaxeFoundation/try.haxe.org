@@ -1,22 +1,20 @@
 package api;
 
+import haxe.Exception;
+import haxe.io.Path;
 import api.Completion.CompletionItem;
 import api.Completion.CompletionResult;
 import api.Completion.CompletionType;
 import api.Program.ProgramV2;
 import api.Program.Target;
-import haxe.Exception;
-import haxe.io.Path;
+import api.Program.TargetV2;
 #if php
+import haxe.remoting.HttpConnection;
 import php.SuperGlobal._COOKIE;
 import sys.FileSystem;
 import sys.io.File;
+import api.HTMLConf.RemoteCompilerProxy;
 #end
-
-typedef HTMLConf = {
-	head:Array<String>,
-	body:Array<String>
-}
 
 class Compiler {
 	var programFolder:String;
@@ -56,12 +54,12 @@ class Compiler {
 	public function prepareProgram(program:ProgramV2) {
 		while (program.uid == null) {
 			var id = haxe.crypto.Md5.encode(Std.string(Math.random()) + Std.string(Date.now().getTime()));
-			id = id.substr(0, 5);
+			id = id.substr(0, 8);
 			var uid = "";
 			for (i in 0...id.length)
 				uid += if (Math.random() > 0.5) id.charAt(i).toUpperCase() else id.charAt(i);
 
-			var tmpDir = Path.join([Api.programsRootFolder, uid]);
+			var tmpDir = Path.join([Api.programsRootFolder, uid.substr(0, 2), uid]);
 			if (!(FileSystem.exists(tmpDir))) {
 				program.uid = uid;
 			}
@@ -71,7 +69,7 @@ class Compiler {
 		Api.checkSanity(program.mainClass);
 		Api.checkDCE(program.dce);
 
-		programFolder = Path.join([Api.programsRootFolder, program.uid]);
+		programFolder = Path.join([Api.programsRootFolder, program.uid.substr(0, 2), program.uid]);
 
 		if (!FileSystem.isDirectory(programFolder)) {
 			FileSystem.createDirectory(programFolder);
@@ -108,8 +106,9 @@ class Compiler {
 	public function getProgram(uid:String):ProgramV2 {
 		Api.checkSanity(uid);
 
-		if (FileSystem.isDirectory(Api.programsRootFolder + "/" + uid)) {
-			programFolder = Path.join([Api.programsRootFolder, uid]);
+		var folder = Path.join([Api.programsRootFolder, uid.substr(0, 2), uid]);
+		if (FileSystem.isDirectory(folder)) {
+			programFolder = folder;
 
 			// if we don't find a program to unserialize return null
 			var s = null;
@@ -169,6 +168,60 @@ class Compiler {
 			return p;
 		}
 
+		return downloadOldSnippet(uid);
+	}
+
+	function downloadOldSnippet(uid:String) {
+		try {
+			var cnx:HttpConnection = HttpConnection.urlConnect("https://try.haxe.org/compiler");
+			var cnxCompiler:RemoteCompilerProxy;
+			cnxCompiler = new RemoteCompilerProxy(cnx.resolve("Compiler"));
+			var oldProgram:Dynamic = cnxCompiler.getProgram(uid);
+			var oldTarget:Target = cast oldProgram.target;
+			var target:TargetV2 = switch (oldTarget) {
+				case JS(name):
+					JS(name, ES6);
+				case SWF(name, _):
+					JS(name, ES6);
+				case NEKO(name):
+					NEKO(name);
+				case EVAL(name):
+					EVAL(name);
+				case HL(name):
+					HL(name);
+				case _:
+					JS("test", ES6);
+			}
+			var program:ProgramV2 = {
+				uid: uid,
+				mainClass: oldProgram.main.name,
+				modules: [
+					oldProgram.main,
+					{
+						name: "Macro",
+						source: ""
+					}
+				],
+				target: target,
+				haxeVersion: Haxe_4_1_5,
+				libs: oldProgram.libs,
+				dce: oldProgram.dce,
+				analyzer: oldProgram.analyzer
+			};
+			programFolder = Path.join([Api.programsRootFolder, uid.substr(0, 2), uid]);
+			FileSystem.createDirectory(programFolder);
+			File.saveContent(Path.join([programFolder, "program"]), haxe.Serializer.run(program));
+			for (module in program.modules) {
+				var file = Path.join([programFolder, module.name + ".hx"]);
+				try {
+					File.saveContent(file, module.source);
+				} catch (e:Exception) {}
+			}
+
+			return program;
+		} catch (e:Exception) {
+			trace(e.details());
+		}
 		return null;
 	}
 
@@ -182,7 +235,12 @@ class Compiler {
 
 		var source = module.source;
 		// var display = tmpDir + module.name + ".hx@" + idx;
-		var display = Path.join(["/home/haxer/programs", program.uid, module.name + ".hx@" + idx]);
+		var display = Path.join([
+			"/home/haxer/programs",
+			program.uid.substr(0, 2),
+			program.uid,
+			module.name + ".hx@" + idx
+		]);
 		// var display = module.name + ".hx@" + idx;
 
 		if (completionType == CompletionType.TOP_LEVEL) {
@@ -473,7 +531,7 @@ class Compiler {
 
 		File.saveContent(Path.join([outDir, ".haxerc"]), '{"version": "${correctHaxeVersion(program.haxeVersion)}", "resolveLibs": "scoped"}');
 		var docker = 'docker exec -u haxer try-haxe_compiler sh -c "cd /home/haxer/programs/${program.uid}; ';
-		docker += " timeout 2s haxe " + args.join(" ") + ' > haxe_out 2> haxe_err';
+		docker += " timeout 20s haxe " + args.join(" ") + ' > haxe_out 2> haxe_err';
 
 		switch (program.target) {
 			case JS(_) | EVAL(_):

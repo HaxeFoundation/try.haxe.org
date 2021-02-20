@@ -1,9 +1,10 @@
-version: '3'
+version: '2.2'
 services:
   web:
     build: .
+    image: try-haxe_web
     ports:
-      - "623:80"
+      - "127.0.0.1:623:80"
     volumes:
       - ./www:/var/www/html:ro
       - ./hashlink-bin:/srv/try-haxe/hashlink:ro
@@ -12,7 +13,9 @@ services:
       - ./tmp:/srv/try-haxe/outTemp
       - /var/run/docker.sock:/var/run/docker.sock
     command: sh -c "service apache2 start && tail -f /dev/null"
-    # privileged: true
+    cpus: 1.5
+    mem_limit: 8gb
+    mem_reservation: 4gb
   try_haxe_setup:
     image: try-haxe_lix-setup
     container_name: try-haxe_lix-setup
@@ -29,7 +32,11 @@ services:
       - ./tmp:/home/haxer/programs
     command: sh -c "tail -f /dev/null"
     user: haxer
+    cpus: 6
+    mem_limit: 20gb
+    mem_reservation: 8gb
   hl.exe:
     build: ./hashlink-bin
+    image: try-haxe_hl.exe
     volumes:
       - ./hashlink-bin:/hashlink-bin

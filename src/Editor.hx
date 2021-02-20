@@ -1,7 +1,3 @@
-import api.Completion.CompletionItem;
-import api.Completion.CompletionResult;
-import api.Completion.CompletionType;
-import api.Program;
 import haxe.remoting.AsyncProxy;
 import haxe.remoting.HttpAsyncConnection;
 import js.Browser.document;
@@ -11,6 +7,10 @@ import js.Lib;
 import js.codemirror.*;
 import js.html.IFrameElement;
 import js.jquery.*;
+import api.Completion.CompletionItem;
+import api.Completion.CompletionResult;
+import api.Completion.CompletionType;
+import api.Program;
 
 using Lambda;
 using haxe.EnumTools;
@@ -495,6 +495,10 @@ class Editor {
 		radio.attr("checked", "checked");
 
 		libs.find("." + sel + "-libs").fadeIn();
+
+		for (lib in program.libs) {
+			new JQuery('#hx-options .hx-libs .$sel-libs input[value="$lib"]').prop("checked", true);
+		}
 	}
 
 	function onHaxeVersion(e:Event) {
