@@ -424,7 +424,6 @@ class Compiler {
 						args.push("js-es=6");
 				}
 
-				html.body.push("<script src='//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>");
 				html.body.push("<script src='//markknol.github.io/console-log-viewer/console-log-viewer.js'></script>");
 
 			case NEKO(name):
