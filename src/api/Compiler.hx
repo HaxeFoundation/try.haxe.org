@@ -486,9 +486,9 @@ class Compiler {
 			switch (program.target) {
 				case JS(_):
 					output.source = File.getContent(outputPath);
-					html.body.push("<script>" + output.source + "</script>");
+					html.body.push("<script>" + output.source.replace("</", "&lt;/") + "</script>");
 				case NEKO(_) | HL(_) | EVAL(_):
-					html.body.push("<div style='overflow:auto; height:100%; width: 100%;'><pre>" + out.out + "</pre></div>");
+					html.body.push("<div style='overflow:auto; height:100%; width: 100%;'><pre>" + out.out.htmlEscape(true) + "</pre></div>");
 				default:
 			}
 			var h = new StringBuf();
