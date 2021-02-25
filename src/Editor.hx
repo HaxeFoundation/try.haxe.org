@@ -786,21 +786,21 @@ class Editor {
 			outputTab.hide();
 			untyped errorTab.tab("show");
 			errorTab.show();
-			errorDiv.html("<pre>" + output.stderr + "</pre>");
+			errorDiv.html("<pre>" + output.stderr.htmlEscape(true) + "</pre>");
 		}
 
-		messages.html("<div class='alert alert-" + msgType + "'><h4 class='alert-heading'>" + output.message + "</h4></div>");
+		messages.html("<div class='alert alert-" + msgType + "'><h4 class='alert-heading'>" + output.message.htmlEscape(true) + "</h4></div>");
 
 		if (output.haxeout != null && output.haxeout.trim().length > 0) {
 			compilerOutTab.show();
-			compilerOut.html("<pre>" + output.haxeout + "</pre>");
+			compilerOut.html("<pre>" + output.haxeout.htmlEscape(true) + "</pre>");
 		} else {
 			compilerOutTab.hide();
 			compilerOut.html("<pre></pre>");
 		}
 		if (output.times != null && output.times.trim().length > 0) {
 			compilerTimesTab.show();
-			compilerTimes.html("<pre>" + output.times + "</pre>");
+			compilerTimes.html("<pre>" + output.times.htmlEscape(true) + "</pre>");
 		} else {
 			compilerTimesTab.hide();
 			compilerTimes.html("<pre></pre>");
