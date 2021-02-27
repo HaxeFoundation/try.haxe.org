@@ -51,42 +51,42 @@ pre .cmt {
 
 /* dark */
 
-[dark-theme=""] code, pre {
+.dark-theme code, pre {
   color: #EEFFFF
 }
 
-[dark-theme=""] code a {
+.dark-theme code a {
   color: #08c
 }
 
-[dark-theme=""] pre .type {
+.dark-theme pre .type {
   color: #DECB6B
 }
 
-[dark-theme=""] pre .kwd {
+.dark-theme pre .kwd {
   color: #C792EA
 }
 
-[dark-theme=""] pre .val {
+.dark-theme pre .val {
   color: #FF5370
 }
 
-[dark-theme=""] div.pre .str,
-[dark-theme=""] pre .str,
-[dark-theme=""] pre .str .kwd,
-[dark-theme=""] pre .str .type,
-[dark-theme=""] pre .str .val {
+.dark-theme div.pre .str,
+.dark-theme pre .str,
+.dark-theme pre .str .kwd,
+.dark-theme pre .str .type,
+.dark-theme pre .str .val {
   color: #C3E88D
 }
 
-[dark-theme=""] pre .cmt,
-[dark-theme=""] pre .cmt .kwd,
-[dark-theme=""] pre .cmt .str,
-[dark-theme=""] pre .cmt .type,
-[dark-theme=""] pre .cmt .val {
+.dark-theme pre .cmt,
+.dark-theme pre .cmt .kwd,
+.dark-theme pre .cmt .str,
+.dark-theme pre .cmt .type,
+.dark-theme pre .cmt .val {
   color: #545454
 }
 
-[dark-theme=""] .last-modified {
+.dark-theme .last-modified {
   color: #666
 }

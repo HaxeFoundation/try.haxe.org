@@ -31,10 +31,14 @@ class Editor {
 	// FIXME: measure
 	static inline var MIN_HEIGHT = 525;
 
+	static inline final THEME_STORAGE_KEY = "theme";
+	static inline final DARK_THEME_CLASS = "dark-theme";
+
 	var cnx:HttpAsyncConnection;
 
 	var program:ProgramV2;
 	var output:Output;
+	var theme:UiTheme;
 
 	var gateway:String;
 	var apiRoot:String;
@@ -93,6 +97,8 @@ class Editor {
 
 		// HaxeLint.load();
 
+		theme = Browser.getLocalStorage().getItem(THEME_STORAGE_KEY);
+
 		addHaxeSource(new JQuery("input[name=module-a]"), cast new JQuery("textarea[name='hx-source']")[0]);
 		addHaxeSource(new JQuery("input[name=module-b]"), cast new JQuery("textarea[name='hx-source2']")[0]);
 
@@ -111,9 +117,14 @@ class Editor {
 			readonly: true
 		});
 
-		if (document.cookie.contains("dark-theme=true")) {
-			toggleTheme();
+		switch (theme) {
+			case Dark:
+				toggleTheme();
+			case Light:
+			case _:
+				theme = Light;
 		}
+
 		document.querySelector("#theme-toggle").addEventListener("click", event -> {
 			toggleTheme();
 			event.preventDefault();
@@ -122,7 +133,7 @@ class Editor {
 
 		runner = new JQuery("iframe[name='js-run']");
 		runner.on("load", function() {
-			updateIframeTheme();
+			updateIframeThemes();
 		});
 		messages = new JQuery(".messages");
 		compileBtn = new JQuery(".compile-btn");
@@ -241,7 +252,7 @@ class Editor {
 	}
 
 	function isDarkTheme():Bool {
-		return document.querySelector("html").hasAttribute("dark-theme");
+		return document.querySelector("html").classList.contains(DARK_THEME_CLASS);
 	}
 
 	function getCodeTheme():String {
@@ -250,9 +261,15 @@ class Editor {
 
 	function toggleTheme() {
 		final htmlTag = document.querySelector("html");
-		htmlTag.toggleAttribute("dark-theme");
-		final isDark = htmlTag.hasAttribute("dark-theme");
-		document.cookie = 'dark-theme=$isDark; max-age=${60 * 60 * 24 * 365}; SameSite=Strict';
+		var isDark = isDarkTheme();
+		if (isDark) {
+			htmlTag.classList.remove(DARK_THEME_CLASS);
+		} else {
+			htmlTag.classList.add(DARK_THEME_CLASS);
+		}
+		isDark = isDarkTheme();
+		theme = isDark ? Dark : Light;
+		Browser.getLocalStorage().setItem(THEME_STORAGE_KEY, theme);
 		final text = isDark ? "Lighter" : "Darker";
 		document.querySelector("#theme-toggle .theme-label").innerText = text;
 
@@ -261,26 +278,36 @@ class Editor {
 		}
 		jsSource.setOption("theme", getCodeTheme());
 		embedSource.setOption("theme", getCodeTheme());
-		updateIframeTheme();
+		updateIframeThemes();
 	}
 
-	function updateIframeTheme():Void {
+	function updateIframeThemes():Void {
+		updateIframeTheme(".js-run");
+		updateIframeTheme(".embed-preview iframe");
+	}
+
+	function updateIframeTheme(selector:String):Void {
 		final isDark = isDarkTheme();
-		final iframe:IFrameElement = cast document.querySelector(".js-run");
-		if (iframe == null || iframe.contentDocument == null)
+		final iframe:IFrameElement = cast document.querySelector(selector);
+		if (iframe == null || iframe.contentDocument == null) {
 			return;
-		final iframeHtml = iframe.contentDocument.querySelector("html");
-		if (iframeHtml == null)
-			return;
-		if (isDark) {
-			iframeHtml.setAttribute("dark-theme", "");
-		} else {
-			iframeHtml.removeAttribute("dark-theme");
 		}
-		if (iframe.getAttribute("src") != "about:blank")
+		final iframeBody = iframe.contentDocument.querySelector("body");
+		if (iframeBody == null) {
 			return;
+		}
+		if (isDark) {
+			iframeBody.classList.add(DARK_THEME_CLASS);
+			iframe.setAttribute(DARK_THEME_CLASS, "");
+		} else {
+			iframeBody.classList.remove(DARK_THEME_CLASS);
+			iframe.removeAttribute(DARK_THEME_CLASS);
+		}
+		if (iframe.getAttribute("src") != "about:blank") {
+			return;
+		}
 		final color = isDark ? "#111" : "#fff";
-		iframeHtml.style.backgroundColor = color;
+		iframeBody.style.backgroundColor = color;
 	}
 
 	function addHaxeSource(name:JQuery, elem) {
@@ -698,7 +725,7 @@ class Editor {
 			clearErrors(data);
 		untyped compileBtn.button('loading');
 		updateProgram();
-		cnxCompiler.compile(program, onCompile);
+		cnxCompiler.compile(program, theme, onCompile);
 	}
 
 	function updateProgram() {

@@ -74,3 +74,8 @@ typedef HaxeCompiler = {
 	version:HaxeVersion,
 	?gitHash:String
 }
+
+enum abstract UiTheme(String) from String to String {
+	var Dark = "dark";
+	var Light = "light";
+}

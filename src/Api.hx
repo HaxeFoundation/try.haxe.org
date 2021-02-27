@@ -4,6 +4,7 @@ import haxe.web.Dispatch;
 import php.Lib;
 import sys.FileSystem;
 import sys.io.File;
+import api.Compiler;
 import api.Program.ProgramV2;
 import template.Templates;
 
@@ -14,6 +15,7 @@ class Api {
 	public static var base:String;
 	public static var root:String;
 	public static var host:String;
+	public static var protocol:String;
 
 	public static final tryHaxeRootFolder = "/srv/try-haxe";
 	public static final programsRootFolder = Path.join([tryHaxeRootFolder, "programs"]);
@@ -43,11 +45,12 @@ class Api {
 	public function doEmbed(uid:String) {
 		var program = new api.Compiler().getProgram(uid);
 		if (program != null) {
-			var frameUrl = 'http://$host/$base/program/$uid/run?r=';
+			var frameUrl = '$protocol//$host$base/program/$uid/run?r=';
 			var name = program.modules[0].name + ".hx";
 			var name2 = program.modules[1].name + ".hx";
 			var source = program.modules[0].source.htmlEscape();
 			var source2 = program.modules[1].source.htmlEscape();
+			var hideSource2Tab = (program.modules[1].source.length <= 0) ? "none" : "inline-block";
 			var template = Templates.getCopy(Templates.MAIN_TEMPLATE);
 			Lib.println(template);
 		} else {
@@ -65,6 +68,7 @@ class Api {
 		checkSanity(id);
 		dir = '$programsRootFolder/${id.substr(0, 2)}/$id';
 		if (FileSystem.exists(dir) && FileSystem.isDirectory(dir)) {
+			ensureIndex(Path.join([dir, "index.html"]), id);
 			d.dispatch({
 				doRun: runProgram,
 				doGet: getProgram
@@ -75,7 +79,21 @@ class Api {
 	}
 
 	public function runProgram() {
-		php.Lib.print(File.getContent('$dir/index.html'));
+		var parts:Array<String> = dir.split("/");
+		var id:String = parts.pop();
+		var index = Path.join([dir, "index.html"]);
+		ensureIndex(index, id);
+		php.Lib.print(File.getContent(index));
+	}
+
+	function ensureIndex(index:String, id:String) {
+		if (!FileSystem.exists(index)) {
+			try {
+				var program = new api.Compiler().getProgram(id);
+				program.haxeVersion = "3.4.7";
+				new api.Compiler().compile(program, Light);
+			} catch (e:Any) {}
+		}
 	}
 
 	public function getProgram() {

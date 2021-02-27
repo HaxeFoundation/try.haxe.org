@@ -8,6 +8,7 @@ import api.Completion.CompletionType;
 import api.Program.ProgramV2;
 import api.Program.Target;
 import api.Program.TargetV2;
+import api.Program.UiTheme;
 #if php
 import haxe.remoting.HttpConnection;
 import php.SuperGlobal._COOKIE;
@@ -203,7 +204,7 @@ class Compiler {
 					}
 				],
 				target: target,
-				haxeVersion: Haxe_4_1_5,
+				haxeVersion: "3.4.7",
 				libs: oldProgram.libs,
 				dce: oldProgram.dce,
 				analyzer: oldProgram.analyzer
@@ -219,9 +220,7 @@ class Compiler {
 			}
 
 			return program;
-		} catch (e:Exception) {
-			trace(e.details());
-		}
+		} catch (e:Exception) {}
 		return null;
 	}
 
@@ -235,12 +234,7 @@ class Compiler {
 
 		var source = module.source;
 		// var display = tmpDir + module.name + ".hx@" + idx;
-		var display = Path.join([
-			"/home/haxer/programs",
-			program.uid.substr(0, 2),
-			program.uid,
-			module.name + ".hx@" + idx
-		]);
+		var display = Path.join(["/home/haxer/programs", program.uid, module.name + ".hx@" + idx]);
 		// var display = module.name + ".hx@" + idx;
 
 		if (completionType == CompletionType.TOP_LEVEL) {
@@ -358,7 +352,7 @@ class Compiler {
 		}
 	}
 
-	public function compile(program:ProgramV2):Null<Dynamic> {
+	public function compile(program:ProgramV2, uiTheme:UiTheme):Null<Dynamic> {
 		// TODO investigate return type and proxy callback
 		try {
 			prepareProgram(program);
@@ -395,19 +389,19 @@ class Compiler {
 		if (program.analyzer == "yes")
 			args = args.concat(["-D", "analyzer-optimize", "-D", "analyzer"]);
 
-		final isDark = php.Global.isset(_COOKIE["dark-theme"]) && _COOKIE["dark-theme"] == "true";
+		final isDark = (uiTheme == Dark);
 		var outputPath:String;
 		var htmlPath:String = Path.join([programFolder, "index.html"]);
 		var runUrl = '${Api.base}/program/${program.uid}/run';
 		var darkAttr = isDark ? ' dark-theme=""' : "";
-		var embedSrc = '<iframe src="//${Api.host}${Api.base}/embed/${program.uid}" width="100%" height="300" frameborder="no" allowfullscreen$darkAttr>
-	<a href="//${Api.host}/#${program.uid}">Try Haxe !</a>
+		var embedSrc = '<iframe src="${Api.protocol}//${Api.host}${Api.base}/embed/${program.uid}" width="100%" height="300" frameborder="no" allowfullscreen$darkAttr>
+	<a href="${Api.protocol}//${Api.host}/#${program.uid}">Try Haxe !</a>
 </iframe>';
 
 		var html:HTMLConf = {head: [], body: []};
 
 		addLibs(args, program, html);
-		html.head.push("<link rel='stylesheet' href='" + Api.root + "/console.css' type='text/css'>");
+		html.head.push("<link rel='stylesheet' href='" + Api.root + "/console.css?v2' type='text/css'>");
 
 		switch (program.target) {
 			case JS(name, version):
@@ -424,7 +418,7 @@ class Compiler {
 						args.push("js-es=6");
 				}
 
-				html.body.push("<script src='//markknol.github.io/console-log-viewer/console-log-viewer.js'></script>");
+				html.body.push("<script src='https://markknol.github.io/console-log-viewer/console-log-viewer.js'></script>");
 
 			case NEKO(name):
 				Api.checkSanity(name);
@@ -485,14 +479,13 @@ class Compiler {
 			switch (program.target) {
 				case JS(_):
 					output.source = File.getContent(outputPath);
-					html.body.push("<script>" + output.source.replace("</", "&lt;/") + "</script>");
+					html.body.push("<script>" + output.source.replace("</script", "&lt;/script") + "</script>");
 				case NEKO(_) | HL(_) | EVAL(_):
 					html.body.push("<div style='overflow:auto; height:100%; width: 100%;'><pre>" + out.out.htmlEscape(true) + "</pre></div>");
 				default:
 			}
 			var h = new StringBuf();
-			final theme = isDark ? 'dark-theme=""' : "";
-			h.add('<html $theme>\n\t<head>\n\t\t<title>Haxe Run</title>');
+			h.add('<html>\n\t<head>\n\t\t<title>Haxe Run</title>');
 			for (i in html.head) {
 				h.add("\n\t\t");
 				h.add(i);
@@ -502,6 +495,11 @@ class Compiler {
 				h.add("\n\t\t");
 				h.add(i);
 			}
+			h.add('<script>\nif (window.frameElement !=null && window.frameElement.hasAttribute("dark-theme")){\n');
+			h.add('\tdocument.body.classList.add("dark-theme");\n}\n');
+			h.add("else {\n");
+			h.add('\tdocument.body.classList.remove("dark-theme");\n');
+			h.add('}\n</script>');
 			h.add('\n\t</body>\n</html>');
 
 			File.saveContent(htmlPath, h.toString());

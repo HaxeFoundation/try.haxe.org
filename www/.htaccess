@@ -10,10 +10,11 @@ RewriteCond %{HTTPS} off
 RewriteCond %{HTTP_HOST} try\.haxe\.org
 RewriteRule ^(.*)$ https://try.haxe.org/$1 [R=301,L]
 
-
 # try.haxe.org
 RewriteCond %{HTTP_HOST} try\.haxe\.org
 RewriteRule ^$ /index.html [L,QSA]
+
+RewriteRule ^index\.php$ / [L]
 
 RewriteCond %{HTTP_HOST} try\.haxe\.org
 RewriteCond %{REQUEST_URI} !index.php

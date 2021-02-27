@@ -1,53 +1,53 @@
-[dark-theme=""] body {
+.dark-theme body {
 	background-color: #111;
 	color: #ccc;
 }
 
-[dark-theme=""] #debug_console {
+.dark-theme #debug_console {
 	background: transparent !important;
 }
-[dark-theme=""] #debug_console font.log-normal {
+.dark-theme #debug_console font.log-normal {
 	color: #ccc !important;
 }
 
 /* utest */
 
-[dark-theme=""] .okbg {
+.dark-theme .okbg {
 	background-color: #1E4D19;
 	color: #ccc;
 }
 
-[dark-theme=""] h1 {
+.dark-theme h1 {
 	border-color: #555;
 }
 
-[dark-theme=""] .headerinfo {
+.dark-theme .headerinfo {
 	border-color: #555;
 }
 
-[dark-theme=""] li {
+.dark-theme li {
 	background-color: #333;
 	border-color: #555;
 }
 
-[dark-theme=""] h2 {
+.dark-theme h2 {
 	background-color: #444;
 	border-color: #444;
 }
 
-[dark-theme=""] h2.classname {
+.dark-theme h2.classname {
 	color: #ccc;
 }
 
-[dark-theme=""] li.fixture {
+.dark-theme li.fixture {
 	background-color: #333;
 }
 
-[dark-theme=""] .failurebg {
+.dark-theme .failurebg {
 	background-color: #4A0E09;
 }
 
-[dark-theme=""] .testoutput {
+.dark-theme .testoutput {
 	border: 1px dashed #2D2D2D;
 	background-color: #222;
 }

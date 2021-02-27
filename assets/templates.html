@@ -7,9 +7,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Try-Haxe - widget - $uid</title>
 
-  <link rel="icon" href="//haxe.org/favicon.ico" type="image/x-icon"/>
+  <link rel="icon" href="https://haxe.org/favicon.ico" type="image/x-icon"/>
   <meta property="og:image" content="https://try.haxe.org/share.png" />
-  <link href='//fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'/>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'/>
+  <link rel="stylesheet" type="text/css" href="dark-mode.css?v2"/>
   <style>
   * { box-sizing: border-box }
   html, body {
@@ -99,10 +100,10 @@
     left:0;
     right:0;
   }
-  [dark-theme=""] body {
+   body.dark-theme {
     color: #ccc;
   }
-  [dark-theme=""] pre {
+  .dark-theme pre {
     color: #ccc;
     background-color: #222;
     border: 1px solid rgba(0, 0, 0, 0.15);
@@ -112,9 +113,9 @@
 <body>
   <nav id="nav" role="navigation">
     <a href="#code1" onclick="showCode(1);return false" id="btn-code1" style="display:inline-block"><i class="fa fa-code"></i> ${name}</a>
-    <a href="#code2" onclick="showCode(2);return false" id="btn-code2" style="display:inline-block"><i class="fa fa-code"></i> ${name2}</a>
+    <a href="#code2" onclick="showCode(2);return false" id="btn-code2" style="display:${hideSource2Tab}"><i class="fa fa-code"></i> ${name2}</a>
     <a href="#results" onclick="run();return false" id="btn-results"><i class="fa fa-play-circle"></i> Run</a>
-    <a href="//try.haxe.org/#$uid" target="_blank"><i class="fa fa-pencil"></i> Edit</a>
+    <a href="https://try.haxe.org/#$uid" target="_blank"><i class="fa fa-pencil"></i> Edit</a>
   </nav>
   <div id="code1">
     <pre><code class="prettyprint haxe">${source.split("\t").join("  ")}</code></pre>
@@ -125,7 +126,7 @@
   <div id="results" style="display:none">
     <iframe id="iframe" src="" width="99%" frameborder="0" scrolling="no" height="100%"></iframe>
   </div>
-  <link href='/highlighter.min.css' rel='stylesheet' type='text/css'/>
+  <link href='/highlighter.min.css?v2' rel='stylesheet' type='text/css'/>
   <script src="/highlighter.js"></script>
   <script>
   function run()
@@ -162,10 +163,18 @@
     return _matches[s[0]].call(document, s.slice(1));
   }
   if (window.frameElement !=null && window.frameElement.hasAttribute("dark-theme")) {
-    document.body.setAttribute("dark-theme", "");
+    document.body.classList.add("dark-theme");
+    $$('#iframe').classList.add("dark-theme");
+    $$('#iframe').setAttribute("dark-theme", "");
   }
+  else {
+    document.body.classList.remove("dark-theme");
+    $$('#iframe').classList.remove("dark-theme");
+    $$('#iframe').removeAttribute("dark-theme");
+  }
+
   </script>
-  <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.css"/>
+  <link rel="stylesheet" type="text/css" href="https://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.css"/>
 </body>
 </html>
 </template>
