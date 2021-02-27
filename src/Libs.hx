@@ -19,6 +19,7 @@ class Libs {
 				name: "hxColorToolkit",
 				help: "https://github.com/andyli/hxColorToolkit"
 			},
+			{name: "hxmath", help: "https://github.com/tbrosman/hxmath", args: []},
 			{name: "nape", help: "https://github.com/deltaluca/nape"},
 			{name: "pecan", help: "https://github.com/Aurel300/pecan"},
 			{name: "pixijs", head: ["<script src='../../../lib/js/pixi.min.js'></script>"]},
@@ -39,6 +40,7 @@ class Libs {
 				name: "hxColorToolkit",
 				help: "https://github.com/andyli/hxColorToolkit"
 			},
+			{name: "hxmath", help: "https://github.com/tbrosman/hxmath", args: []},
 			{name: "pecan", help: "https://github.com/Aurel300/pecan"},
 			{name: "thx.core", help: "https://github.com/fponticelli/thx.core"},
 			{name: "thx.culture", help: "https://github.com/fponticelli/thx.culture"},
@@ -56,6 +58,7 @@ class Libs {
 				name: "hxColorToolkit",
 				help: "https://github.com/andyli/hxColorToolkit"
 			},
+			{name: "hxmath", help: "https://github.com/tbrosman/hxmath", args: []},
 			{name: "pecan", help: "https://github.com/Aurel300/pecan"},
 			{name: "thx.core", help: "https://github.com/fponticelli/thx.core"},
 			{name: "thx.culture", help: "https://github.com/fponticelli/thx.culture"},
@@ -73,6 +76,7 @@ class Libs {
 				name: "hxColorToolkit",
 				help: "https://github.com/andyli/hxColorToolkit"
 			},
+			{name: "hxmath", help: "https://github.com/tbrosman/hxmath", args: []},
 			{name: "pecan", help: "https://github.com/Aurel300/pecan"},
 			{name: "safety", help: "https://github.com/RealyUniqueName/Safety"},
 			{name: "thx.core", help: "https://github.com/fponticelli/thx.core"},
