@@ -1,4 +1,10 @@
+.dark-theme {
+  background-color: #111 !important;
+  color: #eee;
+}
+
 .dark-theme body {
+  background-color: #111 !important;
   color: #ccc;
 }
 
@@ -167,11 +173,6 @@
 
 .dark-theme .social {
   opacity: 0.5;
-}
-
-.dark-theme {
-  background-color: #111 !important;
-  color: #eee;
 }
 
 .dark-theme .btn:focus, .dark-theme .btn:hover {
