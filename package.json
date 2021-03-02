@@ -11,7 +11,7 @@
     "codemirror": "^5.59.1",
     "pixi.js": "^5.3.7",
     "stats.js": "^0.17.0",
-    "three": "^0.124.0"
+    "three": "^0.125.0"
   },
   "devDependencies": {
     "lix": "^15.10.1"
