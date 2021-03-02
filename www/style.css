@@ -193,6 +193,7 @@ body.fullscreen-runner {
 
 .side-btn {
 	float:right;
+	margin-right: 10px;
 }
 
 @media( max-width:767px ) {
