@@ -772,6 +772,7 @@ class Editor {
 		output = o;
 		program.uid = output.uid;
 		window.location.hash = "#" + output.uid;
+		document.title = 'Try Haxe #${output.uid}';
 
 		jsSource.setValue(output.source);
 		embedSource.setValue(output.embed);
