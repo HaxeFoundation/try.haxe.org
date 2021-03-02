@@ -1,4 +1,5 @@
-.dark-theme body {
+.dark-theme body,
+body.dark-theme {
 	background-color: #111;
 	color: #ccc;
 }
