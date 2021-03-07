@@ -21,12 +21,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RblSb/try-haxe.git"
+    "url": "git+https://github.com/HaxeFoundation/try.haxe.org.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/RblSb/try-haxe/issues"
+    "url": "https://github.com/HaxeFoundation/try.haxe.org/issues"
   },
-  "homepage": "https://github.com/RblSb/try-haxe#readme"
+  "homepage": "https://github.com/HaxeFoundation/try.haxe.org#readme"
 }

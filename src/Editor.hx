@@ -1,3 +1,7 @@
+import api.Completion.CompletionItem;
+import api.Completion.CompletionResult;
+import api.Completion.CompletionType;
+import api.Program;
 import haxe.remoting.AsyncProxy;
 import haxe.remoting.HttpAsyncConnection;
 import js.Browser.document;
@@ -7,10 +11,6 @@ import js.Lib;
 import js.codemirror.*;
 import js.html.IFrameElement;
 import js.jquery.*;
-import api.Completion.CompletionItem;
-import api.Completion.CompletionResult;
-import api.Completion.CompletionType;
-import api.Program;
 
 using Lambda;
 using haxe.EnumTools;
@@ -388,8 +388,6 @@ class Editor {
 			src.codeMirror.refresh();
 		}
 		runner.height(h - 12);
-		new JQuery('#hx-options').height(h + 2);
-		new JQuery('#hx-about').height(h + 10);
 	}
 
 	function onDce(e:Event) {
@@ -541,13 +539,13 @@ class Editor {
 			if (def == null)
 				def = [];
 			for (l in libs) {
-				el.append('<label class="checkbox"><input class="lib" type="checkbox" value="${l.name}"'
+				el.append('<div class="checkbox"><label><input class="lib" type="checkbox" value="${l.name}"'
 					+ (Lambda.has(def, l.name) ? "checked='checked'" : "")
-					+ ' /> ${l.name}'
-					+ "<span class='help-inline'><a href='"
+					+ ' /> ${l.name} '
+					+ "<a href='"
 					+ (l.help == null ? "http://lib.haxe.org/p/" + l.name : l.help)
-					+ "' target='_blank'><i class='fa fa-question-circle'></i></a></span>"
-					+ "</label>");
+					+ "' target='_blank'><i class='fa fa-question-circle'></i></a>"
+					+ "</label></div>");
 			}
 		}
 	}
