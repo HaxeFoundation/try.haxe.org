@@ -126,6 +126,7 @@
 
 .dark-theme pre {
   background-color: #1c1c1c;
+  border: 1px solid #181818;
 }
 
 .dark-theme code, .dark-theme pre {

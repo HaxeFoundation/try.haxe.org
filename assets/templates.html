@@ -135,6 +135,11 @@
     $$("#code1").style.display = "none";
     $$("#code2").style.display = "none";
     $$("#results").style.display = "block";
+    if (document.body.classList.contains("dark-theme")) {
+      $$("#iframe").setAttribute("dark-theme", "true");
+    } else {
+      $$("#iframe").removeAttribute("dark-theme");
+    }
     $$("#iframe").setAttribute("src", "$frameUrl" + Math.random());
   }
 
