@@ -21,6 +21,9 @@ nav .navbar-inverse .navbar-header {
 	min-height:49px;
 	position: relative;
 }
+.navbar-collapse {
+	border-top: 0px;
+}
 
 nav .navbar .nav {
 	margin:0;
