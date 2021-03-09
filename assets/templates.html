@@ -115,7 +115,6 @@
     <a href="#code1" onclick="showCode(1);return false" id="btn-code1" style="display:inline-block"><i class="fa fa-code"></i> ${name}</a>
     <a href="#code2" onclick="showCode(2);return false" id="btn-code2" style="display:${hideSource2Tab}"><i class="fa fa-code"></i> ${name2}</a>
     <a href="#results" onclick="run();return false" id="btn-results"><i class="fa fa-play-circle"></i> Run</a>
-    <a href="#" onclick="document.body.classList.toggle('dark-theme')"><i class="fa fa-moon-o" style="padding-right: 0px;"></i></a>
     <a href="https://try.haxe.org/#$uid" target="_blank"><i class="fa fa-pencil"></i> Edit</a>
   </nav>
   <div id="code1">
@@ -136,7 +135,7 @@
     $$("#code2").style.display = "none";
     $$("#results").style.display = "block";
     var url = "$frameUrl" + Math.random();
-    if (document.body.classList.contains("dark-theme")) url += "?theme=dark";
+    if (document.body.classList.contains("dark-theme")) url += "&theme=dark";
     $$("#iframe").setAttribute("src", url);
   }
 
