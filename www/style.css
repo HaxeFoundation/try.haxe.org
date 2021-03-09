@@ -3,7 +3,7 @@ body {
   font-weight: 400;
   font-size: 14px;
   color: #1e1e1e;
-  margin-top:75px;
+  margin-top: 60px;
   overflow-y:scroll;
 }
 
@@ -23,25 +23,8 @@ textarea.code {
 h2 {
   margin-bottom:1em;
 }
-h2 small {font-weight:normal; }
-
-@media (max-width: 979px) {
-	body {
-		margin-top:0px;
-	}
-	.nav.dark {
-		margin-bottom:15px;
-	}
-}
-
-@media (min-width: 980px) {
-	.main {
-		position:absolute;
-		top:60px;
-		left:0;
-		right:0;
-		bottom:0;
-	}
+h2 small {
+	font-weight:normal;
 }
 
 .nav.nav-tabs { margin-bottom: 13px}
@@ -75,9 +58,6 @@ a.btn i {
 	margin-bottom:18px;
 }
 
-.hx-options {
-	height:476px;
-}
 .js-output .js-run {
 	height:461px;
 }
@@ -169,9 +149,6 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 
 }
 
-.span-fb, .span-plusone, .span-twitter {
-	padding:0 8px 0 0;
-}
 .fullscreen-source .hx-source,
 .fullscreen-runner .js-run {
 	position:absolute;
@@ -223,6 +200,14 @@ body.fullscreen-runner {
 		float:none;
 		display:block;
 		margin:8px 0;
+	}
+}
+#standaloneButtonText {
+	display: inline-block;
+}
+@media (min-width: 992px) and (max-width: 1140px) {
+	#standaloneButtonText {
+		display: none;
 	}
 }
 
@@ -353,6 +338,10 @@ opacity: 0.7; }
 .selectedParameter
 {
 	background-color: #F7EA5F;
+}
+
+.alert-heading {
+	margin-bottom: 0;
 }
 
 .foot {

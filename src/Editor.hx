@@ -1,3 +1,7 @@
+import api.Completion.CompletionItem;
+import api.Completion.CompletionResult;
+import api.Completion.CompletionType;
+import api.Program;
 import haxe.remoting.AsyncProxy;
 import haxe.remoting.HttpAsyncConnection;
 import js.Browser.document;
@@ -7,10 +11,6 @@ import js.Lib;
 import js.codemirror.*;
 import js.html.IFrameElement;
 import js.jquery.*;
-import api.Completion.CompletionItem;
-import api.Completion.CompletionResult;
-import api.Completion.CompletionType;
-import api.Program;
 
 using Lambda;
 using haxe.EnumTools;
@@ -298,10 +298,8 @@ class Editor {
 		}
 		if (isDark) {
 			iframeBody.classList.add(DARK_THEME_CLASS);
-			iframe.setAttribute(DARK_THEME_CLASS, "");
 		} else {
 			iframeBody.classList.remove(DARK_THEME_CLASS);
-			iframe.removeAttribute(DARK_THEME_CLASS);
 		}
 		if (iframe.getAttribute("src") != "about:blank") {
 			return;
@@ -388,8 +386,6 @@ class Editor {
 			src.codeMirror.refresh();
 		}
 		runner.height(h - 12);
-		new JQuery('#hx-options').height(h + 2);
-		new JQuery('#hx-about').height(h + 10);
 	}
 
 	function onDce(e:Event) {
@@ -541,13 +537,13 @@ class Editor {
 			if (def == null)
 				def = [];
 			for (l in libs) {
-				el.append('<label class="checkbox"><input class="lib" type="checkbox" value="${l.name}"'
+				el.append('<div class="checkbox"><label><input class="lib" type="checkbox" value="${l.name}"'
 					+ (Lambda.has(def, l.name) ? "checked='checked'" : "")
-					+ ' /> ${l.name}'
-					+ "<span class='help-inline'><a href='"
+					+ ' /> ${l.name} '
+					+ "<a href='"
 					+ (l.help == null ? "http://lib.haxe.org/p/" + l.name : l.help)
-					+ "' target='_blank'><i class='fa fa-question-circle'></i></a></span>"
-					+ "</label>");
+					+ "' target='_blank'><i class='fa fa-question-circle'></i></a>"
+					+ "</label></div>");
 			}
 		}
 	}
@@ -759,7 +755,10 @@ class Editor {
 			runner.attr("src", apiRoot + run + "?r=" + Std.string(Math.random()));
 			final standalone = new JQuery(".link-btn, .fullscreen-btn");
 			standalone.removeClass("disabled");
-			standalone.attr("href", apiRoot + run + "?r=" + Std.string(Math.random()));
+			var url = apiRoot + run + "?r=" + Std.string(Math.random());
+			if (isDarkTheme())
+				url += "&theme=dark";
+			standalone.attr("href", url);
 		} else {
 			runner.attr("src", "about:blank");
 			new JQuery(".link-btn, .fullscreen-btn").addClass("disabled").attr("href", "#");

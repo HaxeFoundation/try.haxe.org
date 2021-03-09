@@ -1,11 +1,11 @@
+import api.Compiler;
+import api.Program.ProgramV2;
 import haxe.io.Path;
 import haxe.remoting.Context;
 import haxe.web.Dispatch;
 import php.Lib;
 import sys.FileSystem;
 import sys.io.File;
-import api.Compiler;
-import api.Program.ProgramV2;
 import template.Templates;
 
 class Api {
@@ -45,7 +45,8 @@ class Api {
 	public function doEmbed(uid:String) {
 		var program = new api.Compiler().getProgram(uid);
 		if (program != null) {
-			var frameUrl = '$protocol//$host$base/program/$uid/run?r=';
+			var serverUrl = '$protocol//$host$base';
+			var frameUrl = '$serverUrl/program/$uid/run?r=';
 			var name = program.modules[0].name + ".hx";
 			var name2 = program.modules[1].name + ".hx";
 			var source = program.modules[0].source.htmlEscape();
