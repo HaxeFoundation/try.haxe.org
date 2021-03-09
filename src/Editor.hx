@@ -298,10 +298,8 @@ class Editor {
 		}
 		if (isDark) {
 			iframeBody.classList.add(DARK_THEME_CLASS);
-			iframe.setAttribute(DARK_THEME_CLASS, "");
 		} else {
 			iframeBody.classList.remove(DARK_THEME_CLASS);
-			iframe.removeAttribute(DARK_THEME_CLASS);
 		}
 		if (iframe.getAttribute("src") != "about:blank") {
 			return;
@@ -757,7 +755,10 @@ class Editor {
 			runner.attr("src", apiRoot + run + "?r=" + Std.string(Math.random()));
 			final standalone = new JQuery(".link-btn, .fullscreen-btn");
 			standalone.removeClass("disabled");
-			standalone.attr("href", apiRoot + run + "?r=" + Std.string(Math.random()));
+			var url = apiRoot + run + "?r=" + Std.string(Math.random());
+			if (isDarkTheme())
+				url += "&theme=dark";
+			standalone.attr("href", url);
 		} else {
 			runner.attr("src", "about:blank");
 			new JQuery(".link-btn, .fullscreen-btn").addClass("disabled").attr("href", "#");

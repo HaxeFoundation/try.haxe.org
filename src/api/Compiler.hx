@@ -393,8 +393,8 @@ class Compiler {
 		var outputPath:String;
 		var htmlPath:String = Path.join([programFolder, "index.html"]);
 		var runUrl = '${Api.base}/program/${program.uid}/run';
-		var darkAttr = isDark ? ' dark-theme=""' : "";
-		var embedSrc = '<iframe src="${Api.protocol}//${Api.host}${Api.base}/embed/${program.uid}" width="100%" height="300" frameborder="no" allowfullscreen$darkAttr>
+		var darkParam = isDark ? "?theme=dark" : "";
+		var embedSrc = '<iframe src="${Api.protocol}//${Api.host}${Api.base}/embed/${program.uid}$darkParam" width="100%" height="300" frameborder="no" allowfullscreen>
 	<a href="${Api.protocol}//${Api.host}/#${program.uid}">Try Haxe !</a>
 </iframe>';
 
@@ -495,7 +495,7 @@ class Compiler {
 				h.add("\n\t\t");
 				h.add(i);
 			}
-			h.add('<script>\nif (window.frameElement !=null && window.frameElement.hasAttribute("dark-theme")){\n');
+			h.add('<script>\nif (location.search.includes("theme=dark")){\n');
 			h.add('\tdocument.body.classList.add("dark-theme");\n}\n');
 			h.add("else {\n");
 			h.add('\tdocument.body.classList.remove("dark-theme");\n');
