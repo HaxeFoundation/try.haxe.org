@@ -394,7 +394,7 @@ class Compiler {
 		var htmlPath:String = Path.join([programFolder, "index.html"]);
 		var runUrl = '${Api.base}/program/${program.uid}/run';
 		var darkParam = isDark ? "?theme=dark" : "";
-		var embedSrc = '<iframe src="${Api.protocol}//${Api.host}${Api.base}/embed/${program.uid}$darkParam" width="100%" height="300" frameborder="no" allowfullscreen>
+		var embedSrc = '<iframe src="${Api.protocol}//${Api.host}${Api.base}/embed/${program.uid}$darkParam" width="100%" height="300" frameborder="no" allow="fullscreen">
 	<a href="${Api.protocol}//${Api.host}/#${program.uid}">Try Haxe !</a>
 </iframe>';
 

@@ -112,9 +112,10 @@ class Editor {
 
 		embedSource = CodeMirror.fromTextArea(cast new JQuery("textarea[name='embed-source']")[0], {
 			theme: getCodeTheme(),
-			mode: "htmlmixed",
+			mode: "xml",
+			htmlMode: true,
 			lineWrapping: true,
-			readonly: true
+			readOnly: true
 		});
 
 		switch (theme) {
