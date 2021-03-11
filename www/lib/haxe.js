@@ -1,3 +1,5 @@
+// This file is patched version from lib/codemirror/mode/haxe/haxe.js
+
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: https://codemirror.net/LICENSE
 
@@ -23,11 +25,11 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
   var keywords = {
     "if": A, "while": A, "else": B, "do": B, "try": B,
     "return": C, "break": C, "continue": C, "new": C, "throw": C,
-    "var": kw("var"), "inline":attribute, "static": attribute, "using":kw("import"),
-    "public": attribute, "private": attribute, "cast": kw("cast"), "import": kw("import"), "macro": kw("macro"),
+    "var": kw("var"), "final": kw("var"), "inline":attribute, "static": attribute, "using":kw("import"),
+    "public": attribute, "private": attribute, "overload": attribute, "extern": attribute, "cast": kw("cast"), "import": kw("import"), "macro": kw("macro"),
     "function": kw("function"), "catch": kw("catch"), "untyped": kw("untyped"), "callback": kw("cb"),
     "for": kw("for"), "switch": kw("switch"), "case": kw("case"), "default": kw("default"),
-    "in": operator, "never": kw("property_access"), "trace":kw("trace"),
+    "in": operator, "is": operator, "as": operator, "never": kw("property_access"), "trace":kw("trace"),
     "class": type, "abstract":type, "enum":type, "interface":type, "typedef":type, "extends":type, "implements":type, "dynamic":type,
     "true": atom, "false": atom, "null": atom
   };
