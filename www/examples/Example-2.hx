@@ -1,11 +1,11 @@
 class Test {
-    static function main() {
-        var point2d = new Point2d(100, 200);
+	static function main() {
+		var point2d = new Point2d(100, 200);
 		trace(point2d.toString());
-		
+
 		var point3d = new Point3d(100, 200, 150);
 		trace(point3d.toString());
-    }
+	}
 }
 
 class Point2d {
