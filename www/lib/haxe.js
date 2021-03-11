@@ -60,8 +60,16 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
 
   function haxeTokenBase(stream, state) {
     var ch = stream.next();
-    if (ch == '"' || ch == "'") {
+    if (ch == '"') {
       return chain(stream, state, haxeTokenString(ch));
+    } else if (ch == "'") {
+      return haxeTokenSingleString(ch, stream, state);
+    } else if (ch == "}") {
+      if (state.interpolationStack.length > 0) {
+        state.tokenize = state.interpolationStack.pop();
+        return ret(ch, "string");
+      }
+      return ret(ch);
     } else if (/[\[\]{}\(\),;\:\.]/.test(ch)) {
       return ret(ch);
     } else if (ch == "0" && stream.eat(/x/i)) {
@@ -115,6 +123,54 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
         state.tokenize = haxeTokenBase;
       return ret("string", "string");
     };
+  }
+
+  function haxeTokenSingleString(quote, stream, state) {
+    if (stream.eat(quote)) return ret("string", "string"); //empty string
+
+    function tokenStringHelper(stream, state) {
+      var escaped = false;
+      while (true) {
+        var ch = stream.next();
+        if (ch == null) break;
+        if (ch == "$" && stream.peek() == "$") {
+          stream.next();
+          continue;
+        }
+        if (ch == "$") {
+          state.interpolationStack.push(state.tokenize);
+          state.tokenize = tokenInterpolation;
+          return ret("string", "string");
+        }
+        if (ch == quote && !escaped) {
+          state.tokenize = haxeTokenBase;
+          break;
+        }
+        escaped = !escaped && ch == "\\";
+      }
+      return ret("string", "string");
+    }
+    state.tokenize = tokenStringHelper;
+    return tokenStringHelper(stream, state);
+  }
+
+  function tokenInterpolation(stream, state) {
+    stream.eat("$");
+    if (stream.eat("{")) {
+      // let clike handle the content of ${...},
+      // we take over again when "}" appears
+      state.tokenize = haxeTokenBase;
+    } else {
+      state.tokenize = tokenInterpolationIdentifier;
+    }
+    return ret("string", "string");
+  }
+
+  function tokenInterpolationIdentifier(stream, state) {
+    stream.eatWhile(/[\w_]/);
+    state.tokenize = state.interpolationStack.pop();
+    // return ret("variable", "variable");
+    return "variable";
   }
 
   function haxeTokenComment(stream, state) {
@@ -401,7 +457,8 @@ CodeMirror.defineMode("haxe", function(config, parserConfig) {
         localVars: parserConfig.localVars,
         importedtypes: defaulttypes,
         context: parserConfig.localVars && {vars: parserConfig.localVars},
-        indented: 0
+        indented: 0,
+        interpolationStack: []
       };
       if (parserConfig.globalVars && typeof parserConfig.globalVars == "object")
         state.globalVars = parserConfig.globalVars;
