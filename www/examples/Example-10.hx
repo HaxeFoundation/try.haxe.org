@@ -17,9 +17,9 @@ class MyStringIterator {
 }
 
 class Test {
-  static public function main() {
-    for (char in new MyStringIterator("haxe is great")) {
-      trace(char);
-    }
-  }
+	static public function main() {
+		for (char in new MyStringIterator("haxe is great")) {
+			trace(char);
+		}
+	}
 }

@@ -10,7 +10,7 @@ class Point {
 
 class Test {
 	static public function main() {
-		// look at the "JS Source"-tab to reveal the effect 
+		// look at the "JS Source"-tab to reveal the effect
 		var pt = new Point(1.2, 9.3);
 		trace(pt.x);
 	}

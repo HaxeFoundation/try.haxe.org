@@ -8,6 +8,12 @@
 --next
 -lib jQueryExtern
 -lib hx3compat
+-lib hxparse
+-lib haxeparser
+-lib tokentree
+-lib formatter
+-lib json2object
+
 -cp src
 -js www/app.js
 -main App

@@ -1,7 +1,4 @@
-import api.Completion.CompletionItem;
-import api.Completion.CompletionResult;
-import api.Completion.CompletionType;
-import api.Program;
+import haxe.Exception;
 import haxe.remoting.AsyncProxy;
 import haxe.remoting.HttpAsyncConnection;
 import js.Browser.document;
@@ -11,6 +8,10 @@ import js.Lib;
 import js.codemirror.*;
 import js.html.IFrameElement;
 import js.jquery.*;
+import api.Completion.CompletionItem;
+import api.Completion.CompletionResult;
+import api.Completion.CompletionType;
+import api.Program;
 
 using Lambda;
 using haxe.EnumTools;
@@ -50,6 +51,7 @@ class Editor {
 	var jsSource:CodeMirror;
 	var runner:JQuery;
 	var messages:JQuery;
+	var formatBtn:JQuery;
 	var compileBtn:JQuery;
 	var libs:JQuery;
 	var targets:JQuery;
@@ -137,6 +139,7 @@ class Editor {
 			updateIframeThemes();
 		});
 		messages = new JQuery(".messages");
+		formatBtn = new JQuery(".format-btn");
 		compileBtn = new JQuery(".compile-btn");
 		libs = new JQuery("#hx-options-form .hx-libs");
 		targets = new JQuery("#hx-options-form .hx-targets");
@@ -189,6 +192,7 @@ class Editor {
 		jsVersion.on("change", "input[name='js-es']", onJsVersion);
 		haxeVersion.on("change", "select", onHaxeVersion);
 
+		formatBtn.click(formatCode);
 		compileBtn.click(compile);
 
 		apiRoot = new JQuery("body").data("api");
@@ -351,6 +355,11 @@ class Editor {
 			"F5": "compile",
 			"F11": "togglefullscreen"
 		});
+
+		CodeMirror.commands.save = function(instance:CodeMirror) {
+			formatCode();
+			compile();
+		};
 
 		haxeSource.on("cursorActivity", function() {
 			colorPreview.update(completionManager, haxeSource);
@@ -712,6 +721,26 @@ class Editor {
 		if (txt.trim().endsWith(".") || txt.trim().endsWith("()")) {
 			autocomplete(editorData);
 		}
+	}
+
+	public function formatCode(?e) {
+		if (e != null)
+			e.preventDefault();
+		for (i in 0...haxeEditors.length) {
+			haxeEditors[i].codeMirror.setValue(runFormatter(haxeEditors[i].codeMirror.getValue()));
+		}
+	}
+
+	public function runFormatter(code:String) {
+		try {
+			switch formatter.Formatter.format(Code(code), new formatter.config.Config(), null, TypeLevel) {
+				case Success(formattedCode):
+					return formattedCode;
+				case Failure(_):
+				case Disabled:
+			}
+		} catch (e:Exception) {}
+		return code;
 	}
 
 	public function compile(?e) {
