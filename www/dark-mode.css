@@ -191,8 +191,15 @@
   border-color: #393939;
 }
 
-.dark-theme .btn:active:hover,
 .dark-theme .btn:focus {
+  color: #d5d5d5;
+  background-color: #313131;
+  border-color: #424141;
+}
+
+.dark-theme .btn:active:hover,
+.dark-theme .btn:focus:hover {
+  color: #fff;
   background-color: #313131;
   border-color: #393939;
 }

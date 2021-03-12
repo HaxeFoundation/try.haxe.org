@@ -49,8 +49,18 @@ h2 small {
 a.btn i {
   margin-top: 3px;
 }
+
 .btn:focus {
 	outline: 0;
+	background-color: #fff;
+    border-color: #ccc;
+}
+
+.btn:active:focus,
+.btn:hover:focus {
+	outline: 0;
+    background-color: #e6e6e6;
+    border-color: #adadad;
 }
 
 .CodeMirror-wrap, .hx-options, .js-canvas
