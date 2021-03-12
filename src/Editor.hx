@@ -727,7 +727,9 @@ class Editor {
 		if (e != null)
 			e.preventDefault();
 		for (i in 0...haxeEditors.length) {
+			var cursorPos = haxeEditors[i].codeMirror.getCursor();
 			haxeEditors[i].codeMirror.setValue(runFormatter(haxeEditors[i].codeMirror.getValue()));
+			haxeEditors[i].codeMirror.setCursor(cursorPos);
 		}
 	}
 
