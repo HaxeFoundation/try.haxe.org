@@ -527,8 +527,8 @@ class Compiler {
 		prepareSnippetSources(programFolder, outDir);
 
 		File.saveContent(Path.join([outDir, ".haxerc"]), '{"version": "${correctHaxeVersion(program.haxeVersion)}", "resolveLibs": "scoped"}');
-		var docker = 'docker exec -u haxer try-haxe_compiler sh -c "cd /home/haxer/programs/${program.uid}; ';
-		docker += " timeout 20s haxe " + args.join(" ") + ' > haxe_out 2> haxe_err';
+		var docker = 'docker exec -u haxer $dockerContainer sh -c "cd /home/haxer/programs/${program.uid}; ';
+		docker += " timeout 2s haxe " + args.join(" ") + ' > haxe_out 2> haxe_err';
 
 		switch (program.target) {
 			case JS(_) | EVAL(_):
