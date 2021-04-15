@@ -374,17 +374,11 @@ class Compiler {
 			throw '$program';
 		}
 
-		var args = [
-			"-main",
-			program.mainClass,
-			"-cp",
-			".",
-			"--times",
-			"-D",
-			"macro-times",
-			"-dce",
-			program.dce
-		];
+		var args = ["-main", program.mainClass, "-cp", ".", "--times", "-D", "macro-times",];
+		if (!program.haxeVersion.startsWith("2")) {
+			args.push("-dce");
+			args.push(program.dce);
+		}
 
 		if (program.analyzer == "yes")
 			args = args.concat(["-D", "analyzer-optimize", "-D", "analyzer"]);
@@ -528,7 +522,11 @@ class Compiler {
 
 		File.saveContent(Path.join([outDir, ".haxerc"]), '{"version": "${correctHaxeVersion(program.haxeVersion)}", "resolveLibs": "scoped"}');
 		var docker = 'docker exec -u haxer $dockerContainer sh -c "cd /home/haxer/programs/${program.uid}; ';
-		docker += " timeout 2s haxe " + args.join(" ") + ' > haxe_out 2> haxe_err';
+		docker += " HAXE_LIBRARY_PATH=~/haxe/versions/"
+			+ program.haxeVersion
+			+ "/std timeout 2s haxe "
+			+ args.join(" ")
+			+ ' > haxe_out 2> haxe_err';
 
 		switch (program.target) {
 			case JS(_) | EVAL(_):

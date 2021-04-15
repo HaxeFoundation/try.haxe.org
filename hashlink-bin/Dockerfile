@@ -1,9 +1,11 @@
-FROM frolvlad/alpine-glibc
+FROM ubuntu:focal
+RUN export DEBIAN_FRONTEND=noninteractive
+RUN ln -fs /usr/share/zoneinfo/Europe/Kiev /etc/localtime
 WORKDIR /srv/program
-RUN apk add --no-cache ca-certificates build-base gcc g++ pcre pcre-dev git cmake make libpng-dev openal-soft-dev sdl2-dev mbedtls-dev libuv-dev libjpeg-turbo-dev libvorbis-dev glu-dev nodejs npm
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates build-essential gcc g++ libpcre3 libpcre3-dev git cmake make libpng-dev libopenal-dev libsdl2-dev libmbedtls-dev libuv1-dev libjpeg-turbo8-dev libvorbis-dev libglu1-mesa-dev nodejs npm
 RUN npm i lix --global
 RUN lix scope create --global
-RUN lix install --global haxe 4.1.5
+RUN lix install --global haxe 4.2.1
 RUN haxelib setup /root/haxe/haxelib
 RUN haxelib install hashlink
 CMD rm -rf hashlink; \
