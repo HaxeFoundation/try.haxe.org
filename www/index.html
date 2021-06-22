@@ -45,6 +45,16 @@
 </head>
 
 <body data-api=".">
+  <script>
+    if(localStorage.theme == "dark") {
+      document.body.style.backgroundColor = "#111";
+      document.body.style.opacity = "0";
+      document.addEventListener('DOMContentLoaded', (event) => {
+        document.body.style.backgroundColor = "";
+        document.body.style.opacity = "";
+      });
+    }
+  </script>
   <nav class="section nav dark">
   	<div class="navbar navbar-default navbar-fixed-top navbar-inverse">
       <div class="navbar-header">
