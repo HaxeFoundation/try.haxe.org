@@ -735,7 +735,7 @@ class Editor {
 
 	public function runFormatter(code:String) {
 		try {
-			switch formatter.Formatter.format(Code(code), new formatter.config.Config(), null, TypeLevel) {
+			switch formatter.Formatter.format(Code(code, Snippet), new formatter.config.Config(), null, TypeLevel) {
 				case Success(formattedCode):
 					return formattedCode;
 				case Failure(_):
