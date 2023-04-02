@@ -1,5 +1,7 @@
 # try.haxe.org
 
+[![CI](https://github.com/HaxeFoundation/try.haxe.org/actions/workflows/main.yml/badge.svg)](https://github.com/HaxeFoundation/try.haxe.org/actions/workflows/main.yml)
+
 The try-haxe project is a browser-based IDE for testing Haxe code.  It provides a
 quick and easy environment for playing with the Haxe language and compiles to
 JavaScript, Eval, HashLink or Neko, instantly viewable in the browser.  It also allows saving
