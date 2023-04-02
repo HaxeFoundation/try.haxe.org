@@ -10,7 +10,7 @@ jobs:
       - name: Install Dependencies
         run: |
           set -ex
-          npm ci lix
+          npm ci lix --ignore-scripts
           npx lix download
 
       - name: Build
