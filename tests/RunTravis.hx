@@ -2,24 +2,24 @@ package;
 
 import sys.FileSystem;
 import sys.io.File;
+
 using StringTools;
 
 @:enum
-abstract Target(String) from String to String
-{
+abstract Target(String) from String to String {
 	var Swf = "swf";
-	var As3 = "as3";
 	var Js = "js";
 	var Neko = "neko";
 	var Cpp = "cpp";
 	var Cs = "cs";
 	var Java = "java";
 	var Python = "python";
+	var Hl = "hl";
+	var Interp = "interp";
 }
 
 @:enum
-abstract ExitCode(Int) from Int to Int
-{
+abstract ExitCode(Int) from Int to Int {
 	var Success = 0;
 	var Failure = 1;
 
@@ -35,35 +35,43 @@ abstract ExitCode(Int) from Int to Int
 }
 
 @:enum
-abstract Color(Int)
-{
+abstract Color(Int) {
 	var None = 0;
 	var Red = 31;
 	var Green = 32;
 }
 
-class RunTravis
-{
+class RunTravis {
+	static inline var EXAMPLES_DIR = "../www/examples/";
+	static var examplesToSkip = [#if (haxe_ver < "4.2.0") "Example-23.hx" #end];
+	static var exampleTargets = ["Example-20.hx" => Js];
+	static var librariesForExamples = ["Example-22.hx" => ["utest"]];
+
 	public static function main():Void {
 		var target:Target = Sys.args()[0];
 		if (target == null) {
 			Sys.println("No TARGET defined. Defaulting to neko.");
 			target = Target.Neko;
 		}
-	
-		Sys.exit(getResult([
-			buildExamples(target, Sys.args().slice(1))
-		]));
+
+		Sys.exit(getResult([buildExamples(target, Sys.args().slice(1))]));
+	}
+
+	static function shouldSkipExample(example:String, target:Target) {
+		var supportedTarget = exampleTargets[example];
+		if (!(supportedTarget == null || supportedTarget == target)) {
+			return true;
+		}
+		return examplesToSkip.indexOf(example) >= 0;
 	}
 
 	static function buildExamples(target:Target, ?included:Array<String>):ExitCode {
 		Sys.println("\nBuilding examples...\n");
-		Sys.setCwd("../examples");
 
-		var examples = FileSystem.readDirectory(".").filter(function(f) {
-			return f.endsWith(".hx");
+		var examples = FileSystem.readDirectory(EXAMPLES_DIR).filter(function(f) {
+			return f.endsWith(".hx") && !shouldSkipExample(f, target);
 		});
-		
+
 		FileSystem.createDirectory("bin");
 
 		var results = [for (example in examples) compile(example, target)];
@@ -77,30 +85,51 @@ class RunTravis
 		return exitCode;
 	}
 
-	static function compile(file:String, target:Target):ExitCode {
-		var dir = "bin/" + getFileName(file);
+	static function compile(example:String, target:Target):ExitCode {
+		var dir = "bin/" + getFileName(example);
 		FileSystem.createDirectory(dir);
 
 		// workaround for "Module [name] does not define type [name]"
-		File.copy(file, '$dir/Test.hx');
+		File.copy(EXAMPLES_DIR + example, '$dir/Test.hx');
 
 		return runInDir(dir, function() {
-			return hasExpectedResult(file, target);
+			return hasExpectedResult(example, target, librariesForExamples[example]);
 		});
 	}
 
-	static function hasExpectedResult(file:String, target:Target):ExitCode {
-		var result:ExitCode = Sys.command("haxe", ["-main", "Test", '-$target', target]);
+	inline static function getFlag(name:String) {
+		#if haxe4
+		return '--$name'; // -interp is not allowed
+		#else
+		return '-$name';
+		#end
+	}
+
+	static function hasExpectedResult(file:String, target:Target, libraries:Null<Array<String>>):ExitCode {
+		var args = [getFlag("main"), "Test", getFlag(target)];
+
+		if (target != Interp) {
+			args.push(target);
+		}
+
+		if (libraries != null) {
+			for (lib in libraries) {
+				args.push("-lib");
+				args.push(lib);
+			}
+		}
+
+		var result:ExitCode = Sys.command("haxe", args);
 
 		if (result == ExitCode.Failure)
 			printWithColor('Failed when building $file', Color.Red);
 		return result;
 	}
-	
+
 	static function getResult(results:Array<ExitCode>):ExitCode {
 		for (result in results)
 			if (result != ExitCode.Success)
-			return ExitCode.Failure;
+				return ExitCode.Failure;
 		return ExitCode.Success;
 	}
 
