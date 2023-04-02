@@ -1,0 +1,30 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  examples:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: ['js', 'neko', 'interp', 'hl']
+        haxe-version: [3.4.7, 4.2.5, latest]
+        exclude:
+          - haxe-version: 3.4.7
+            target: 'interp'
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: ${{ matrix.haxe-version }}
+
+      - name: Install Dependencies
+        run: |
+          haxelib install utest
+
+      - name: Build
+        run: |
+          cd tests
+          haxe RunCi.hxml
+          neko RunCi.n ${{ matrix.target }}
