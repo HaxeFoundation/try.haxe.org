@@ -12,7 +12,7 @@ lixSetup/haxe/neko
 lixSetup/haxe/versions/**
 lixSetup/*.img
 hashlink-bin/**
-tests/RunTravis.n
+tests/RunCi.n
 tests/bin
 npm-debug.log
 node_modules
