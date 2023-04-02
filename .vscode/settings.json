@@ -2,7 +2,10 @@
     "haxe.configurations": [
         ["completion-php.hxml"],
         ["completion-js.hxml"],
-        ["downloader.hxml"]
+        {
+            "label": "RunCi",
+            "args": ["--cwd", "tests", "--run", "RunCi"]
+        }
     ],
     "[haxe]": {
         "editor.formatOnSave": true,
