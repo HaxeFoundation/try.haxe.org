@@ -1,7 +1,6 @@
 www/app.js
 www/app.js.map
 www/app/*
-www/examples/bin
 www/tmp/*
 www/lib/bootstrap/*
 www/lib/codemirror/*
@@ -13,7 +12,8 @@ lixSetup/haxe/neko
 lixSetup/haxe/versions/**
 lixSetup/*.img
 hashlink-bin/**
-tests/RunTravis.n
+tests/RunCi.n
+tests/bin
 npm-debug.log
 node_modules
 programs/**
