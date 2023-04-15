@@ -374,9 +374,13 @@ class Compiler {
 			throw '$program';
 		}
 
-		var args = [
-			"-main", program.mainClass, "-cp", ".", "--times", "-D", "macro-times", "-D", "message-reporting=pretty", "-D", "no-color",
-		];
+		var args = ["-main", program.mainClass, "-cp", ".", "--times", "-D", "macro-times",];
+
+		if (program.haxeVersion == Haxe_4_3_0)
+			args = args.concat(["-D", "message-reporting=pretty", "-D", "no-color"]);
+		else
+			args = args.concat(["-D", "message.reporting=pretty", "-D", "message.no-color"]);
+
 		if (!program.haxeVersion.startsWith("2")) {
 			args.push("-dce");
 			args.push(program.dce);
