@@ -52,6 +52,7 @@ enum ECMAScriptVersion {
 	// var Haxe_3_3_0_rc_1 = "3.3.0-rc.1";
 	// var Haxe_3_2_1 = "3.2.1";
 	var Haxe_4_1_5 = "4.1.5";
+	var Haxe_4_3_0 = "4.3.0";
 }
 
 typedef Output = {
