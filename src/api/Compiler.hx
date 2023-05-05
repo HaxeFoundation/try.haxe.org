@@ -169,7 +169,7 @@ class Compiler {
 			return p;
 		}
 
-		return downloadOldSnippet(uid);
+		return null; // downloadOldSnippet(uid);
 	}
 
 	function downloadOldSnippet(uid:String) {
