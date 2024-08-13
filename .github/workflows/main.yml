@@ -37,6 +37,7 @@ jobs:
       - name: Install Dependencies
         run: |
           haxelib install utest
+          haxelib git hx4compat https://github.com/HaxeFoundation/hx4compat.git
 
       - name: Build
         run: |
