@@ -45,7 +45,7 @@ class RunCi {
 	static inline var EXAMPLES_DIR = "../www/examples/";
 	static var examplesToSkip = [#if (haxe_ver < "4.2.0") "Example-23.hx" #end];
 	static var exampleTargets = ["Example-20.hx" => Js];
-	static var librariesForExamples = ["Example-22.hx" => ["utest"]];
+	static var librariesForExamples = ["Example-22.hx" => ["utest", "hx4compat"]];
 
 	public static function main():Void {
 		var target:Target = Sys.args()[0];
