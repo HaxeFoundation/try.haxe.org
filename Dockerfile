@@ -26,7 +26,7 @@ RUN groupadd docker; \
     gpasswd -a $(whoami) docker; \
     gpasswd -a www-data docker
 RUN echo "{\n\"storage-driver\": \"vfs\"\n}\n" > /etc/docker/daemon.json
-RUN echo "92.243.7.117	try.haxe.org" >> /etc/hosts
+# RUN echo "92.243.7.117	try.haxe.org" >> /etc/hosts
 # RUN nohup dockerd &
 # RUN dockerd & sleep 5; cd dind; \
 #     docker-compose -f docker-compose-dind.yml create

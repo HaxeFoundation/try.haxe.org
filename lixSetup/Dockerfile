@@ -6,4 +6,4 @@ RUN npm install --global lix || true
 CMD export HAXESHIM_ROOT=/srv/lixSetup/haxe; \
     lix download; \
     lix install haxe nightly; \
-    lix install haxe 4.1.5
+    lix install haxe 4.3.6

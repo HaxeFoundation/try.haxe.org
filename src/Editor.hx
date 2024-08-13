@@ -202,6 +202,7 @@ class Editor {
 
 		program = {
 			uid: null,
+			editKey: null,
 			mainClass: "Test",
 			modules: [
 				for (src in haxeEditors)
@@ -209,7 +210,7 @@ class Editor {
 			],
 			dce: "full",
 			analyzer: "yes",
-			haxeVersion: Haxe_4_1_5,
+			haxeVersion: Haxe_4_3_6,
 			target: JS("test", ES6),
 			libs: new Array()
 		};
@@ -802,6 +803,7 @@ class Editor {
 
 		output = o;
 		program.uid = output.uid;
+		program.editKey = o.editKey;
 		window.location.hash = "#" + output.uid;
 		document.title = 'Try Haxe #${output.uid}';
 

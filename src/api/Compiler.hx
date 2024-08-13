@@ -1,6 +1,8 @@
 package api;
 
 import haxe.Exception;
+import haxe.crypto.Md5;
+import haxe.crypto.Sha256;
 import haxe.io.Path;
 import api.Completion.CompletionItem;
 import api.Completion.CompletionResult;
@@ -21,8 +23,8 @@ class Compiler {
 	var programFolder:String;
 	var mainFile:String;
 
-	public static var haxePath = "haxe";
-	public static var dockerContainer = "try-haxe_compiler";
+	public static final haxePath = "haxe";
+	public static final dockerContainer = "try-haxe_compiler";
 
 	public function new() {}
 
@@ -49,7 +51,7 @@ class Compiler {
 				return v.gitHash;
 			}
 		}
-		return Haxe_4_1_5;
+		return Haxe_4_3_6;
 	}
 
 	public function prepareProgram(program:ProgramV2) {
@@ -69,11 +71,27 @@ class Compiler {
 		Api.checkSanity(program.uid);
 		Api.checkSanity(program.mainClass);
 		Api.checkDCE(program.dce);
+		var editKey:String = program.editKey;
+
+		if (editKey == null) {
+			editKey = haxe.crypto.Md5.encode(Std.string(Math.random()) + Std.string(Date.now().getTime()));
+		}
 
 		programFolder = Path.join([Api.programsRootFolder, program.uid.substr(0, 2), program.uid]);
+		var keyFile:String = Path.join([programFolder, editKey + ".key"]);
 
 		if (!FileSystem.isDirectory(programFolder)) {
 			FileSystem.createDirectory(programFolder);
+		} else {
+			if (!FileSystem.exists(keyFile)) {
+				for (name in FileSystem.readDirectory(programFolder)) {
+					if (Path.extension(name) == "key") {
+						var path = Path.join([programFolder, name]);
+						FileSystem.deleteFile(path);
+					}
+				}
+				throw "readonly program";
+			}
 		}
 
 		for (name in FileSystem.readDirectory(programFolder)) {
@@ -95,15 +113,19 @@ class Compiler {
 			checkMacros(src);
 			File.saveContent(file, src);
 		}
+		File.saveContent(keyFile, "");
 
 		var s = program.modules.copy();
 		for (module in program.modules)
 			module.source = null;
+
+		// don't store editKey in serialised program
+		program.editKey = null;
 		File.saveContent(Path.join([programFolder, "program"]), haxe.Serializer.run(program));
 		program.modules = s;
+		program.editKey = editKey;
 	}
 
-	// public function getProgram(uid:String):{p:Program, o:Program.Output}
 	public function getProgram(uid:String):ProgramV2 {
 		Api.checkSanity(uid);
 
@@ -138,6 +160,7 @@ class Compiler {
 				var old:Dynamic = haxe.Unserializer.run(s);
 				p = {
 					uid: old.uid,
+					editKey: null,
 					mainClass: old.main.name,
 					target: old.target,
 					libs: old.libs,
@@ -154,7 +177,7 @@ class Compiler {
 				}
 			}
 			if ((p.haxeVersion == null) || (p.haxeVersion == "null")) {
-				p.haxeVersion = Haxe_4_1_5;
+				p.haxeVersion = Haxe_4_3_6;
 			}
 
 			for (module in p.modules) {
@@ -195,6 +218,7 @@ class Compiler {
 			}
 			var program:ProgramV2 = {
 				uid: uid,
+				editKey: null,
 				mainClass: oldProgram.main.name,
 				modules: [
 					oldProgram.main,
@@ -359,6 +383,7 @@ class Compiler {
 		} catch (err:String) {
 			return {
 				uid: program.uid,
+				editKey: null,
 				args: [],
 				stderr: err,
 				stdout: "",
@@ -446,6 +471,7 @@ class Compiler {
 		var output:Program.Output = if (out.exitCode == 0) {
 			{
 				uid: program.uid,
+				editKey: program.editKey,
 				stderr: err,
 				stdout: out.out,
 				args: args,
@@ -461,6 +487,7 @@ class Compiler {
 		} else {
 			{
 				uid: program.uid,
+				editKey: program.editKey,
 				stderr: err,
 				stdout: out.out,
 				args: args,

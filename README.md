@@ -51,6 +51,13 @@ cp -a ~/haxe/neko lixSetup/haxe/neko
 cp -a ~/haxe/versions/4.1.5 lixSetup/haxe/versions
 ```
 
+or
+
+```bash
+export HAXESHIM_ROOT=lixSetup/haxe
+lix install haxe 4.3.6
+```
+
 ### Recompile haxe code after you change source code outside
 
 `haxe build.hxml`

@@ -1,11 +1,11 @@
-import api.Compiler;
-import api.Program.ProgramV2;
 import haxe.io.Path;
 import haxe.remoting.Context;
 import haxe.web.Dispatch;
 import php.Lib;
 import sys.FileSystem;
 import sys.io.File;
+import api.Compiler;
+import api.Program.ProgramV2;
 import template.Templates;
 
 class Api {
@@ -138,6 +138,7 @@ class Api {
 			req.onData = function(src) {
 				var program:ProgramV2 = {
 					uid: uid,
+					editKey: null,
 					mainClass: main,
 					modules: [
 						{
@@ -145,7 +146,7 @@ class Api {
 							source: src
 						},
 					],
-					haxeVersion: Haxe_4_1_5,
+					haxeVersion: Haxe_4_3_6,
 					dce: dce,
 					analyzer: analyzer,
 					target: JS("test", ES6),
