@@ -39,8 +39,8 @@ jobs:
           haxelib install utest
 
       - name: Install hx4compat
+        if: matrix.target == 'latest'
         run: |
-          if: (matrix.target == 'latest')
           haxelib git hx4compat https://github.com/HaxeFoundation/hx4compat.git
 
       - name: Build
