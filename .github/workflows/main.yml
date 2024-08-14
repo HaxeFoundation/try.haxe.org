@@ -40,7 +40,7 @@ jobs:
 
       - name: Install hx4compat
         run: |
-          if: (matrix.target != 'latest')
+          if: (matrix.target == 'latest')
           haxelib git hx4compat https://github.com/HaxeFoundation/hx4compat.git
 
       - name: Build
