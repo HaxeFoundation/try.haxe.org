@@ -13,6 +13,7 @@ typedef Program = {
 
 typedef ProgramV2 = {
 	uid:String,
+	editKey:Null<String>,
 	mainClass:String,
 	modules:Array<Module>,
 	target:TargetV2,
@@ -48,15 +49,17 @@ enum ECMAScriptVersion {
 }
 
 @:transitive
-@:enum abstract HaxeVersion(String) to String from String {
+enum abstract HaxeVersion(String) to String from String {
 	// var Haxe_3_3_0_rc_1 = "3.3.0-rc.1";
 	// var Haxe_3_2_1 = "3.2.1";
 	var Haxe_4_1_5 = "4.1.5";
 	var Haxe_4_3_0 = "4.3.0";
+	var Haxe_4_3_6 = "4.3.6";
 }
 
 typedef Output = {
 	uid:String,
+	editKey:Null<String>,
 	stderr:String,
 	stdout:String,
 	args:Array<String>,

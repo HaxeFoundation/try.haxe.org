@@ -38,6 +38,11 @@ jobs:
         run: |
           haxelib install utest
 
+      - name: Install hx4compat
+        if: matrix.haxe-version == 'latest'
+        run: |
+          haxelib git hx4compat https://github.com/HaxeFoundation/hx4compat.git
+
       - name: Build
         run: |
           cd tests
