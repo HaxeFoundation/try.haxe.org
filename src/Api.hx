@@ -30,6 +30,13 @@ class Api {
 			throw 'Unauthorized identifier : $s';
 	}
 
+	public static function checkLength(s:Null<String>, n:Int) {
+		if (s == null)
+			return;
+		if (s.length > n)
+			throw 'Unauthorized identifier : $s';
+	}
+
 	public static function checkDCE(s:String) {
 		if (s != "full" && s != "no" && s != "std")
 			throw 'Invalid dce : $s';

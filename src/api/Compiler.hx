@@ -55,6 +55,16 @@ class Compiler {
 	}
 
 	public function prepareProgram(program:ProgramV2) {
+		if (program.uid != null) {
+			// don't accept UIDs that the user made up
+			Api.checkSanity(program.uid);
+			Api.checkLength(program.uid, 8);
+			programFolder = Path.join([Api.programsRootFolder, program.uid.substr(0, 2), program.uid]);
+			if (!FileSystem.isDirectory(programFolder)) {
+				program.uid = null;
+			}
+		}
+
 		while (program.uid == null) {
 			var id = haxe.crypto.Md5.encode(Std.string(Math.random()) + Std.string(Date.now().getTime()));
 			id = id.substr(0, 8);
@@ -69,12 +79,18 @@ class Compiler {
 		}
 
 		Api.checkSanity(program.uid);
+		Api.checkLength(program.uid, 8);
 		Api.checkSanity(program.mainClass);
+		Api.checkLength(program.mainClass, 75);
 		Api.checkDCE(program.dce);
-		var editKey:String = program.editKey;
+		var editKey:Null<String> = program.editKey;
 
 		if (editKey == null) {
 			editKey = haxe.crypto.Md5.encode(Std.string(Math.random()) + Std.string(Date.now().getTime()));
+		} else {
+			// make sure editKey isn't using any bad characters
+			Api.checkSanity(program.editKey);
+			Api.checkLength(program.editKey, 32);
 		}
 
 		programFolder = Path.join([Api.programsRootFolder, program.uid.substr(0, 2), program.uid]);
