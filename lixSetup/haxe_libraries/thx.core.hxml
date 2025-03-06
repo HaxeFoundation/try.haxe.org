@@ -1,4 +1,4 @@
-# @install: lix --silent download "haxelib:/thx.core#0.44.0" into thx.core/0.44.0/haxelib
--cp ${HAXE_LIBCACHE}/thx.core/0.44.0/haxelib/src
+# @install: lix --silent download "gh://github.com/fponticelli/thx.core#a6485f9c5ec39ccec0a20e96da7f86404c6a8a21" into thx.core/0.44.0/github/a6485f9c5ec39ccec0a20e96da7f86404c6a8a21
+-cp ${HAXE_LIBCACHE}/thx.core/0.44.0/github/a6485f9c5ec39ccec0a20e96da7f86404c6a8a21/src
 -D thx.core=0.44.0
 -D thx_core

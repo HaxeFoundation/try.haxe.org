@@ -23,7 +23,7 @@ services:
     volumes:
       - ./lixSetup:/srv/lixSetup
   try_haxe_compiler:
-    image: try-haxe_compiler
+    image: try-haxe_compiler.jammy
     container_name: try-haxe_compiler
     build: ./compilation
     volumes:

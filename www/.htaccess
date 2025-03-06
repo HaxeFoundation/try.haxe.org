@@ -14,6 +14,7 @@ RewriteRule ^(.*)$ https://try.haxe.org/$1 [R=301,L]
 RewriteCond %{HTTP_HOST} try\.haxe\.org
 RewriteRule ^$ /index.html [L,QSA]
 
+# RewriteRule ^/index\.php(.*)$ /$1 [L]
 RewriteRule ^index\.php$ / [L]
 
 RewriteCond %{HTTP_HOST} try\.haxe\.org

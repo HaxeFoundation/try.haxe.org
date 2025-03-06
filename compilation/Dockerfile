@@ -1,8 +1,8 @@
-FROM ubuntu:focal
+FROM ubuntu:jammy
 RUN export DEBIAN_FRONTEND=noninteractive
 RUN ln -fs /usr/share/zoneinfo/Europe/Kiev /etc/localtime
 RUN dpkg --add-architecture i386
-RUN apt-get update && apt-get install -y -o APT::Immediate-Configure=0 lib32gcc1 libgc-dev:i386 zlib1g:i386 libpcre3:i386
+RUN apt-get update && apt-get install -y -o APT::Immediate-Configure=0 lib32gcc-s1 libgc-dev:i386 zlib1g:i386 libpcre3:i386
 RUN apt-get update && apt-get install -y --no-install-recommends \
     nodejs \
     npm \
@@ -12,6 +12,8 @@ RUN cd /tmp && wget https://github.com/HaxeFoundation/neko/releases/download/v2-
 RUN apt-get remove -y npm wget
 RUN apt-get -y autoremove
 RUN mv /tmp/neko-v2-0/bin/* /lib/i386-linux-gnu/
+RUN rm -rf /tmp/neko*
+RUN chown 755 /tmp
 
 # Create a group and user
 RUN useradd -ms /bin/bash haxer
