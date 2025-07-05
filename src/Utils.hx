@@ -4,6 +4,7 @@ import haxe.io.Path;
 import sys.FileSystem;
 import sys.io.File;
 import api.Program;
+import thx.semver.Version;
 
 class Utils {
 	static function readVersionJson(path:String) {
@@ -51,7 +52,7 @@ class Utils {
 		}
 
 		stableVersions.sort(function(a, b) {
-			return (a.version : thx.semver.Version) > (b.version : thx.semver.Version) ? -1 : 1;
+			return versionGreaterThan(a.version, b.version) ? -1 : 1;
 		});
 
 		devVersions.sort(function(a, b) {
@@ -59,5 +60,23 @@ class Utils {
 		});
 
 		return {stable: stableVersions, dev: devVersions};
+	}
+
+	@:access(thx.semver.Version)
+	static function versionGreaterThan(a:Version, b:Version) {
+		if (a.major != b.major)
+			return a.major > b.major;
+		if (a.minor != b.minor)
+			return a.minor > b.minor;
+		if (a.patch != b.patch)
+			return a.patch > b.patch;
+
+		if (a.hasPre && b.hasPre) {
+			return Version.greaterThanIdentifiers((a : SemVer).pre, (b : SemVer).pre);
+		}
+		if (b.hasPre) {
+			return true;
+		}
+		return false;
 	}
 }
