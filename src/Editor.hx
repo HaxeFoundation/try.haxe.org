@@ -543,7 +543,7 @@ class Editor {
 	}
 
 	function initLibs() {
-		for (t in Type.getEnumConstructs(api.Program.Target)) {
+		for (t in Type.getEnumConstructs(api.Program.TargetV2)) {
 			var el = libs.find("." + t + "-libs");
 			var libs:Array<Libs.LibConf> = Libs.getLibsConfig(t);
 			var def:Array<String> = Libs.getDefaultLibs(t);
