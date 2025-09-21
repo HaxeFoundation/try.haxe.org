@@ -41,6 +41,7 @@ enum TargetV2 {
 	NEKO(name:String);
 	EVAL(name:String);
 	HL(name:String);
+	CPPIA(name:String);
 }
 
 enum ECMAScriptVersion {

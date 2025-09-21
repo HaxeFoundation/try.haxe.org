@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target: ['js', 'neko', 'interp', 'hl']
+        target: ['js', 'neko', 'interp', 'hl', 'cppia']
         haxe-version: [3.4.7, 4.2.5, latest]
         exclude:
           - haxe-version: 3.4.7

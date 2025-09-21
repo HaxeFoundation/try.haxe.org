@@ -296,6 +296,10 @@ class Compiler {
 				args.push("-hl");
 				args.push("dummy.hl");
 
+			case CPPIA(_):
+				args.push("-cppia");
+				args.push("dummy.cppia");
+
 			case EVAL(_):
 		}
 
@@ -478,6 +482,12 @@ class Compiler {
 				outputPath = "";
 				args.push("--run");
 				args.push(program.mainClass);
+
+			case CPPIA(name):
+				Api.checkSanity(name);
+				outputPath = "run.cppia";
+				args.push("-cppia");
+				args.push(outputPath);
 		}
 
 		var out = runHaxeDocker(program, args);
@@ -523,7 +533,7 @@ class Compiler {
 				case JS(_):
 					output.source = File.getContent(outputPath);
 					html.body.push("<script>" + output.source.replace("</script", "&lt;/script") + "</script>");
-				case NEKO(_) | HL(_) | EVAL(_):
+				case NEKO(_) | HL(_) | EVAL(_) | CPPIA(_):
 					html.body.push("<div style='overflow:auto; height:100%; width: 100%;'><pre>" + out.out.htmlEscape(true) + "</pre></div>");
 				default:
 			}
@@ -583,6 +593,8 @@ class Compiler {
 				docker += ' && timeout 1s neko run.n > raw_out 2> raw_err';
 			case HL(_):
 				docker += ' && LD_LIBRARY_PATH="/opt/hashlink:$$LD_LIBRARY_PATH" timeout 1s /opt/hashlink/hl run.hl > raw_out 2> raw_err';
+			case CPPIA(_):
+				docker += ' && timeout 1s /opt/cppia/Cppia run.cppia > raw_out 2> raw_err';
 		}
 		docker += "\"";
 
@@ -666,7 +678,7 @@ class Compiler {
 
 		switch (program.target) {
 			case JS(_):
-			case NEKO(_) | HL(_):
+			case NEKO(_) | HL(_) | CPPIA(_):
 				out += raw_out;
 			case EVAL(_):
 				out += haxe_out;
