@@ -27,6 +27,7 @@ services:
     container_name: try-haxe_compiler
     build: ./compilation
     volumes:
+      - ./cppia-bin:/opt/cppia:ro
       - ./hashlink-bin:/opt/hashlink:ro
       - ./lixSetup/haxe:/home/haxer/haxe:ro
       - ./tmp:/home/haxer/programs
@@ -35,6 +36,11 @@ services:
     cpus: 6
     mem_limit: 20gb
     mem_reservation: 8gb
+  cppia.exe:
+    build: ./cppia-bin
+    image: try-haxe_cppia.exe
+    volumes:
+      - ./cppia-bin:/cppia-bin
   hl.exe:
     build: ./hashlink-bin
     image: try-haxe_hl.exe

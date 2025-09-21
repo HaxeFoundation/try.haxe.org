@@ -489,6 +489,8 @@ class Editor {
 				api.Program.TargetV2.HL('test');
 			case "EVAL":
 				api.Program.TargetV2.EVAL('test');
+			case "CPPIA":
+				api.Program.TargetV2.CPPIA('test');
 			case _:
 				api.Program.TargetV2.JS('test', selectedJsVersion);
 		}
@@ -520,7 +522,7 @@ class Editor {
 				jsVersion.fadeIn();
 			// jsTab.fadeIn();
 
-			case NEKO(_) | HL(_) | EVAL(_):
+			case NEKO(_) | HL(_) | EVAL(_) | CPPIA(_):
 				jsVersion.hide();
 				jsTab.hide();
 		}

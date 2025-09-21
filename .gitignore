@@ -11,6 +11,7 @@ lixSetup/haxe/haxe_libraries
 lixSetup/haxe/neko
 lixSetup/haxe/versions/**
 lixSetup/*.img
+cppia-bin/**
 hashlink-bin/**
 tests/RunCi.n
 tests/bin
