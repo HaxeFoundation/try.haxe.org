@@ -72,7 +72,7 @@ Docker group can have a different group id / number than the web container's doc
 
 `cat /etc/group | grep docker`
 
-then use `docker exec -it try-haxe_web_1 /bin/bash` to enter web container and edit `/etc/group` inside:
+then use `docker exec -it tryhaxeorg-web-1 /bin/bash` to enter web container and edit `/etc/group` inside:
 
 ```bash
 apt install vim-tiny
