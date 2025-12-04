@@ -35,6 +35,12 @@ jobs:
           haxe-version: ${{ matrix.haxe-version }}
 
       - name: Install Dependencies
+        if: matrix.haxe-version != 'latest'
+        run: |
+          haxelib install utest
+
+      - name: Install Dependencies (nightly)
+        if: matrix.haxe-version == 'latest'
         run: |
           haxelib git utest https://github.com/haxe-utest/utest.git
 
