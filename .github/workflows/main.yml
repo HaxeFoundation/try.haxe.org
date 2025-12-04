@@ -36,7 +36,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          haxelib install utest
+          haxelib git utest https://github.com/haxe-utest/utest.git
 
       - name: Install hx4compat
         if: matrix.haxe-version == 'latest'
