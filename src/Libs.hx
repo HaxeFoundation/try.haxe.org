@@ -86,9 +86,27 @@ class Libs {
 			{name: "tink_macro", help: "https://github.com/haxetink/tink_macro"},
 			{name: "utest", help: "https://github.com/haxe-utest/utest"},
 		],
+		"CPPIA" => [
+			{name: "actuate", help: "https://github.com/openfl/actuate", args: []},
+			{name: "format", help: "https://github.com/HaxeFoundation/format"},
+			{name: "hx3compat", help: "https://github.com/HaxeFoundation/hx3compat"},
+			{
+				name: "hxColorToolkit",
+				help: "https://github.com/andyli/hxColorToolkit"
+			},
+			{name: "hxmath", help: "https://github.com/tbrosman/hxmath", args: []},
+			{name: "pecan", help: "https://github.com/Aurel300/pecan"},
+			{name: "thx.core", help: "https://github.com/fponticelli/thx.core"},
+			{name: "thx.culture", help: "https://github.com/fponticelli/thx.culture"},
+			{name: "tink_core", help: "https://github.com/haxetink/tink_core"},
+			{name: "tink_lang", help: "https://github.com/haxetink/tink_lang"},
+			{name: "tink_macro", help: "https://github.com/haxetink/tink_macro"},
+			{name: "safety", help: "https://github.com/RealyUniqueName/Safety"},
+			{name: "utest", help: "https://github.com/haxe-utest/utest"},
+		],
 	];
 
-	static var defaultChecked:Map<String, Array<String>> = ["JS" => [], "NEKO" => [], "EVAL" => [], "HL" => []]; // array of lib names
+	static var defaultChecked:Map<String, Array<String>> = ["JS" => [], "NEKO" => [], "EVAL" => [], "HL" => [], "CPPIA" => []]; // array of lib names
 
 	static public function getLibsConfig(?target:TargetV2, ?targetName:String):Array<LibConf> {
 		var name = targetName != null ? targetName : Type.enumConstructor(target);
