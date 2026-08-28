@@ -476,8 +476,7 @@ class Compiler {
 			case EVAL(name):
 				Api.checkSanity(name);
 				outputPath = "";
-				args.push("--run");
-				args.push(program.mainClass);
+				args.push("--interp");
 		}
 
 		var out = runHaxeDocker(program, args);
