@@ -1,4 +1,4 @@
-FROM ubuntu:focal
+FROM ubuntu:jammy
 RUN export DEBIAN_FRONTEND=noninteractive
 RUN ln -fs /usr/share/zoneinfo/Europe/Kiev /etc/localtime
 RUN apt-get update && apt-get install -y --no-install-recommends \
